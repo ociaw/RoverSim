@@ -76,6 +76,14 @@ namespace MarsRoverScratchHost
             {
                 error = true;
             }
+            catch (DivideByZeroException)
+            {
+                error = true;
+            }
+            catch (Exception)
+            {
+                error = true;
+            }
             var result = new SimulationResult(simulation, 0, error, name);
             results.Add(result);
         }
