@@ -38,7 +38,7 @@ namespace MarsRoverScratch.Ais
 
             if (rover.Power < 30 || (smoothSquare == Direction.None && adjacentSquares[4] == TerrainType.Smooth))
             {
-                if (rover.Power / rover.MovesLeft < 51)
+                if (rover.Power < 51 * rover.MovesLeft)
                 {
                     rover.CollectPower();
                 }
