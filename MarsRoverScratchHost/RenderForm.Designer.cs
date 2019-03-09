@@ -51,7 +51,7 @@
             // beginRender
             // 
             this.beginRender.Enabled = false;
-            this.beginRender.Location = new System.Drawing.Point(703, 349);
+            this.beginRender.Location = new System.Drawing.Point(703, 364);
             this.beginRender.Name = "beginRender";
             this.beginRender.Size = new System.Drawing.Size(75, 23);
             this.beginRender.TabIndex = 1;
@@ -61,6 +61,7 @@
             // 
             // MovesLeftText
             // 
+            this.MovesLeftText.Enabled = false;
             this.MovesLeftText.Location = new System.Drawing.Point(677, 42);
             this.MovesLeftText.Name = "MovesLeftText";
             this.MovesLeftText.Size = new System.Drawing.Size(100, 20);
@@ -86,7 +87,8 @@
             // 
             // PowerLeftText
             // 
-            this.PowerLeftText.Location = new System.Drawing.Point(678, 68);
+            this.PowerLeftText.Enabled = false;
+            this.PowerLeftText.Location = new System.Drawing.Point(677, 68);
             this.PowerLeftText.Name = "PowerLeftText";
             this.PowerLeftText.Size = new System.Drawing.Size(100, 20);
             this.PowerLeftText.TabIndex = 4;
@@ -102,6 +104,7 @@
             // 
             // SamplesSentText
             // 
+            this.SamplesSentText.Enabled = false;
             this.SamplesSentText.Location = new System.Drawing.Point(677, 94);
             this.SamplesSentText.Name = "SamplesSentText";
             this.SamplesSentText.Size = new System.Drawing.Size(100, 20);
@@ -121,7 +124,7 @@
             this.Controls.Add(this.beginRender);
             this.Controls.Add(this.glControl1);
             this.Name = "RenderForm";
-            this.Text = "RenderForm";
+            this.Text = "Simulation Render";
             this.ResumeLayout(false);
             this.PerformLayout();
 
