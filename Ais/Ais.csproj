@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>MarsRoverScratch.Ais</AssemblyName>
     <RootNamespace>MarsRoverScratch.Ais</RootNamespace>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Version>0.1.0</Version>
+    <Authors>ociaw</Authors>
   </PropertyGroup>
 
   <ItemGroup>
