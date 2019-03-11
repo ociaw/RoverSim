@@ -2,7 +2,7 @@
 
 namespace MarsRoverScratch
 {
-    public sealed class Rover
+    public sealed class Rover : IRover
     {
         private Int32 moves = 1000, power = 500;
 

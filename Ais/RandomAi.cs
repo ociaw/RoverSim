@@ -17,7 +17,7 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Identifier { get; }
 
-        public Boolean Step(Rover rover)
+        public Boolean Step(IRover rover)
         {
             if (rover == null)
                 throw new ArgumentNullException(nameof(rover));

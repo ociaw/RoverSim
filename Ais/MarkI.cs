@@ -25,7 +25,7 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Identifier { get; }
 
-        public Boolean Step(Rover rover)
+        public Boolean Step(IRover rover)
         {
             Direction SmoothSquare = Direction.None;
             SenseAdjacentSquares(rover);
@@ -111,7 +111,7 @@ namespace MarsRoverScratch.Ais
             return rover.MovesLeft == 0 || rover.Power == 0;
         }
 
-        private void SenseAdjacentSquares(Rover rover)
+        private void SenseAdjacentSquares(IRover rover)
         {
             adjacentSquares.Clear();
             rover.SenseSquare(Direction.Up);
@@ -168,7 +168,7 @@ namespace MarsRoverScratch.Ais
                 PosXNext -= 1;
         }
 
-        private void Move(Rover rover)
+        private void Move(IRover rover)
         {
             if (PreviousX.Count > 4)
                 PreviousX.RemoveAt(PreviousX.Count - 1);

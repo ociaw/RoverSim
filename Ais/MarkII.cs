@@ -44,7 +44,7 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Identifier { get; }
 
-        public Boolean Step(Rover rover)
+        public Boolean Step(IRover rover)
         {
             // Sense nearby and find a path and anything else free
             SenseAdjacentSquares(rover);
@@ -180,7 +180,7 @@ namespace MarsRoverScratch.Ais
             return rover.MovesLeft == 0 || rover.Power == 0;
         }
 
-        private void Move(Rover rover)
+        private void Move(IRover rover)
         {
             if (_moveDir == Direction.Up)
             {
@@ -213,7 +213,7 @@ namespace MarsRoverScratch.Ais
             rover.Move(_moveDir);
         }
 
-        private void SenseAdjacentSquares(Rover rover)
+        private void SenseAdjacentSquares(IRover rover)
         {
             _mapDirty = false;
             _adjacentSquares.Clear();

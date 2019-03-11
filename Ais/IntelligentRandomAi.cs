@@ -20,7 +20,7 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Identifier { get; }
 
-        public Boolean Step(Rover rover)
+        public Boolean Step(IRover rover)
         {
             if (rover == null)
                 throw new ArgumentNullException(nameof(rover));
@@ -96,7 +96,7 @@ namespace MarsRoverScratch.Ais
             return false;
         }
 
-        private void SenseAdjacentSquares(Rover rover)
+        private void SenseAdjacentSquares(IRover rover)
         {
             adjacentSquares.Clear();
             rover.SenseSquare(Direction.Up);
