@@ -169,8 +169,6 @@ namespace MarsRoverScratch
                 throw new OutOfMovesException();
             if (Power == 0)
                 throw new OutOfPowerException();
-            if (IsHalted)
-                throw new OutOfPowerOrMovesException();
         }
     }
 }

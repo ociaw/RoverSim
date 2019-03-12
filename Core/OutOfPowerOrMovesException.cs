@@ -2,6 +2,6 @@
 
 namespace MarsRoverScratch
 {
-    public sealed class OutOfPowerOrMovesException : InvalidOperationException
+    public abstract class OutOfPowerOrMovesException : InvalidOperationException
     { }
 }

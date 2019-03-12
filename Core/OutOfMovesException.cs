@@ -1,7 +1,5 @@
-﻿using System;
-
-namespace MarsRoverScratch
+﻿namespace MarsRoverScratch
 {
-    public sealed class OutOfMovesException : InvalidOperationException
+    public sealed class OutOfMovesException : OutOfPowerOrMovesException
     { }
 }
