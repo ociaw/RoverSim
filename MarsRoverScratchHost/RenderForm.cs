@@ -141,11 +141,7 @@ namespace MarsRoverScratchHost
                             GL.Color3(Color.Blue);
                             break;
                     }
-#if OLDTK
-                    GL.Begin(BeginMode.Quads);
-#else
                     GL.Begin(PrimitiveType.Quads);
-#endif
                     GL.Vertex2(i * widthMultiplier, j * heightMultiplier);
                     GL.Vertex2(i * widthMultiplier, j * heightMultiplier + heightMultiplier);
                     GL.Vertex2(i * widthMultiplier + widthMultiplier, j * heightMultiplier + heightMultiplier);
@@ -155,11 +151,7 @@ namespace MarsRoverScratchHost
             }
 
             GL.Color3(Color.LightGreen);
-#if OLDTK
-            GL.Begin(BeginMode.Quads);
-#else
             GL.Begin(PrimitiveType.Quads);
-#endif
             GL.Vertex2(roverX * widthMultiplier + 2, roverY * heightMultiplier + 2);
             GL.Vertex2(roverX * widthMultiplier + 2, roverY * heightMultiplier + heightMultiplier - 2);
             GL.Vertex2(roverX * widthMultiplier + widthMultiplier - 2, roverY * heightMultiplier + heightMultiplier - 2);
