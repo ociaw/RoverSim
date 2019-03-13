@@ -47,43 +47,9 @@ namespace MarsRoverScratch
 
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
-        private Int32 ChangeInX(Direction direction)
-        {
-            switch (direction)
-            {
-                case Direction.Up:
-                    return 0;
-                case Direction.Right:
-                    return 1;
-                case Direction.Down:
-                    return 0;
-                case Direction.Left:
-                    return -1;
-                default:
-                    return 0;
-            }
-        }
-
-        private Int32 ChangeInY(Direction direction)
-        {
-            switch (direction)
-            {
-                case Direction.Up:
-                    return -1;
-                case Direction.Right:
-                    return 0;
-                case Direction.Down:
-                    return 1;
-                case Direction.Left:
-                    return 0;
-                default:
-                    return 0;
-            }
-        }
-
         public void SenseSquare(Direction direction)
         {
-            Sense = Terrain.GetTerrainSquare(PosX + ChangeInX(direction), PosY + ChangeInY(direction)).Type;
+            Sense = Terrain.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
         }
 
         public Boolean Move(Direction direction)
@@ -91,8 +57,8 @@ namespace MarsRoverScratch
             ThrowIfHalted();
 
             TimesMoved++;
-            Int32 newX = PosX + ChangeInX(direction);
-            Int32 newY = PosY + ChangeInY(direction);
+            Int32 newX = PosX + direction.ChangeInX();
+            Int32 newY = PosY + direction.ChangeInY();
             TerrainSquare newTerrain = Terrain.GetTerrainSquare(newX, newY);
             if (newTerrain.Type != TerrainType.Impassable)
             {
