@@ -34,7 +34,7 @@ namespace MarsRoverScratch
                 return new TerrainSquare(Terrain[x, y]);
         }
 
-        public void SampleSquare(Int32 x, Int32 y)
+        public TerrainType SampleSquare(Int32 x, Int32 y)
         {
             if (x < 0 || x >= Width)
                 throw new ArgumentOutOfRangeException(nameof(x));
@@ -45,6 +45,8 @@ namespace MarsRoverScratch
                 Terrain[x, y] = TerrainType.SampledRough;
             else if (Terrain[x, y] == TerrainType.Smooth)
                 Terrain[x, y] = TerrainType.SampledSmooth;
+
+            return Terrain[x, y];
         }
 
         public Level Clone()

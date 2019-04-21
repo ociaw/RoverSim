@@ -15,9 +15,7 @@ namespace MarsRoverScratchHost
 
         public Simulation Simulation { get; }
 
-        public Rover Rover => Simulation.Rover;
-
-        public Level Terrain => Simulation.Level;
+        public IRover Rover => Simulation.Rover;
 
         public IAi Ai => Simulation.Ai;
 

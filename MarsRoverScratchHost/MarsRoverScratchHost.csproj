@@ -74,13 +74,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PositionUpdate.cs" />
+    <Compile Include="RenderData.cs" />
     <Compile Include="RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReportingRover.cs" />
     <Compile Include="SimulationResult.cs" />
+    <Compile Include="StatsUpdate.cs" />
+    <Compile Include="TerrainUpdate.cs" />
     <Compile Include="WorkForm.cs">
       <SubType>Form</SubType>
     </Compile>

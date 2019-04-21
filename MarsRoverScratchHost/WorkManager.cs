@@ -45,7 +45,7 @@ namespace MarsRoverScratchHost
                     Level terrain = Level.Create(random);
 
                     var ai = factory.Create(j);
-                    var simulation = Simulation.Create(terrain, ai);
+                    var simulation = new Simulation(terrain, ai, new Rover(terrain.Clone()));
                     Simulate(simulation, factory.Name);
                 });
             }
@@ -58,11 +58,7 @@ namespace MarsRoverScratchHost
             Boolean error = false;
             try
             {
-                while (true)
-                {
-                    if (simulation.Step())
-                        break;
-                }
+                simulation.Simulate();
             }
             catch (OutOfMovesException)
             {

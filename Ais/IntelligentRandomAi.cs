@@ -6,21 +6,27 @@ namespace MarsRoverScratch.Ais
     /// <summary>
     /// A stateless AI that tries to stay on smooth tiles. Moves in a random direction if no smooth tiles are nearby.
     /// </summary>
-    public class IntelligentRandomAi : IAi
+    public class IntelligentRandomAi : IScratchAi
     {
         private readonly Random _random;
 
         private readonly List<TerrainType> adjacentSquares = new List<TerrainType>(5);
 
-        public IntelligentRandomAi(Int32 identifier, Random random)
+        public IntelligentRandomAi(Random random)
         {
-            Identifier = identifier;
             _random = random ?? throw new ArgumentNullException(nameof(random));
         }
 
-        public Int32 Identifier { get; }
+        public void Simulate(ScratchRover rover)
+        {
+            while (true)
+            {
+                if (Step(rover))
+                    break;
+            }
+        }
 
-        public Boolean Step(IRover rover)
+        public Boolean Step(ScratchRover rover)
         {
             if (rover == null)
                 throw new ArgumentNullException(nameof(rover));
@@ -96,7 +102,7 @@ namespace MarsRoverScratch.Ais
             return false;
         }
 
-        private void SenseAdjacentSquares(IRover rover)
+        private void SenseAdjacentSquares(ScratchRover rover)
         {
             adjacentSquares.Clear();
             rover.SenseSquare(Direction.Up);

@@ -23,7 +23,7 @@ namespace MarsRoverScratch
             }
         }
 
-        private static Int32 ChangeInY(this Direction direction)
+        public static Int32 ChangeInY(this Direction direction)
         {
             switch (direction)
             {

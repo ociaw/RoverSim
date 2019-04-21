@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MarsRoverScratch.Ais
 {
-    public sealed class MarkI : IAi
+    public sealed class MarkI : IScratchAi
     {
         private Direction destination = Direction.None;
         private Int16 PosX = 0;
@@ -25,7 +25,16 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Identifier { get; }
 
-        public Boolean Step(IRover rover)
+        public void Simulate(ScratchRover rover)
+        {
+            while (true)
+            {
+                if (Step(rover))
+                    break;
+            }
+        }
+
+        public Boolean Step(ScratchRover rover)
         {
             Direction SmoothSquare = Direction.None;
             SenseAdjacentSquares(rover);
@@ -111,7 +120,7 @@ namespace MarsRoverScratch.Ais
             return rover.MovesLeft == 0 || rover.Power == 0;
         }
 
-        private void SenseAdjacentSquares(IRover rover)
+        private void SenseAdjacentSquares(ScratchRover rover)
         {
             adjacentSquares.Clear();
             rover.SenseSquare(Direction.Up);
@@ -168,7 +177,7 @@ namespace MarsRoverScratch.Ais
                 PosXNext -= 1;
         }
 
-        private void Move(IRover rover)
+        private void Move(ScratchRover rover)
         {
             if (PreviousX.Count > 4)
                 PreviousX.RemoveAt(PreviousX.Count - 1);

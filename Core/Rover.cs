@@ -9,8 +9,8 @@ namespace MarsRoverScratch
         public Rover(Level terrain)
         {
             Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
-            PosX = 16;
-            PosY = 11;
+            PosX = terrain.CenterX;
+            PosY = terrain.CenterY;
         }
 
         public static Int32 TransmitCost => 50;
@@ -29,6 +29,9 @@ namespace MarsRoverScratch
             get { return moves; }
             private set { if (value > 0) moves = value; else moves = 0; }
         }
+
+        public Boolean IsHalted => Power == 0 || MovesLeft == 0;
+
         public Int32 Power
         {
             get { return power; }
@@ -37,7 +40,6 @@ namespace MarsRoverScratch
         public Int32 SamplesProcessed { get; private set; }
         public Int32 NoBacktrack { get; private set; } = 1;
         public Int32 SamplesTransmitted { get; private set; }
-        public TerrainType Sense { get; private set; } = TerrainType.Smooth;
 
         public Int16 TimesPowered { get; private set; }
         public Int16 TimesMoved { get; private set; }
@@ -47,9 +49,9 @@ namespace MarsRoverScratch
 
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
-        public void SenseSquare(Direction direction)
+        public TerrainType SenseSquare(Direction direction)
         {
-            Sense = Terrain.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
+            return Terrain.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
         }
 
         public Boolean Move(Direction direction)
@@ -60,45 +62,51 @@ namespace MarsRoverScratch
             Int32 newX = PosX + direction.ChangeInX();
             Int32 newY = PosY + direction.ChangeInY();
             TerrainSquare newTerrain = Terrain.GetTerrainSquare(newX, newY);
-            if (newTerrain.Type != TerrainType.Impassable)
-            {
-                PosX = newX;
-                PosY = newY;
-                MovesLeft -= 1;
-                Power -= newTerrain.PowerNeeded;
-                if (newTerrain.Type != TerrainType.Smooth)
-                    NoBacktrack = 1;
-                else
-                    NoBacktrack += 1;
-            }
-            return IsHalted;
+            if (newTerrain.Type == TerrainType.Impassable)
+                return false;
+
+            PosX = newX;
+            PosY = newY;
+            MovesLeft -= 1;
+            Power -= newTerrain.PowerNeeded;
+            if (newTerrain.Type != TerrainType.Smooth)
+                NoBacktrack = 1;
+            else
+                NoBacktrack += 1;
+
+            return true;
         }
 
-        public Boolean Transmit()
+        public Int32 Transmit()
         {
             ThrowIfHalted();
+
+            Int32 processedCount = SamplesProcessed;
 
             TimesTransmitted++;
             MovesLeft -= 1;
             Power -= TransmitCost;
-            SamplesTransmitted += SamplesProcessed;
+            SamplesTransmitted += processedCount;
             SamplesProcessed = 0;
-            return IsHalted;
+
+            return processedCount;
         }
 
-        public Boolean CollectPower()
+        public Int32 CollectPower()
         {
             if (MovesLeft == 0)
                 throw new OutOfMovesException();
 
+            Int32 gatheredPower = PotentialLight;
+
             TimesPowered++;
             MovesLeft -= 1;
-            Power += PotentialLight;
+            Power += gatheredPower;
             NoBacktrack = 1;
-            return IsHalted;
+            return gatheredPower;
         }
 
-        public Boolean CollectSample()
+        public (Boolean isSuccess, TerrainType newTerrain) CollectSample()
         {
             ThrowIfHalted();
 
@@ -106,15 +114,14 @@ namespace MarsRoverScratch
             MovesLeft -= 1;
             Power -= SampleCost;
             TerrainSquare square = Terrain.GetTerrainSquare(PosX, PosY);
-            if ((square.Type == TerrainType.Smooth || square.Type == TerrainType.Rough) && SamplesCollected < 10)
-            {
-                SamplesCollected += 1;
-                Terrain.SampleSquare(PosX, PosY);
-            }
-            return IsHalted;
+            if (square.Type != TerrainType.Smooth && square.Type != TerrainType.Rough || SamplesCollected >= 10)
+                return (false, square.Type);
+
+            SamplesCollected += 1;
+            return (true, Terrain.SampleSquare(PosX, PosY));
         }
 
-        public Boolean ProcessSamples()
+        public Int32 ProcessSamples()
         {
             ThrowIfHalted();
 
@@ -124,10 +131,8 @@ namespace MarsRoverScratch
             var processingCount = SamplesCollected > 3 ? 3 : SamplesCollected;
             SamplesProcessed += processingCount;
             SamplesCollected -= processingCount;
-            return IsHalted;
+            return processingCount;
         }
-
-        public Boolean IsHalted => Power == 0 || MovesLeft == 0;
 
         private void ThrowIfHalted()
         {

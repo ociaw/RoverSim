@@ -4,6 +4,10 @@ namespace MarsRoverScratch
 {
     public interface IRover
     {
+        Int32 PosX { get; }
+
+        Int32 PosY { get; }
+
         Int32 MovesLeft { get; }
 
         Int32 Power { get; }
@@ -16,20 +20,18 @@ namespace MarsRoverScratch
 
         Int32 NoBacktrack { get; }
 
-        TerrainType Sense { get; }
-
         Boolean IsHalted { get; }
 
-        void SenseSquare(Direction direction);
+        TerrainType SenseSquare(Direction direction);
 
         Boolean Move(Direction direction);
 
-        Boolean Transmit();
+        Int32 Transmit();
 
-        Boolean CollectPower();
+        Int32 CollectPower();
 
-        Boolean CollectSample();
+        (Boolean isSuccess, TerrainType newTerrain) CollectSample();
 
-        Boolean ProcessSamples();
+        Int32 ProcessSamples();
     }
 }

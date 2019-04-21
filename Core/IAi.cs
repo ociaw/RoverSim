@@ -6,6 +6,6 @@ namespace MarsRoverScratch
     {
         Int32 Identifier { get; }
 
-        Boolean Step(IRover rover);
+        void Simulate(IRover rover);
     }
 }

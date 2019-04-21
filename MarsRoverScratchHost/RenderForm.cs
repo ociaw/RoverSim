@@ -9,12 +9,11 @@ namespace MarsRoverScratchHost
 {
     internal partial class RenderForm : Form
     {
-        private delegate void UpdateUICallBack(TerrainType[,] terrain, Int32 roverX, Int32 roverY, Int32 movesLeft, Int32 power, Int32 samplesSent);
-        private delegate void ToggleUICallBack(System.Boolean state);
+        private delegate void UpdateUICallBack(RenderData renderData, Int32 movesLeft, Int32 power, Int32 samplesSent);
 
-        private Task workingTask;
-        private readonly System.Threading.CancellationTokenSource source = new System.Threading.CancellationTokenSource();
-        private System.Threading.CancellationToken token;
+        private readonly System.Threading.CancellationTokenSource _source = new System.Threading.CancellationTokenSource();
+
+        private RenderData _renderData;
 
         public RenderForm(SimulationResult demoResult, IAiFactory demoAi)
         {
@@ -44,78 +43,82 @@ namespace MarsRoverScratchHost
             GL.Viewport(0, 0, w, h); // Use all of the glControl painting area
         }
 
-        private void BeginRender_Click(object sender, EventArgs e)
+        private async void BeginRender_Click(object sender, EventArgs e)
         {
             beginRender.Enabled = false;
 
             IAi ai = DemoAi.Create(DemoResult.Ai.Identifier);
-            Simulation cleanSim = DemoResult.Simulation.CloneClean(ai);
-            TerrainType[,] visible = GenerateBlank(cleanSim.Level.Width, cleanSim.Level.Height);
+            Level originalLevel = DemoResult.Simulation.OriginalLevel.Clone();
+            Level _workingLevel = originalLevel.Clone();
+            IRover rover = new ReportingRover(
+                new Rover(_workingLevel),
+                new Progress<TerrainUpdate>(UpdateTerrain),
+                new Progress<PositionUpdate>(UpdateRoverPosition),
+                new Progress<StatsUpdate>(UpdateStats),
+                _source.Token
+            );
+            Simulation sim = new Simulation(originalLevel, ai, rover);
+            _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.PosX, rover.PosY);
 
-            token = source.Token;
-            workingTask = Task.Factory.StartNew(() =>
+            try
             {
-                token.ThrowIfCancellationRequested();
-
-                UpdateUICallBack uiUpdate = UpdateUI;
-                ToggleUICallBack method = ToggleUI;
-                while (true)
-                {
-                    try
+                await Task.Run
+                (() =>
                     {
-                        bool isHalted = cleanSim.Step();
-                        UpdateVisible(visible, cleanSim.Level, cleanSim.Rover);
-
-                        if (isHalted)
-                            break;
+                        sim.Simulate();
                     }
-                    catch (OutOfPowerOrMovesException)
-                    {
-                        break;
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        break;
-                    }
-                    System.Threading.Thread.Sleep(100);
-                    token.ThrowIfCancellationRequested();
-                    // TODO: Handle premature window close
-                    Invoke(uiUpdate, new Object[] { visible, cleanSim.Rover.PosX, cleanSim.Rover.PosY, cleanSim.Rover.MovesLeft, cleanSim.Rover.Power, cleanSim.Rover.SamplesTransmitted });
-                }
-                token.ThrowIfCancellationRequested();
-                Invoke(uiUpdate, new Object[] { visible, cleanSim.Rover.PosX, cleanSim.Rover.PosY, cleanSim.Rover.MovesLeft, cleanSim.Rover.Power, cleanSim.Rover.SamplesTransmitted });
-                Invoke(method, new Object[] { true });
-            }, source.Token);
+                , _source.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore this exception, since it'll only happen when we've already closed the form
+            }
+            catch (OutOfPowerOrMovesException)
+            {
+                // This is to be expected if an AI doesn't keep track of their power or moves
+            }
         }
 
-        private void ToggleUI(System.Boolean state)
+        private void UpdateTerrain(TerrainUpdate update)
         {
-            beginRender.Enabled = state;
+            if (IsDisposed)
+                return;
+
+            _renderData.UpdateTerrain(update);
+            Render(_renderData);
         }
 
-        private void UpdateUI(TerrainType[,] terrain, Int32 roverX, Int32 roverY, Int32 movesLeft, Int32 power, Int32 samplesSent)
+        private void UpdateRoverPosition(PositionUpdate update)
         {
-            MovesLeftText.Text = movesLeft.ToString();
-            PowerLeftText.Text = power.ToString();
-            SamplesSentText.Text = samplesSent.ToString();
+            if (IsDisposed)
+                return;
 
-            Render(terrain, roverX, roverY);
+            _renderData.UpdateRoverPos(update);
+            Render(_renderData);
         }
 
-        private void Render(TerrainType[,] terrain, Int32 roverX, Int32 roverY)
+        private void UpdateStats(StatsUpdate update)
         {
-            int w = glControl1.Width;
-            int h = glControl1.Height;
+            MovesLeftText.Text = update.MovesLeft.ToString();
+            PowerLeftText.Text = update.Power.ToString();
+            SamplesSentText.Text = update.TransmitedCount.ToString();
+        }
+
+        private void Render(RenderData renderData)
+        {
+            var terrain = renderData.Terrain;
+            Int32 roverX = renderData.RoverX;
+            Int32 roverY = renderData.RoverY;
+            int viewWidth = glControl1.Width;
+            int viewHeight = glControl1.Height;
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            Int32 terrainWidth = terrain.GetLength(0);
-            Int32 terrainHeight = terrain.GetLength(1);
-            Int32 widthMultiplier = w / terrainWidth;
-            Int32 heightMultiplier = h / terrainHeight;
-            for (Int16 i = 0; i < terrainWidth; i++)
+            Int32 widthMultiplier = viewWidth / renderData.Width;
+            Int32 heightMultiplier = viewHeight / renderData.Height;
+            for (Int16 i = 0; i < renderData.Width; i++)
             {
-                for (Int16 j = 0; j < terrainHeight; j++)
+                for (Int16 j = 0; j < renderData.Height; j++)
                 {
                     switch (terrain[i, j])
                     {
@@ -163,33 +166,7 @@ namespace MarsRoverScratchHost
 
         private void RenderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            source.Cancel();
-        }
-
-        private TerrainType[,] GenerateBlank(Int32 width, Int32 height)
-        {
-            TerrainType[,] terrain = new TerrainType[width, height];
-            for (Byte i = 1; i < width - 1; i++)
-            {
-                for (Byte j = 1; j < height - 1; j++)
-                {
-                    terrain[i, j] = TerrainType.Unknown;
-                }
-            }
-            return terrain;
-        }
-
-        private void UpdateVisible(TerrainType[,] visible, Level level, Rover rover)
-        {
-            Int32 roverX = rover.PosX;
-            Int32 roverY = rover.PosY;
-            TerrainType[,] actual = level.Terrain;
-
-            visible[roverX, roverY] = actual[roverX, roverY];
-            visible[roverX - 1, roverY] = actual[roverX - 1, roverY];
-            visible[roverX + 1, roverY] = actual[roverX + 1, roverY];
-            visible[roverX, roverY - 1] = actual[roverX, roverY - 1];
-            visible[roverX, roverY + 1] = actual[roverX, roverY + 1];
+            _source.Cancel();
         }
     }
 }

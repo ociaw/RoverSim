@@ -8,6 +8,6 @@ namespace MarsRoverScratch.Ais
 
         public Int32 Seed { get; }
 
-        public IAi Create(Int32 identifier) => new IntelligentRandomAi(identifier, new Random(Seed + identifier));
+        public IAi Create(Int32 identifier) => new ScratchAiWrapper(identifier, new IntelligentRandomAi(new Random(Seed + identifier)));
     }
 }

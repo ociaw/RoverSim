@@ -6,6 +6,6 @@ namespace MarsRoverScratch.Ais
     {
         public String Name => "Mark II";
 
-        public IAi Create(Int32 identifier) => new MarkII(identifier);
+        public IAi Create(Int32 identifier) => new ScratchAiWrapper(identifier, new MarkII());
     }
 }

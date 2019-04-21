@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MarsRoverScratch.Ais
 {
-    public sealed class MarkII : IAi
+    public sealed class MarkII : IScratchAi
     {
         private const Int16 Width = 32;
         private const Int16 Height = 23;
@@ -32,19 +32,24 @@ namespace MarsRoverScratch.Ais
         private Direction _moveDir;
         private int searchAdjusted;
 
-        public MarkII(Int32 identifier)
+        public MarkII()
         {
-            Identifier = identifier;
-            
             for (Int32 i = 0; i < Width * Height; i++)
             {
                 _mappedTerrain.Add(TerrainType.Unknown);
             }
         }
 
-        public Int32 Identifier { get; }
+        public void Simulate(ScratchRover rover)
+        {
+            while (true)
+            {
+                if (Step(rover))
+                    break;
+            }
+        }
 
-        public Boolean Step(IRover rover)
+        public Boolean Step(ScratchRover rover)
         {
             // Sense nearby and find a path and anything else free
             SenseAdjacentSquares(rover);
@@ -180,7 +185,7 @@ namespace MarsRoverScratch.Ais
             return rover.MovesLeft == 0 || rover.Power == 0;
         }
 
-        private void Move(IRover rover)
+        private void Move(ScratchRover rover)
         {
             if (_moveDir == Direction.Up)
             {
@@ -213,7 +218,7 @@ namespace MarsRoverScratch.Ais
             rover.Move(_moveDir);
         }
 
-        private void SenseAdjacentSquares(IRover rover)
+        private void SenseAdjacentSquares(ScratchRover rover)
         {
             _mapDirty = false;
             _adjacentSquares.Clear();

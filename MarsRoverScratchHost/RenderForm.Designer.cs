@@ -125,6 +125,7 @@
             this.Controls.Add(this.glControl1);
             this.Name = "RenderForm";
             this.Text = "Simulation Render";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RenderForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -5,19 +5,25 @@ namespace MarsRoverScratch.Ais
     /// <summary>
     /// Basic, extremely inefficient. The example AI and starting point for further development.
     /// </summary>
-    public sealed class RandomAi : IAi
+    public sealed class RandomAi : IScratchAi
     {
         private readonly Random _random;
 
-        public RandomAi(Int32 identifier, Random random)
+        public RandomAi(Random random)
         {
-            Identifier = identifier;
             _random = random ?? throw new ArgumentNullException(nameof(random));
         }
 
-        public Int32 Identifier { get; }
+        public void Simulate(ScratchRover rover)
+        {
+            while (true)
+            {
+                if (Step(rover))
+                    break;
+            }
+        }
 
-        public Boolean Step(IRover rover)
+        public Boolean Step(ScratchRover rover)
         {
             if (rover == null)
                 throw new ArgumentNullException(nameof(rover));
