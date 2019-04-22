@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MarsRoverScratch.Ais
 {
-    public sealed class ScratchDijstraks
+    public sealed class ScratchDijkstras
     {
         private const Int32 WIDTH = 32;
         private const Int32 HEIGHT = 23;
@@ -24,7 +24,7 @@ namespace MarsRoverScratch.Ais
         Int32 bestUnknownIndex = -1;
         Int32 bestUnknownDist = DISTANCE_HIGH_VALUE;
 
-        public ScratchDijstraks(List<TerrainType> mappedTerrain)
+        public ScratchDijkstras(List<TerrainType> mappedTerrain)
         {
             _mappedTerrain = mappedTerrain;
             // Initialise Lists

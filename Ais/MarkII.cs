@@ -65,7 +65,7 @@ namespace MarsRoverScratch.Ais
                     else if (roughTerrainDistMultiplier < 1)
                         roughTerrainDistMultiplier = 1;
 
-                    ScratchDijstraks pathFinder = new ScratchDijstraks(_mappedTerrain);
+                    ScratchDijkstras pathFinder = new ScratchDijkstras(_mappedTerrain);
                     path = pathFinder.BeginSolve(_posX, _posY, destinationX, destinationY, roughTerrainDistMultiplier);
                     if (path.Count < 1)
                     {
