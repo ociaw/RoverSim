@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>MarsRoverScratch.Ais</AssemblyName>
-    <RootNamespace>MarsRoverScratch.Ais</RootNamespace>
+    <AssemblyName>ScratchAis</AssemblyName>
+    <RootNamespace>RoverSim.ScratchAis</RootNamespace>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <Version>0.1.0</Version>
     <Authors>ociaw</Authors>

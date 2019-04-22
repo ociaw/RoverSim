@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarsRoverScratch
+namespace RoverSim
 {
     public abstract class OutOfPowerOrMovesException : InvalidOperationException
     { }

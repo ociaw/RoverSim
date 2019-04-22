@@ -1,4 +1,4 @@
-﻿namespace MarsRoverScratch
+﻿namespace RoverSim
 {
     public enum TerrainType : byte
     {

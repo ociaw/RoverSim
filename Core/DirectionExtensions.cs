@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MarsRoverScratch
+namespace RoverSim
 {
     public static class DirectionExtensions
     {

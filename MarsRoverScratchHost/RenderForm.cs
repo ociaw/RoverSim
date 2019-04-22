@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
-using MarsRoverScratch;
+using RoverSim;
 
 namespace MarsRoverScratchHost
 {

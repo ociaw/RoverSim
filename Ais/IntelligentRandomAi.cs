@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MarsRoverScratch.Ais
+namespace RoverSim.ScratchAis
 {
     /// <summary>
     /// A stateless AI that tries to stay on smooth tiles. Moves in a random direction if no smooth tiles are nearby.

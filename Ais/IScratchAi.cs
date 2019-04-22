@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MarsRoverScratch.Ais
+namespace RoverSim.ScratchAis
 {
     public interface IScratchAi
     {

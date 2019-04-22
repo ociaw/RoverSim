@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarsRoverScratch.Ais
+namespace RoverSim.ScratchAis
 {
     internal sealed class ScratchAiWrapper : IAi
     {

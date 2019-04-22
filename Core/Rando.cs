@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace MarsRoverScratch
+namespace RoverSim
 {
     public static class Rando
     {

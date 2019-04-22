@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarsRoverScratch.Ais
+namespace RoverSim.ScratchAis
 {
     /// <summary>
     /// Basic, extremely inefficient. The example AI and starting point for further development.

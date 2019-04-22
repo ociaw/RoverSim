@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MarsRoverScratch;
-using MarsRoverScratch.Ais;
+using RoverSim;
+using RoverSim.ScratchAis;
 
 namespace MarsRoverScratchHost
 {

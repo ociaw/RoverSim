@@ -1,4 +1,4 @@
-﻿namespace MarsRoverScratch
+﻿namespace RoverSim
 {
     public sealed class OutOfPowerException : OutOfPowerOrMovesException
     { }

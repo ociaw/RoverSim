@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MarsRoverScratch
+namespace RoverSim
 {
     public sealed class LoggingRover : IRover
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarsRoverScratch.Ais
+namespace RoverSim.ScratchAis
 {
     public sealed class MarkIFactory : IAiFactory
     {

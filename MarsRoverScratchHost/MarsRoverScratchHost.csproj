@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -127,9 +128,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ais\Ais.csproj">
+    <ProjectReference Include="..\Ais\ScratchAis.csproj">
       <Project>{9133ba4e-adfc-4925-a7d5-33d9d1e6b237}</Project>
-      <Name>Ais</Name>
+      <Name>ScratchAis</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{e8360261-11ec-46dc-b67b-4bd071a3416f}</Project>
