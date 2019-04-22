@@ -66,7 +66,7 @@ namespace RoverSim.ScratchAis
                         roughTerrainDistMultiplier = 1;
 
                     ScratchDijkstras pathFinder = new ScratchDijkstras(_mappedTerrain);
-                    path = pathFinder.BeginSolve(_posX, _posY, destinationX, destinationY, roughTerrainDistMultiplier);
+                    path = pathFinder.BeginSolve(_posX, _posY, roughTerrainDistMultiplier);
                     if (path.Count < 1)
                     {
                         // Found an unreachable square

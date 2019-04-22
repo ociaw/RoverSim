@@ -16,7 +16,9 @@ namespace RoverSim
 
         public void Simulate(IRover rover)
         {
-            while (!Step(rover)) ;
+            while (!Step(rover))
+            {
+            }
         }
 
         public Boolean Step(IRover rover)

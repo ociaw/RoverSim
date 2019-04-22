@@ -32,7 +32,7 @@ namespace RoverSim.ScratchAis
             previousCell = new Int32[CELL_COUNT];
         }
 
-        public List<Direction> BeginSolve(Int32 startX, Int32 startY, Int32 destinationX, Int32 destinationY, Double roughTerrainDistMultiplier)
+        public List<Direction> BeginSolve(Int32 startX, Int32 startY, Double roughTerrainDistMultiplier)
         {
             _startIndex = startY * WIDTH + startX;
             _roughTerrainCost = (Int32)(10 * roughTerrainDistMultiplier - 10);
@@ -170,9 +170,8 @@ namespace RoverSim.ScratchAis
             return false;
         }
 
-        private List<Direction> GenPath(Int32 destinationIndex)
+        private List<Direction> GenPath(Int32 index)
         {
-            Int32 index = destinationIndex;
             List<Direction> path = new List<Direction>();
             
             while (index != _startIndex)

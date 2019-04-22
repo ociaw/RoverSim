@@ -20,7 +20,7 @@ namespace MarsRoverScratchHost
         internal WorkManager(CompleteDelegate action)
         {
             if (action == null)
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             TasksCompleted += action;
         }
 
