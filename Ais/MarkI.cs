@@ -6,15 +6,15 @@ namespace MarsRoverScratch.Ais
     public sealed class MarkI : IScratchAi
     {
         private Direction destination = Direction.None;
-        private Int16 PosX = 0;
-        private Int16 PosY = 0;
+        private Int32 PosX = 0;
+        private Int32 PosY = 0;
         private Direction moveDir = Direction.None;
 
-        private readonly List<Int16> PreviousX = new List<Int16>(5);
-        private readonly List<Int16> PreviousY = new List<Int16>(5);
+        private readonly List<Int32> PreviousX = new List<Int32>(5);
+        private readonly List<Int32> PreviousY = new List<Int32>(5);
 
-        private Int16 PosXNext = 0;
-        private Int16 PosYNext = 0;
+        private Int32 PosXNext = 0;
+        private Int32 PosYNext = 0;
 
         private readonly List<TerrainType> adjacentSquares = new List<TerrainType>(5);
 
@@ -38,7 +38,7 @@ namespace MarsRoverScratch.Ais
         {
             Direction SmoothSquare = Direction.None;
             SenseAdjacentSquares(rover);
-            for (Int16 i = 0; i < 5; i++)
+            for (Int32 i = 0; i < 5; i++)
             {
                 if (adjacentSquares[i] == TerrainType.Smooth)
                 {
@@ -89,7 +89,7 @@ namespace MarsRoverScratch.Ais
             else
             {
                 moveDir = Direction.None;
-                for (Int16 i = 0; i < 5; i++)
+                for (Int32 i = 0; i < 5; i++)
                 {
                     if (adjacentSquares[i] == TerrainType.Rough)
                     {

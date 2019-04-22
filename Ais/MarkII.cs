@@ -5,26 +5,26 @@ namespace MarsRoverScratch.Ais
 {
     public sealed class MarkII : IScratchAi
     {
-        private const Int16 Width = 32;
-        private const Int16 Height = 23;
+        private const Int32 Width = 32;
+        private const Int32 Height = 23;
 
         private readonly List<TerrainType> _mappedTerrain = new List<TerrainType>(Width * Height);
-        private readonly Int16[] _weightedTerrain = new Int16[Width * Height];
-        private Int16[] _reducedWeightMap = new Int16[(Width / 3) * (Height / 3)];
+        private readonly Int32[] _weightedTerrain = new Int32[Width * Height];
+        private Int32[] _reducedWeightMap = new Int32[(Width / 3) * (Height / 3)];
         private readonly List<TerrainType> _adjacentSquares = new List<TerrainType>(5);
         private readonly Int32[] _potentialPower = new Int32[4];
         private Boolean _lowPower = false;
 
-        private Int16 _posX = 16;
-        private Int16 _posY = 11;
+        private Int32 _posX = 16;
+        private Int32 _posY = 11;
 
-        Int16 destinationX = 0;
-        Int16 destinationY = 0;
+        Int32 destinationX = 0;
+        Int32 destinationY = 0;
         Int32 destinationDist = 0;
 
         Double roughTerrainDistMultiplier = 1.0;
 
-        private Int16 squareWeight = 0;
+        private Int32 squareWeight = 0;
 
         private Boolean _mapDirty = true;
         private List<Direction> path = new List<Direction>();
@@ -258,7 +258,7 @@ namespace MarsRoverScratch.Ais
                 _potentialPower[0] = rover.NoBacktrack * rover.NoBacktrack * rover.NoBacktrack;
             }
 
-            for (Int16 i = 0; i < 4; i++)
+            for (Int32 i = 0; i < 4; i++)
             {
                 if (_adjacentSquares[i] == TerrainType.Smooth)
                 {
@@ -268,25 +268,25 @@ namespace MarsRoverScratch.Ais
             }
         }
 
-        private void AnalyzeTerrain(Int16 x, Int16 y)
+        private void AnalyzeTerrain(Int32 x, Int32 y)
         {
-            Int16 bestSmoothX = 9999;
-            Int16 bestSmoothY = 9999;
+            Int32 bestSmoothX = 9999;
+            Int32 bestSmoothY = 9999;
             Int32 bestSmoothAdjusted = 19998;
-            Int16 bestRoughX = 9999;
-            Int16 bestRoughY = 9999;
+            Int32 bestRoughX = 9999;
+            Int32 bestRoughY = 9999;
             Int32 bestRoughAdjusted = 19998;
-            Int16 bestUnknownX = 9999;
-            Int16 bestUnknownY = 9999;
+            Int32 bestUnknownX = 9999;
+            Int32 bestUnknownY = 9999;
             Int32 bestUnknownAdjusted = 19998;
-            _reducedWeightMap = new Int16[Width / 3 * (Height / 3)];
+            _reducedWeightMap = new Int32[Width / 3 * (Height / 3)];
 
-            for (Int16 i = 0; i < Width * Height; i++)
+            for (Int32 i = 0; i < Width * Height; i++)
             {
                 WeightSquare(i);
-                Int16 searchX = (Int16)(i % Width);
-                Int16 searchY = (Int16)(i / Width);
-                Int32 searchDistance = (Int16)(Math.Abs(y - searchY) + Math.Abs(x - searchX));
+                Int32 searchX = i % Width;
+                Int32 searchY = i / Width;
+                Int32 searchDistance = Math.Abs(y - searchY) + Math.Abs(x - searchX);
                 searchAdjusted = searchDistance - _weightedTerrain[i] / 1;
                 if (searchX != _posX || searchY != _posY)
                 {
@@ -344,7 +344,7 @@ namespace MarsRoverScratch.Ais
             }
         }
 
-        private void WeightSquare(Int16 index)
+        private void WeightSquare(Int32 index)
         {
             squareWeight = 0;
             // Look up
@@ -436,15 +436,15 @@ namespace MarsRoverScratch.Ais
                 int k = ((index / Width) - 1) / 3;
                 if (_mappedTerrain[index] == TerrainType.Smooth)
                 {
-                    _reducedWeightMap[(Int16)((Width / 3) * k + j)] += 10;
+                    _reducedWeightMap[(Width / 3) * k + j] += 10;
                 }
                 else if (_mappedTerrain[index] == TerrainType.Unknown)
                 {
-                    _reducedWeightMap[(Int16)((Width / 3) * k + j)] += 6; // An unknown square has a 6/10 chance of being smooth
+                    _reducedWeightMap[(Width / 3) * k + j] += 6; // An unknown square has a 6/10 chance of being smooth
                 }
                 else if (_mappedTerrain[index] == TerrainType.Impassable)
                 {
-                    _reducedWeightMap[(Int16)((Width / 3) * k + j)] -= 5; // Impassable squares are quite undesireable
+                    _reducedWeightMap[(Width / 3) * k + j] -= 5; // Impassable squares are quite undesireable
                 }
 
             }

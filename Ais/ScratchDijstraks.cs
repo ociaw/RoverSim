@@ -37,7 +37,7 @@ namespace MarsRoverScratch.Ais
             _startIndex = startY * WIDTH + startX;
             _roughTerrainCost = (Int32)(10 * roughTerrainDistMultiplier - 10);
 
-            for (Int16 i = 0; i < CELL_COUNT; i++)
+            for (Int32 i = 0; i < CELL_COUNT; i++)
             {
                 distances[i] = DISTANCE_HIGH_VALUE;
                 previousCell[i] = -1;
