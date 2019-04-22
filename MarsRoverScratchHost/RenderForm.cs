@@ -62,12 +62,7 @@ namespace MarsRoverScratchHost
 
             try
             {
-                await Task.Run
-                (() =>
-                    {
-                        sim.Simulate();
-                    }
-                , _source.Token);
+                await Task.Run(sim.Simulate, _source.Token);
             }
             catch (OperationCanceledException)
             {
