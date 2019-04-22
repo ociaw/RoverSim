@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarsRoverScratchHost", "Mar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{E8360261-11EC-46DC-B67B-4BD071A3416F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchAis", "Ais\ScratchAis.csproj", "{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchAis", "ScratchAis\ScratchAis.csproj", "{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

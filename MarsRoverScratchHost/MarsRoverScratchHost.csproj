@@ -128,13 +128,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Ais\ScratchAis.csproj">
-      <Project>{9133ba4e-adfc-4925-a7d5-33d9d1e6b237}</Project>
-      <Name>ScratchAis</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{e8360261-11ec-46dc-b67b-4bd071a3416f}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ScratchAis\ScratchAis.csproj">
+      <Project>{9133ba4e-adfc-4925-a7d5-33d9d1e6b237}</Project>
+      <Name>ScratchAis</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
