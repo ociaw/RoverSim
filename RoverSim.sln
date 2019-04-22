@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarsRoverScratchHost", "MarsRoverScratchHost\MarsRoverScratchHost.csproj", "{ACCE344A-C4BF-4492-A98E-063FD49304AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{E8360261-11EC-46DC-B67B-4BD071A3416F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchAis", "ScratchAis\ScratchAis.csproj", "{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaHost", "RoverSim.AvaloniaHost\AvaloniaHost.csproj", "{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}.Release|x64.ActiveCfg = Release|Any CPU
 		{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}.Release|x64.Build.0 = Release|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Debug|x64.Build.0 = Debug|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Release|x64.ActiveCfg = Release|Any CPU
+		{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
