@@ -104,7 +104,7 @@ namespace RoverSim
         }
 
         /// <summary>
-        /// Checks if at least one of the squares adjacent to the 
+        /// Checks if at least one of the squares adjacent to the center is not impassable.
         /// </summary>
         /// <param name="terrain"></param>
         /// <returns></returns>
