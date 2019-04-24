@@ -77,7 +77,7 @@ namespace RoverSim.ScratchAis
             if (adjacentSquares[4] == TerrainType.Smooth || adjacentSquares[4] == TerrainType.Rough)
             {
                 rover.CollectSample();
-                if (rover.SamplesCollected == 3)
+                if (rover.SamplesCollected == 10)
                 {
                     rover.ProcessSamples();
                 }

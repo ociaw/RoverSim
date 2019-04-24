@@ -173,7 +173,7 @@ namespace RoverSim.ScratchAis
                 if (!(_lowPower && _potentialPower[1] > 0))
                 {
                     rover.CollectSample();
-                    if (rover.SamplesCollected >= 3 && rover.Power > 40)
+                    if (rover.SamplesCollected >= 10 && rover.Power > 40)
                     {
                         rover.ProcessSamples();
                     }
