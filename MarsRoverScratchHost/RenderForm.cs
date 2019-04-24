@@ -106,57 +106,62 @@ namespace MarsRoverScratchHost
             Int32 roverY = renderData.RoverY;
             int viewWidth = glControl1.Width;
             int viewHeight = glControl1.Height;
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
             Int32 widthMultiplier = viewWidth / renderData.Width;
             Int32 heightMultiplier = viewHeight / renderData.Height;
             for (Int16 i = 0; i < renderData.Width; i++)
             {
                 for (Int16 j = 0; j < renderData.Height; j++)
                 {
-                    switch (terrain[i, j])
-                    {
-                        case TerrainType.Impassable:
-                            GL.Color3(Color.Black);
-                            break;
-                        case TerrainType.Rough:
-                            GL.Color3(Color.Red);
-                            break;
-                        case TerrainType.SampledRough:
-                            GL.Color3(Color.Brown);
-                            break;
-                        case TerrainType.SampledSmooth:
-                            GL.Color3(Color.DarkGray);
-                            break;
-                        case TerrainType.Smooth:
-                            GL.Color3(Color.LightGray);
-                            break;
-                        case TerrainType.Unknown:
-                            GL.Color3(Color.LightGoldenrodYellow);
-                            break;
-                        default:
-                            GL.Color3(Color.Blue);
-                            break;
-                    }
-                    GL.Begin(PrimitiveType.Quads);
-                    GL.Vertex2(i * widthMultiplier, j * heightMultiplier);
-                    GL.Vertex2(i * widthMultiplier, j * heightMultiplier + heightMultiplier);
-                    GL.Vertex2(i * widthMultiplier + widthMultiplier, j * heightMultiplier + heightMultiplier);
-                    GL.Vertex2(i * widthMultiplier + widthMultiplier, j * heightMultiplier);
-                    GL.End();
+                    DrawTile(i, j, terrain[i, j], widthMultiplier, heightMultiplier);
                 }
             }
 
-            GL.Color3(Color.LightGreen);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(roverX * widthMultiplier + 2, roverY * heightMultiplier + 2);
-            GL.Vertex2(roverX * widthMultiplier + 2, roverY * heightMultiplier + heightMultiplier - 2);
-            GL.Vertex2(roverX * widthMultiplier + widthMultiplier - 2, roverY * heightMultiplier + heightMultiplier - 2);
-            GL.Vertex2(roverX * widthMultiplier + widthMultiplier - 2, roverY * heightMultiplier + 2);
-            GL.End();
+            DrawRover(roverX, roverY, widthMultiplier, heightMultiplier);
 
             glControl1.SwapBuffers();
+        }
+
+        private void DrawTile(Int32 x, Int32 y, TerrainType terrain, Int32 tileWidth, Int32 tileHeight)
+        {
+            GL.Color3(GetColorForTerrain(terrain));
+            GL.Begin(PrimitiveType.Quads);
+            GL.Vertex2(x * tileWidth, y * tileHeight);
+            GL.Vertex2(x * tileWidth, y * tileHeight + tileHeight);
+            GL.Vertex2(x * tileWidth + tileWidth, y * tileHeight + tileHeight);
+            GL.Vertex2(x * tileWidth + tileWidth, y * tileHeight);
+            GL.End();
+        }
+
+        private void DrawRover(Int32 roverX, Int32 roverY, Int32 tileWidth, Int32 tileHeight)
+        {
+            GL.Color3(Color.LightGreen);
+            GL.Begin(PrimitiveType.Quads);
+            GL.Vertex2(roverX * tileWidth + 2, roverY * tileHeight + 2);
+            GL.Vertex2(roverX * tileWidth + 2, roverY * tileHeight + tileHeight - 2);
+            GL.Vertex2(roverX * tileWidth + tileWidth - 2, roverY * tileHeight + tileHeight - 2);
+            GL.Vertex2(roverX * tileWidth + tileWidth - 2, roverY * tileHeight + 2);
+            GL.End();
+        }
+
+        private static Color GetColorForTerrain(TerrainType terrain)
+        {
+            switch (terrain)
+            {
+                case TerrainType.Impassable:
+                    return Color.Black;
+                case TerrainType.Rough:
+                    return Color.Red;
+                case TerrainType.SampledRough:
+                    return Color.Brown;
+                case TerrainType.SampledSmooth:
+                    return Color.DarkGray;
+                case TerrainType.Smooth:
+                    return Color.LightGray;
+                case TerrainType.Unknown:
+                    return Color.LightGoldenrodYellow;
+                default:
+                    return Color.Blue;
+            }
         }
 
         private void RenderForm_FormClosing(object sender, FormClosingEventArgs e)
