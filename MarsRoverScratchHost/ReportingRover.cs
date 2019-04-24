@@ -4,10 +4,6 @@ using RoverSim;
 
 namespace MarsRoverScratchHost
 {
-    public delegate void UpdateTerrain(Int32 x, Int32 y, TerrainType newTerrain);
-
-    public delegate void UpdateRoverPosition(Int32 x, Int32 y);
-
     public sealed class ReportingRover : IRover
     {
         public ReportingRover(
