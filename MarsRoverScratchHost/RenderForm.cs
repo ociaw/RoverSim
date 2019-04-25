@@ -49,9 +49,9 @@ namespace MarsRoverScratchHost
 
             IAi ai = DemoAi.Create(DemoResult.AiIdentifier);
             Level originalLevel = DemoResult.OriginalLevel;
-            Level _workingLevel = originalLevel.Clone();
+            MutableLevel workingLevel = originalLevel.AsMutable();
             IRover rover = new ReportingRover(
-                new Rover(_workingLevel),
+                new Rover(workingLevel),
                 new Progress<TerrainUpdate>(UpdateTerrain),
                 new Progress<PositionUpdate>(UpdateRoverPosition),
                 new Progress<StatsUpdate>(UpdateStats),

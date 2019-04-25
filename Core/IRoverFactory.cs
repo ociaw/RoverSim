@@ -2,6 +2,6 @@
 {
     public interface IRoverFactory
     {
-        IRover Create(Level level);
+        IRover Create(MutableLevel level);
     }
 }

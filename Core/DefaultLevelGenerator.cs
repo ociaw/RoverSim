@@ -33,7 +33,7 @@ namespace RoverSim
             }
             while (!CheckOpen(terrain));
 
-            return new Level(Width, Height, terrain);
+            return new Level(terrain);
         }
 
         private static TerrainType[,] Generate(Int32 width, Int32 height, Random random)

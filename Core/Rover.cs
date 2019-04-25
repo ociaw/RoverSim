@@ -6,11 +6,11 @@ namespace RoverSim
     {
         private Int32 moves = 1000, power = 500;
 
-        public Rover(Level terrain)
+        public Rover(MutableLevel level)
         {
-            Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
-            PosX = terrain.CenterX;
-            PosY = terrain.CenterY;
+            Level = level ?? throw new ArgumentNullException(nameof(level));
+            PosX = level.CenterX;
+            PosY = level.CenterY;
         }
 
         public static Int32 TransmitCost => 50;
@@ -19,7 +19,7 @@ namespace RoverSim
         public static Int32 SmoothCost => 10;
         public static Int32 RoughCost => 50;
 
-        private Level Terrain { get; }
+        private MutableLevel Level { get; }
 
         public Int32 PosX { get; private set; }
         public Int32 PosY { get; private set; }
@@ -45,7 +45,7 @@ namespace RoverSim
 
         public TerrainType SenseSquare(Direction direction)
         {
-            return Terrain.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
+            return Level.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
         }
 
         public Boolean Move(Direction direction)
@@ -54,7 +54,7 @@ namespace RoverSim
             
             Int32 newX = PosX + direction.ChangeInX();
             Int32 newY = PosY + direction.ChangeInY();
-            TerrainSquare newTerrain = Terrain.GetTerrainSquare(newX, newY);
+            TerrainSquare newTerrain = Level.GetTerrainSquare(newX, newY);
             if (newTerrain.Type == TerrainType.Impassable)
                 return false;
 
@@ -103,12 +103,12 @@ namespace RoverSim
             
             MovesLeft -= 1;
             Power -= SampleCost;
-            TerrainSquare square = Terrain.GetTerrainSquare(PosX, PosY);
+            TerrainSquare square = Level.GetTerrainSquare(PosX, PosY);
             if (square.Type != TerrainType.Smooth && square.Type != TerrainType.Rough || SamplesCollected >= 10)
                 return (false, square.Type);
 
             SamplesCollected += 1;
-            return (true, Terrain.SampleSquare(PosX, PosY));
+            return (true, Level.SampleSquare(PosX, PosY));
         }
 
         public Int32 ProcessSamples()

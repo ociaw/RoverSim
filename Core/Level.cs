@@ -4,56 +4,46 @@ namespace RoverSim
 {
     public sealed class Level
     {
-        public Int32 Width { get; } = 32;
+        public Int32 Width { get; }
 
-        public Int32 Height { get; } = 23;
+        public Int32 Height { get; }
 
         public Int32 CenterX => Width / 2;
 
         public Int32 CenterY => Height / 2;
 
-        public TerrainType[,] Terrain { get; }
+        private TerrainType[,] Terrain { get; }
 
-        public Level(Int32 width, Int32 height, TerrainType[,] terrain)
+        public Level(TerrainType[,] terrain)
         {
-            if (width < 1)
-                throw new ArgumentOutOfRangeException(nameof(width));
-            if (height < 1)
-                throw new ArgumentOutOfRangeException(nameof(height));
+            if (terrain == null)
+                throw new ArgumentNullException(nameof(terrain));
+            if (terrain.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(terrain), "Must have at least one element.");
 
-            Width = width;
-            Height = height;
-            Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
+            Width = terrain.GetLength(0);
+            Height = terrain.GetLength(1);
+            Terrain = CloneArray(terrain);
         }
 
         public TerrainSquare GetTerrainSquare(Int32 x, Int32 y)
         {
-            if (x < 0 || y < 0 || x >= Width - 1 || y >= Height - 1)
+            if (x < 0 || y < 0 || x >= Width || y >= Height)
                 return new TerrainSquare(TerrainType.Impassable);
             else
                 return new TerrainSquare(Terrain[x, y]);
         }
 
-        public TerrainType SampleSquare(Int32 x, Int32 y)
+        public MutableLevel AsMutable() => new MutableLevel(Width, Height, CloneArray(Terrain));
+
+        private static TerrainType[,] CloneArray(TerrainType[,] original)
         {
-            if (x < 0 || x >= Width)
-                throw new ArgumentOutOfRangeException(nameof(x));
-            if (y < 0 || y >= Height)
-                throw new ArgumentOutOfRangeException(nameof(y));
+            Int32 width = original.GetLength(0);
+            Int32 height = original.GetLength(1);
 
-            if (Terrain[x, y] == TerrainType.Rough)
-                Terrain[x, y] = TerrainType.SampledRough;
-            else if (Terrain[x, y] == TerrainType.Smooth)
-                Terrain[x, y] = TerrainType.SampledSmooth;
-
-            return Terrain[x, y];
-        }
-
-        public Level Clone()
-        {
-            TerrainType[,] originalTerrain = new TerrainType[Width, Height];
-            Array.Copy(Terrain, originalTerrain, Width * Height);
-            return new Level(Width, Height, originalTerrain);
+            TerrainType[,] newTerrain = new TerrainType[width, height];
+            Array.Copy(original, newTerrain, width * height);
+            return newTerrain;
         }
     }
 }

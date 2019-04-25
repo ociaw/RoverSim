@@ -49,7 +49,7 @@ namespace RoverSim
             for (Int32 i = 0; i < count; i++)
             {
                 Level originalLevel = LevelGenerator.Generate();
-                IRover rover = RoverFactory.Create(originalLevel.Clone());
+                IRover rover = RoverFactory.Create(originalLevel.AsMutable());
                 StatsRover statsRover = new StatsRover(rover);
                 IAi ai = AiFactory.Create(i);
                 Simulation simulation = new Simulation(originalLevel, ai, statsRover);

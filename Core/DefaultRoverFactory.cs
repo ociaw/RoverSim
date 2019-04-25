@@ -4,6 +4,6 @@ namespace RoverSim
 {
     public sealed class DefaultRoverFactory : IRoverFactory
     {
-        public IRover Create(Level level) => new Rover(level);
+        public IRover Create(MutableLevel level) => new Rover(level);
     }
 }
