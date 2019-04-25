@@ -41,12 +41,6 @@ namespace RoverSim
         public Int32 NoBacktrack { get; private set; } = 1;
         public Int32 SamplesTransmitted { get; private set; }
 
-        public Int16 TimesPowered { get; private set; }
-        public Int16 TimesMoved { get; private set; }
-        public Int16 TimesTransmitted { get; private set; }
-        public Int16 TimesProcessed { get; private set; }
-        public Int16 TimesSampled { get; private set; }
-
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
         public TerrainType SenseSquare(Direction direction)
@@ -57,8 +51,7 @@ namespace RoverSim
         public Boolean Move(Direction direction)
         {
             ThrowIfHalted();
-
-            TimesMoved++;
+            
             Int32 newX = PosX + direction.ChangeInX();
             Int32 newY = PosY + direction.ChangeInY();
             TerrainSquare newTerrain = Terrain.GetTerrainSquare(newX, newY);
@@ -82,8 +75,7 @@ namespace RoverSim
             ThrowIfHalted();
 
             Int32 processedCount = SamplesProcessed;
-
-            TimesTransmitted++;
+            
             MovesLeft -= 1;
             Power -= TransmitCost;
             SamplesTransmitted += processedCount;
@@ -98,8 +90,7 @@ namespace RoverSim
                 throw new OutOfMovesException();
 
             Int32 gatheredPower = PotentialLight;
-
-            TimesPowered++;
+            
             MovesLeft -= 1;
             Power += gatheredPower;
             NoBacktrack = 1;
@@ -109,8 +100,7 @@ namespace RoverSim
         public (Boolean isSuccess, TerrainType newTerrain) CollectSample()
         {
             ThrowIfHalted();
-
-            TimesSampled++;
+            
             MovesLeft -= 1;
             Power -= SampleCost;
             TerrainSquare square = Terrain.GetTerrainSquare(PosX, PosY);
@@ -124,8 +114,7 @@ namespace RoverSim
         public Int32 ProcessSamples()
         {
             ThrowIfHalted();
-
-            TimesProcessed++;
+            
             MovesLeft -= 1;
             Power -= ProcessCost;
             var processingCount = SamplesCollected > 3 ? 3 : SamplesCollected;
