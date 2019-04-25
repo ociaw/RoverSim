@@ -15,14 +15,14 @@ namespace MarsRoverScratchHost
 
         private RenderData _renderData;
 
-        public RenderForm(SimulationResult demoResult, IAiFactory demoAi)
+        public RenderForm(CompletedSimulation demoResult, IAiFactory demoAi)
         {
             DemoResult = demoResult ?? throw new ArgumentNullException(nameof(demoResult));
             DemoAi = demoAi ?? throw new ArgumentNullException(nameof(demoAi));
             InitializeComponent();
         }
 
-        public SimulationResult DemoResult { get; }
+        public CompletedSimulation DemoResult { get; }
 
         public IAiFactory DemoAi { get; }
 
@@ -47,8 +47,8 @@ namespace MarsRoverScratchHost
         {
             beginRender.Enabled = false;
 
-            IAi ai = DemoAi.Create(DemoResult.Ai.Identifier);
-            Level originalLevel = DemoResult.Simulation.OriginalLevel.Clone();
+            IAi ai = DemoAi.Create(DemoResult.AiIdentifier);
+            Level originalLevel = DemoResult.OriginalLevel;
             Level _workingLevel = originalLevel.Clone();
             IRover rover = new ReportingRover(
                 new Rover(_workingLevel),

@@ -18,19 +18,5 @@ namespace RoverSim
         public IRover Rover { get; }
 
         public void Simulate() => Ai.Simulate(Rover);
-
-        public static Simulation Create(Level original, IAi ai, IRoverFactory roverFactory)
-        {
-            if (original == null)
-                throw new ArgumentNullException(nameof(original));
-            if (ai == null)
-                throw new ArgumentNullException(nameof(ai));
-            if (roverFactory == null)
-                throw new ArgumentNullException(nameof(roverFactory));
-
-            var level = original.Clone();
-            var rover = roverFactory.Create(level);
-            return new Simulation(original, ai, rover);
-        }
     }
 }
