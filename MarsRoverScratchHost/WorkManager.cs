@@ -42,7 +42,9 @@ namespace MarsRoverScratchHost
                 Parallel.For(0, runCount, options, j =>
                 {
                     Random random = new Random(Rando.Next(0, Int32.MaxValue));
-                    Level terrain = Level.Create(random);
+                    var generator = new DefaultLevelGenerator(random, 32, 23);
+
+                    var terrain = generator.Generate();
 
                     var ai = factory.Create(j);
                     var simulation = new Simulation(terrain, ai, new Rover(terrain.Clone()));
@@ -50,7 +52,6 @@ namespace MarsRoverScratchHost
                 });
             }
             TasksCompleted.Invoke(results.ToList());
-            
         }
 
         private static void Simulate(Simulation simulation, String name)
