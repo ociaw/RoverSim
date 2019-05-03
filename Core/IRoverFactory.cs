@@ -2,6 +2,6 @@
 {
     public interface IRoverFactory
     {
-        IRover Create(MutableLevel level);
+        IRover Create(MutableLevel level, SimulationParameters parameters);
     }
 }

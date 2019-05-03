@@ -47,17 +47,17 @@ namespace MarsRoverScratchHost
         {
             beginRender.Enabled = false;
 
-            IAi ai = DemoAi.Create(DemoResult.AiIdentifier);
+            IAi ai = DemoAi.Create(DemoResult.AiIdentifier, DemoResult.Parameters);
             Level originalLevel = DemoResult.OriginalLevel;
             MutableLevel workingLevel = originalLevel.AsMutable();
             IRover rover = new ReportingRover(
-                new Rover(workingLevel),
+                new Rover(workingLevel, DemoResult.Parameters),
                 new Progress<TerrainUpdate>(UpdateTerrain),
                 new Progress<PositionUpdate>(UpdateRoverPosition),
                 new Progress<StatsUpdate>(UpdateStats),
                 _source.Token
             );
-            Simulation sim = new Simulation(originalLevel, ai, rover);
+            Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
             _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.PosX, rover.PosY);
 
             try

@@ -20,6 +20,8 @@ namespace RoverSim
 
         public IAiFactory AiFactory { get; }
 
+        public SimulationParameters Parameters { get; } = SimulationParameters.Default;
+
         public String AiName => AiFactory.Name;
 
         public async Task<List<CompletedSimulation>> SimulateAsync(Int32 runCount)
@@ -49,10 +51,10 @@ namespace RoverSim
             for (Int32 i = 0; i < count; i++)
             {
                 Level originalLevel = LevelGenerator.Generate();
-                IRover rover = RoverFactory.Create(originalLevel.AsMutable());
+                IRover rover = RoverFactory.Create(originalLevel.AsMutable(), Parameters);
                 StatsRover statsRover = new StatsRover(rover);
-                IAi ai = AiFactory.Create(i);
-                Simulation simulation = new Simulation(originalLevel, ai, statsRover);
+                IAi ai = AiFactory.Create(i, Parameters);
+                Simulation simulation = new Simulation(originalLevel, Parameters, ai, statsRover);
                 await target.SendAsync((simulation, statsRover));
             }
             target.Complete();
@@ -67,9 +69,9 @@ namespace RoverSim
             }
             catch (Exception ex)
             {
-                return new CompletedSimulation(simulation.OriginalLevel, simulation.Ai.Identifier, statsRover.GetStats(), ex);
+                return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, statsRover.GetStats(), ex);
             }
-            return new CompletedSimulation(simulation.OriginalLevel, simulation.Ai.Identifier, statsRover.GetStats(), null);
+            return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, statsRover.GetStats(), null);
         }
     }
 }

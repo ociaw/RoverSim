@@ -10,23 +10,5 @@ namespace RoverSim
         {
             Type = type;
         }
-
-        public Int32 PowerNeeded
-        {
-            get
-            {
-                switch (Type)
-                {
-                    case TerrainType.Rough:
-                        return Rover.RoughCost;
-                    case TerrainType.SampledRough:
-                    case TerrainType.Smooth:
-                    case TerrainType.SampledSmooth:
-                        return Rover.SmoothCost;
-                    default:
-                        return Int32.MaxValue;
-                }
-            }
-        }
     }
 }

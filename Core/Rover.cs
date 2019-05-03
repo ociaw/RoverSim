@@ -6,20 +6,17 @@ namespace RoverSim
     {
         private Int32 moves = 1000, power = 500;
 
-        public Rover(MutableLevel level)
+        public Rover(MutableLevel level, SimulationParameters parameters)
         {
             Level = level ?? throw new ArgumentNullException(nameof(level));
-            PosX = level.CenterX;
-            PosY = level.CenterY;
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            PosX = parameters.InitialX;
+            PosY = parameters.InitialY;
         }
 
-        public static Int32 TransmitCost => 50;
-        public static Int32 SampleCost => 10;
-        public static Int32 ProcessCost => 30;
-        public static Int32 SmoothCost => 10;
-        public static Int32 RoughCost => 50;
-
         private MutableLevel Level { get; }
+
+        public SimulationParameters Parameters { get; }
 
         public Int32 PosX { get; private set; }
         public Int32 PosY { get; private set; }
@@ -61,7 +58,7 @@ namespace RoverSim
             PosX = newX;
             PosY = newY;
             MovesLeft -= 1;
-            Power -= newTerrain.PowerNeeded;
+            Power -= Parameters.GetMovementPowerCost(newTerrain.Type);
             if (newTerrain.Type != TerrainType.Smooth)
                 NoBacktrack = 1;
             else
@@ -77,7 +74,7 @@ namespace RoverSim
             Int32 processedCount = SamplesProcessed;
             
             MovesLeft -= 1;
-            Power -= TransmitCost;
+            Power -= Parameters.TransmitCost;
             SamplesTransmitted += processedCount;
             SamplesProcessed = 0;
 
@@ -102,7 +99,7 @@ namespace RoverSim
             ThrowIfHalted();
             
             MovesLeft -= 1;
-            Power -= SampleCost;
+            Power -= Parameters.SampleCost;
             TerrainSquare square = Level.GetTerrainSquare(PosX, PosY);
             if (square.Type != TerrainType.Smooth && square.Type != TerrainType.Rough || SamplesCollected >= 10)
                 return (false, square.Type);
@@ -116,7 +113,7 @@ namespace RoverSim
             ThrowIfHalted();
             
             MovesLeft -= 1;
-            Power -= ProcessCost;
+            Power -= Parameters.ProcessCost;
             var processingCount = SamplesCollected > 3 ? 3 : SamplesCollected;
             SamplesProcessed += processingCount;
             SamplesCollected -= processingCount;

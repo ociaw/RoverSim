@@ -6,6 +6,6 @@ namespace RoverSim
     {
         String Name { get; }
 
-        IAi Create(Int32 identifier);
+        IAi Create(Int32 identifier, SimulationParameters parameters);
     }
 }
