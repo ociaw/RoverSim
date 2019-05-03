@@ -17,12 +17,17 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Remove="Views\AiListView.xaml" />
+    <AvaloniaResource Remove="Views\SimulationListView.xaml" />
+    <AvaloniaResource Remove="Views\SimulatorSettingsView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\AiListView.xaml" />
+    <None Remove="Views\SimulationListView.xaml" />
+    <None Remove="Views\SimulatorSettingsView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.8.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.8.0" />
     <PackageReference Include="Avalonia.Desktop" Version="0.8.0" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.8.0" />
   </ItemGroup>
@@ -30,5 +35,19 @@
     <EmbeddedResource Include="Views\AiListView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SimulatorSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SimulationListView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\ScratchAis\ScratchAis.csproj" />
   </ItemGroup>
 </Project>

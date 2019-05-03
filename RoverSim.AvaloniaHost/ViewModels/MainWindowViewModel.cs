@@ -1,11 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RoverSim.AvaloniaHost.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    internal class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia!";
+        public MainWindowViewModel(AiListViewModel aiList, SimulatorSettingsViewModel simulatorSettings, SimulationListViewModel simulationList)
+        {
+            AiList = aiList ?? throw new ArgumentNullException(nameof(aiList));
+            SimulatorSettings = simulatorSettings ?? throw new ArgumentNullException(nameof(simulatorSettings));
+            SimulationList = simulationList ?? throw new ArgumentNullException(nameof(simulationList));
+        }
+
+        public AiListViewModel AiList { get; }
+
+        public SimulatorSettingsViewModel SimulatorSettings { get; }
+
+        public SimulationListViewModel SimulationList { get; }
     }
 }

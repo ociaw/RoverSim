@@ -1,0 +1,13 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:vm="clr-namespace:RoverSim.AvaloniaHost.ViewModels;assembly=RoverSim.AvaloniaHost"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="50"
+             x:Class="RoverSim.AvaloniaHost.Views.SimulatorSettingsView">
+  <Grid ColumnDefinitions="*, *" RowDefinitions="*, 2*">
+    <TextBlock TextAlignment="Center">Run Count</TextBlock>
+    <NumericUpDown Grid.Row="1" Increment="1" Minimum="1" Value="{Binding RunCount}"></NumericUpDown>
+    <Button Grid.Column="1" Grid.RowSpan="2" Command="{Binding Simulate}">Simulate</Button>
+  </Grid>
+</UserControl>

@@ -8,5 +8,17 @@
         x:Class="RoverSim.AvaloniaHost.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="RoverSim.AvaloniaHost">
-  <views:AiListView />
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="150" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <ContentControl Content="{Binding SimulatorSettings}"></ContentControl>
+    <ContentControl Grid.Row="1" Content="{Binding AiList}"></ContentControl>
+    <ContentControl Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Content="{Binding SimulationList}" />
+  </Grid>
 </Window>

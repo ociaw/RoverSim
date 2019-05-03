@@ -1,0 +1,18 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:RoverSim.AvaloniaHost.Views"
+             xmlns:vm="clr-namespace:RoverSim.AvaloniaHost.ViewModels;assembly=RoverSim.AvaloniaHost"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
+             x:Class="RoverSim.AvaloniaHost.Views.SimulationListView">
+  <DataGrid IsReadOnly="true" Items="{Binding Simulations}">
+    <DataGrid.Columns>
+      <DataGridTextColumn Header="AI" Binding="{Binding AiName}" />
+      <DataGridTextColumn Header="Samples Transmitted" Binding="{Binding SamplesTransmitted}" />
+      <DataGridTextColumn Header="Moves Left" Binding="{Binding MovesLeft}" />
+      <DataGridTextColumn Header="Power" Binding="{Binding Power}" />
+      <DataGridTextColumn Header="Error" Binding="{Binding Error}" />
+    </DataGrid.Columns>
+  </DataGrid>
+</UserControl>
