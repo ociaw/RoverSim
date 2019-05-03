@@ -11,10 +11,6 @@ namespace RoverSim.AvaloniaHost
 {
     internal class WorkManager
     {
-        public Int32 TerrainWidth { get; } = 32;
-
-        public Int32 TerrainHeight { get; } = 23;
-
         public Int32 LevelSeed { get; set; } = 42;
 
         public SourceList<SimulationRowViewModel> Simulations { get; } = new SourceList<SimulationRowViewModel>();
@@ -33,7 +29,7 @@ namespace RoverSim.AvaloniaHost
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(LevelSeed);
-                var levelGenerator = new DefaultLevelGenerator(levelRand, TerrainWidth, TerrainHeight);
+                var levelGenerator = new DefaultLevelGenerator(levelRand);
                 var roverFactory = new DefaultRoverFactory();
 
                 var simulator = new Simulator(levelGenerator, roverFactory, aiFactory);

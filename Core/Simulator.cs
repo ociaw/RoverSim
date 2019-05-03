@@ -40,20 +40,20 @@ namespace RoverSim
             productionQueue.LinkTo(simConsumer, new DataflowLinkOptions { PropagateCompletion = true });
             simConsumer.LinkTo(completer);
 
-            var simProducer = ProduceSimulations(productionQueue, runCount);
+            var simProducer = ProduceSimulations(productionQueue, Parameters, runCount);
 
             await Task.WhenAll(simProducer, simConsumer.Completion);
             return completed;
         }
 
-        private async Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, Int32 count)
+        private async Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, SimulationParameters parameters, Int32 count)
         {
             for (Int32 i = 0; i < count; i++)
             {
-                Level originalLevel = LevelGenerator.Generate();
-                IRover rover = RoverFactory.Create(originalLevel.AsMutable(), Parameters);
+                Level originalLevel = LevelGenerator.Generate(parameters);
+                IRover rover = RoverFactory.Create(originalLevel.AsMutable(), parameters);
                 StatsRover statsRover = new StatsRover(rover);
-                IAi ai = AiFactory.Create(i, Parameters);
+                IAi ai = AiFactory.Create(i, parameters);
                 Simulation simulation = new Simulation(originalLevel, Parameters, ai, statsRover);
                 await target.SendAsync((simulation, statsRover));
             }

@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace RoverSim
+﻿namespace RoverSim
 {
     public interface ILevelGenerator
     {
-        Level Generate();
+        Level Generate(SimulationParameters parameters);
     }
 }

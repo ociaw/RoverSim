@@ -4,40 +4,31 @@ namespace RoverSim
 {
     public sealed class DefaultLevelGenerator : ILevelGenerator
     {
-        public DefaultLevelGenerator(Random random, Int32 width, Int32 height)
+        public DefaultLevelGenerator(Random random)
         {
             Random = random ?? throw new ArgumentNullException(nameof(random));
-
-            if (width <= 0)
-                throw new ArgumentOutOfRangeException(nameof(width), width, "Must be positive");
-            if (height <= 0)
-                throw new ArgumentOutOfRangeException(nameof(height), height, "Must be positive");
-
-            Width = width;
-            Height = height;
         }
 
         private Random Random { get; }
 
-        public Int32 Width { get; }
-
-        public Int32 Height { get; }
-
-        public Level Generate()
+        public Level Generate(SimulationParameters parameters)
         {
             TerrainType[,] terrain;
             do
             {
                 // Generate the terrain and ensure that the starting square isn't completely blocked in
-                terrain = Generate(Width, Height, Random);
+                terrain = Generate(parameters, Random);
             }
-            while (!CheckOpen(terrain));
+            while (!CheckOpen(terrain, parameters.InitialX, parameters.InitialY));
 
             return new Level(terrain);
         }
 
-        private static TerrainType[,] Generate(Int32 width, Int32 height, Random random)
+        private static TerrainType[,] Generate(SimulationParameters parameters, Random random)
         {
+            Int32 width = parameters.LevelWidth;
+            Int32 height = parameters.LevelHeight;
+
             TerrainType[,] terrain = new TerrainType[width, height];
 
             for (Byte i = 0; i < width; i++)
@@ -52,7 +43,7 @@ namespace RoverSim
                             terrain[i, j] = TerrainType.Smooth;
                         if (random.Next(1, 11) == 1)
                             terrain[i, j] = TerrainType.Impassable;
-                        if (i == width / 2 && j == height / 2)
+                        if (i == parameters.InitialX && j == parameters.InitialY)
                             terrain[i, j] = TerrainType.Smooth;
                     }
                 }
@@ -66,15 +57,12 @@ namespace RoverSim
         /// </summary>
         /// <param name="terrain"></param>
         /// <returns></returns>
-        private static Boolean CheckOpen(TerrainType[,] terrain)
+        private static Boolean CheckOpen(TerrainType[,] terrain, Int32 x, Int32 y)
         {
-            Int32 centerX = terrain.GetLength(0) / 2;
-            Int32 centerY = terrain.GetLength(1) / 2;
-
-            Boolean left = terrain[centerX - 1, centerY] != TerrainType.Impassable;
-            Boolean right = terrain[centerX + 1, centerY] != TerrainType.Impassable;
-            Boolean up = terrain[centerX, centerY - 1] != TerrainType.Impassable;
-            Boolean down = terrain[centerX, centerY + 1] != TerrainType.Impassable;
+            Boolean left = terrain[x - 1, y] != TerrainType.Impassable;
+            Boolean right = terrain[x + 1, y] != TerrainType.Impassable;
+            Boolean up = terrain[x, y - 1] != TerrainType.Impassable;
+            Boolean down = terrain[x, y + 1] != TerrainType.Impassable;
 
             return left || right || up || down;
         }

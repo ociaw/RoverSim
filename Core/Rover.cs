@@ -42,7 +42,7 @@ namespace RoverSim
 
         public TerrainType SenseSquare(Direction direction)
         {
-            return Level.GetTerrainSquare(PosX + direction.ChangeInX(), PosY + direction.ChangeInY()).Type;
+            return Level.GetTerrain(PosX + direction.ChangeInX(), PosY + direction.ChangeInY());
         }
 
         public Boolean Move(Direction direction)
@@ -51,15 +51,15 @@ namespace RoverSim
             
             Int32 newX = PosX + direction.ChangeInX();
             Int32 newY = PosY + direction.ChangeInY();
-            TerrainSquare newTerrain = Level.GetTerrainSquare(newX, newY);
-            if (newTerrain.Type == TerrainType.Impassable)
+            TerrainType newTerrain = Level.GetTerrain(newX, newY);
+            if (newTerrain == TerrainType.Impassable)
                 return false;
 
             PosX = newX;
             PosY = newY;
             MovesLeft -= 1;
-            Power -= Parameters.GetMovementPowerCost(newTerrain.Type);
-            if (newTerrain.Type != TerrainType.Smooth)
+            Power -= Parameters.GetMovementPowerCost(newTerrain);
+            if (newTerrain != TerrainType.Smooth)
                 NoBacktrack = 1;
             else
                 NoBacktrack += 1;
@@ -100,9 +100,9 @@ namespace RoverSim
             
             MovesLeft -= 1;
             Power -= Parameters.SampleCost;
-            TerrainSquare square = Level.GetTerrainSquare(PosX, PosY);
-            if (square.Type != TerrainType.Smooth && square.Type != TerrainType.Rough || SamplesCollected >= 10)
-                return (false, square.Type);
+            TerrainType terrain = Level.GetTerrain(PosX, PosY);
+            if (terrain != TerrainType.Smooth && terrain != TerrainType.Rough || SamplesCollected >= 10)
+                return (false, terrain);
 
             SamplesCollected += 1;
             return (true, Level.SampleSquare(PosX, PosY));

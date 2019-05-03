@@ -8,10 +8,6 @@ namespace MarsRoverScratchHost
 {
     internal class WorkManager
     {
-        public Int32 TerrainWidth { get; } = 32;
-
-        public Int32 TerrainHeight { get; } = 23;
-
         internal async Task<Dictionary<IAiFactory, List<CompletedSimulation>>> Simulate(IList<IAiFactory> aiFactories, Int32 runCount)
         {
             var aiSimulations = new List<Task<List<CompletedSimulation>>>(aiFactories.Count);
@@ -19,7 +15,7 @@ namespace MarsRoverScratchHost
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(levelSeed);
-                var levelGenerator = new DefaultLevelGenerator(levelRand, TerrainWidth, TerrainHeight);
+                var levelGenerator = new DefaultLevelGenerator(levelRand);
                 var roverFactory = new DefaultRoverFactory();
 
                 var simulator = new Simulator(levelGenerator, roverFactory, aiFactory);
