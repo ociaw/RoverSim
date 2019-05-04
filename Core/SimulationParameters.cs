@@ -26,6 +26,10 @@ namespace RoverSim
 
         public Int32 MoveRoughCost { get; } = 50;
 
+        public Int32 HopperSize { get; } = 10;
+
+        public Int32 SamplesPerProcess { get; } = 3;
+
         public static SimulationParameters Default { get; } = new SimulationParameters(32, 23);
 
         public SimulationParameters(Int32 levelWidth, Int32 levelHeight)

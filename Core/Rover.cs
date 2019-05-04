@@ -101,7 +101,7 @@ namespace RoverSim
             MovesLeft -= 1;
             Power -= Parameters.SampleCost;
             TerrainType terrain = Level.GetTerrain(PosX, PosY);
-            if (terrain != TerrainType.Smooth && terrain != TerrainType.Rough || SamplesCollected >= 10)
+            if (terrain != TerrainType.Smooth && terrain != TerrainType.Rough || SamplesCollected >= Parameters.HopperSize)
                 return (false, terrain);
 
             SamplesCollected += 1;
@@ -114,7 +114,7 @@ namespace RoverSim
             
             MovesLeft -= 1;
             Power -= Parameters.ProcessCost;
-            var processingCount = SamplesCollected > 3 ? 3 : SamplesCollected;
+            var processingCount = SamplesCollected > Parameters.HopperSize ? Parameters.HopperSize : SamplesCollected;
             SamplesProcessed += processingCount;
             SamplesCollected -= processingCount;
             return processingCount;
