@@ -4,7 +4,8 @@ namespace RoverSim
 {
     public sealed class Rover : IRover
     {
-        private Int32 moves = 1000, power = 500;
+        private Int32 _moves;
+        private Int32 _power;
 
         public Rover(MutableLevel level, SimulationParameters parameters)
         {
@@ -12,6 +13,8 @@ namespace RoverSim
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             PosX = parameters.InitialX;
             PosY = parameters.InitialY;
+            MovesLeft = parameters.InitialMovesLeft;
+            Power = parameters.InitialPower;
         }
 
         private MutableLevel Level { get; }
@@ -23,16 +26,16 @@ namespace RoverSim
         public Int32 SamplesCollected { get; private set; } = 0;
         public Int32 MovesLeft
         {
-            get { return moves; }
-            private set { if (value > 0) moves = value; else moves = 0; }
+            get { return _moves; }
+            private set { if (value > 0) _moves = value; else _moves = 0; }
         }
 
         public Boolean IsHalted => Power == 0 || MovesLeft == 0;
 
         public Int32 Power
         {
-            get { return power; }
-            private set { if (value > 0) power = value; else power = 0; }
+            get { return _power; }
+            private set { if (value > 0) _power = value; else _power = 0; }
         }
         public Int32 SamplesProcessed { get; private set; }
         public Int32 NoBacktrack { get; private set; } = 1;
