@@ -26,16 +26,16 @@ namespace RoverSim
         public Int32 SamplesCollected { get; private set; } = 0;
         public Int32 MovesLeft
         {
-            get { return _moves; }
-            private set { if (value > 0) _moves = value; else _moves = 0; }
+            get => _moves;
+            private set => _moves = value > 0 ? value : 0;
         }
 
         public Boolean IsHalted => Power == 0 || MovesLeft == 0;
 
         public Int32 Power
         {
-            get { return _power; }
-            private set { if (value > 0) _power = value; else _power = 0; }
+            get => _power;
+            private set => _power = value > 0 ? value : 0;
         }
         public Int32 SamplesProcessed { get; private set; }
         public Int32 NoBacktrack { get; private set; } = 1;
@@ -44,9 +44,7 @@ namespace RoverSim
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
         public TerrainType SenseSquare(Direction direction)
-        {
-            return Level.GetTerrain(PosX + direction.ChangeInX(), PosY + direction.ChangeInY());
-        }
+            => Level.GetTerrain(PosX + direction.ChangeInX(), PosY + direction.ChangeInY());
 
         public Boolean Move(Direction direction)
         {
