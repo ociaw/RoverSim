@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RoverSim
 {
@@ -38,6 +36,14 @@ namespace RoverSim
                 default:
                     return 0;
             }
+        }
+
+        public static (Int32 x, Int32 y) NextCoords(this Direction direction, IRover rover)
+        {
+            if (rover == null)
+                throw new ArgumentNullException(nameof(rover));
+
+            return (rover.PosX + direction.ChangeInX(), rover.PosY + direction.ChangeInY());
         }
     }
 }
