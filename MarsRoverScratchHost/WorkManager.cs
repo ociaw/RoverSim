@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RoverSim;
+using RoverSim.Ais;
 using RoverSim.ScratchAis;
 
 namespace MarsRoverScratchHost
@@ -37,7 +38,8 @@ namespace MarsRoverScratchHost
                 new RandomAiFactory(),
                 new IntelligentRandomAiFactory(),
                 new MarkIFactory(),
-                new MarkIIFactory()
+                new MarkIIFactory(),
+                new MinimalStateAiFactory(),
             };
     }
 }

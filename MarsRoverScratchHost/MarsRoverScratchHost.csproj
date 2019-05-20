@@ -130,6 +130,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Ais\Ais.csproj">
+      <Project>{5fb31145-c042-49df-a230-90da52cbe63e}</Project>
+      <Name>Ais</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{e8360261-11ec-46dc-b67b-4bd071a3416f}</Project>
       <Name>Core</Name>
