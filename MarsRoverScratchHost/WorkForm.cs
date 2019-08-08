@@ -47,9 +47,8 @@ namespace MarsRoverScratchHost
             stopwatch.Stop();
             timeUsed.Text = stopwatch.Elapsed.TotalSeconds.ToString();
 
-
             (_renderSim, _renderAiFactory) = FindWorstSim(results);
-            if (_renderSim.HasError)
+            if (_renderSim != null && _renderSim.HasError)
                 MessageBox.Show("ERROR");
 
             SaveResults(results);
