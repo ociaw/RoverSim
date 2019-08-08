@@ -1,0 +1,15 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:RoverSim.AvaloniaHost.Views"
+             xmlns:vm="clr-namespace:RoverSim.AvaloniaHost.ViewModels;assembly=RoverSim.AvaloniaHost"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:custom="clr-namespace:RoverSim.AvaloniaHost.Controls"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
+             x:Class="RoverSim.AvaloniaHost.Views.RenderView">
+  <Grid ColumnDefinitions="*, 135">
+    <custom:RenderControl Tiles="{Binding Tiles}" RoverX="{Binding RoverX}" RoverY="{Binding RoverY}" />
+    <StackPanel Grid.Column="1">
+    </StackPanel>
+  </Grid>
+</UserControl>

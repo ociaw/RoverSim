@@ -24,7 +24,5 @@ namespace RoverSim.AvaloniaHost.ViewModels
         public Int32 SamplesTransmitted => Simulation.Stats.SamplesTransmitted;
 
         public String Error => Simulation.HasError ? Simulation.Exception.GetType().ToString() : null;
-
-        public ReactiveCommand ViewDetails { get; }
     }
 }

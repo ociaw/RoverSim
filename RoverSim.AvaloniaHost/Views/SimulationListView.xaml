@@ -13,6 +13,13 @@
       <DataGridTextColumn Header="Moves Left" Binding="{Binding MovesLeft}" />
       <DataGridTextColumn Header="Power" Binding="{Binding Power}" />
       <DataGridTextColumn Header="Error" Binding="{Binding Error}" />
+      <DataGridTemplateColumn>
+        <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate>
+            <Button Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.RenderCommand}" CommandParameter="{Binding}">Render</Button>
+          </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+      </DataGridTemplateColumn>
     </DataGrid.Columns>
   </DataGrid>
 </UserControl>

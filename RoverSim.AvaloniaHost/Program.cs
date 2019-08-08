@@ -20,7 +20,8 @@ namespace RoverSim.AvaloniaHost
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .LogToDebug()
-                .UseDataGrid();
+                .UseDataGrid()
+                .UseReactiveUI();
 
         // Your application's entry point. Here you can initialize your MVVM framework, DI
         // container, etc.
@@ -31,9 +32,20 @@ namespace RoverSim.AvaloniaHost
             var ais = GetAvailableAis();
             var aiList = AiListViewModel.Create(ais);
             var workManager = new WorkManager();
-
+            
             var simulatorSettings = new SimulatorSettingsViewModel(workManager, aiList.IsAnyAiSelected, aiList.SelectedAis, schedule);
-            var simulationList = new SimulationListViewModel(workManager.Simulations.AsObservableList());
+
+            var renderCommand = ReactiveUI.ReactiveCommand.Create<SimulationRowViewModel>((simRow) =>
+            {
+                var renderVm = new RenderViewModel(simRow.Ai, simRow.Simulation);
+                var renderWindow = new RenderWindow
+                {
+                    DataContext = new RenderWindowViewModel(renderVm)
+                };
+                renderWindow.Show();
+            });
+
+            var simulationList = new SimulationListViewModel(workManager.Simulations.AsObservableList(), renderCommand);
 
             var window = new MainWindow
             {
