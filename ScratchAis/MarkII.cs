@@ -30,7 +30,7 @@ namespace RoverSim.ScratchAis
         private List<Direction> path = new List<Direction>();
 
         private Direction _moveDir;
-        private int searchAdjusted;
+        private Int32 searchAdjusted;
 
         public MarkII()
         {
@@ -432,8 +432,8 @@ namespace RoverSim.ScratchAis
 
             if (index >= Width && (index + 1) % Width != 0 && index < Height * Width - Width && index % Width != 0)
             {
-                int j = ((index % Width) - 1) / 3;
-                int k = ((index / Width) - 1) / 3;
+                Int32 j = ((index % Width) - 1) / 3;
+                Int32 k = ((index / Width) - 1) / 3;
                 if (_mappedTerrain[index] == TerrainType.Smooth)
                 {
                     _reducedWeightMap[(Width / 3) * k + j] += 10;

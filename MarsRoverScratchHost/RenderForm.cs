@@ -33,8 +33,8 @@ namespace MarsRoverScratchHost
 
         private void SetupViewport()
         {
-            int w = glControl1.Width;
-            int h = glControl1.Height;
+            Int32 w = glControl1.Width;
+            Int32 h = glControl1.Height;
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Ortho(0, w, h, 0, -1, 1); // Top-left corner pixel has coordinate (0, 0)
@@ -105,8 +105,8 @@ namespace MarsRoverScratchHost
             var terrain = renderData.Terrain;
             Int32 roverX = renderData.RoverX;
             Int32 roverY = renderData.RoverY;
-            int viewWidth = glControl1.Width;
-            int viewHeight = glControl1.Height;
+            Int32 viewWidth = glControl1.Width;
+            Int32 viewHeight = glControl1.Height;
             Int32 widthMultiplier = viewWidth / renderData.Width;
             Int32 heightMultiplier = viewHeight / renderData.Height;
             for (Int16 i = 0; i < renderData.Width; i++)
