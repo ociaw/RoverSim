@@ -82,49 +82,49 @@ namespace MarsRoverScratchHost
 
         private void SaveResults(Dictionary<IAiFactory, List<CompletedSimulation>> results)
         {
-            String documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            TextWriter writer = new StreamWriter(documentsFolder + "\\MarsRoverScratch.csv");
-            CsvWriter csv = new CsvWriter(writer);
-
-            csv.WriteField("AI Type");
-            csv.WriteField("Moves Left");
-            csv.WriteField("Power Left");
-            csv.WriteField("Samples Collected");
-            csv.WriteField("Samples Processed");
-            csv.WriteField("Samples Transmitted");
-            csv.NextRecord();
-
             Double runCount = 0;
             Dictionary<String, (Int32 moves, Int32 power, Int32 samples)> aggregates = new Dictionary<String, (Int32 moves, Int32 power, Int32 samples)>();
-            foreach (var kvp in results)
+
+            String documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            TextWriter writer = new StreamWriter(documentsFolder + "\\MarsRoverScratch.csv");
+            using (CsvWriter csv = new CsvWriter(writer))
             {
-                String aiName = kvp.Key.Name;
-                foreach (var sim in kvp.Value)
+                csv.WriteField("AI Type");
+                csv.WriteField("Moves Left");
+                csv.WriteField("Power Left");
+                csv.WriteField("Samples Collected");
+                csv.WriteField("Samples Processed");
+                csv.WriteField("Samples Transmitted");
+                csv.NextRecord();
+
+                foreach (var kvp in results)
                 {
-                    runCount++;
-                    RoverStats stats = sim.Stats;
-
-                    csv.WriteField(kvp.Key.Name);
-                    csv.WriteField(stats.MovesLeft.ToString());
-                    csv.WriteField(stats.Power.ToString());
-                    csv.WriteField(stats.SamplesCollected.ToString());
-                    csv.WriteField(stats.SamplesProcessed.ToString());
-                    csv.WriteField(stats.SamplesTransmitted.ToString());
-                    csv.NextRecord();
-
-                    if (aggregates.ContainsKey(aiName))
+                    String aiName = kvp.Key.Name;
+                    foreach (var sim in kvp.Value)
                     {
-                        var (moves, power, samples) = aggregates[aiName];
-                        aggregates[aiName] = (moves + stats.MovesLeft, power + stats.Power, samples + stats.SamplesTransmitted);
-                    }
-                    else
-                    {
-                        aggregates[aiName] = (stats.MovesLeft, stats.Power, stats.SamplesTransmitted);
+                        runCount++;
+                        RoverStats stats = sim.Stats;
+
+                        csv.WriteField(kvp.Key.Name);
+                        csv.WriteField(stats.MovesLeft.ToString());
+                        csv.WriteField(stats.Power.ToString());
+                        csv.WriteField(stats.SamplesCollected.ToString());
+                        csv.WriteField(stats.SamplesProcessed.ToString());
+                        csv.WriteField(stats.SamplesTransmitted.ToString());
+                        csv.NextRecord();
+
+                        if (aggregates.ContainsKey(aiName))
+                        {
+                            var (moves, power, samples) = aggregates[aiName];
+                            aggregates[aiName] = (moves + stats.MovesLeft, power + stats.Power, samples + stats.SamplesTransmitted);
+                        }
+                        else
+                        {
+                            aggregates[aiName] = (stats.MovesLeft, stats.Power, stats.SamplesTransmitted);
+                        }
                     }
                 }
             }
-            
-            writer.Close();
 
             foreach (KeyValuePair<String, (Int32 moves, Int32 power, Int32 samples)> stat in aggregates)
             {

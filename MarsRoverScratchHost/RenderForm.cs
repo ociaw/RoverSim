@@ -7,11 +7,9 @@ using RoverSim;
 
 namespace MarsRoverScratchHost
 {
-    internal partial class RenderForm : Form
+    internal partial class RenderForm : Form, IDisposable
     {
         private delegate void UpdateUICallBack(RenderData renderData, Int32 movesLeft, Int32 power, Int32 samplesSent);
-
-        private readonly System.Threading.CancellationTokenSource _source = new System.Threading.CancellationTokenSource();
 
         private RenderData _renderData;
 
@@ -50,27 +48,30 @@ namespace MarsRoverScratchHost
             IAi ai = DemoAi.Create(DemoResult.AiIdentifier, DemoResult.Parameters);
             Level originalLevel = DemoResult.OriginalLevel;
             MutableLevel workingLevel = originalLevel.AsMutable();
-            IRover rover = new ReportingRover(
-                new Rover(workingLevel, DemoResult.Parameters),
-                new Progress<TerrainUpdate>(UpdateTerrain),
-                new Progress<PositionUpdate>(UpdateRoverPosition),
-                new Progress<StatsUpdate>(UpdateStats),
-                _source.Token
-            );
-            Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
-            _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.PosX, rover.PosY);
+            using (var source = new System.Threading.CancellationTokenSource())
+            {
+                IRover rover = new ReportingRover(
+                    new Rover(workingLevel, DemoResult.Parameters),
+                    new Progress<TerrainUpdate>(UpdateTerrain),
+                    new Progress<PositionUpdate>(UpdateRoverPosition),
+                    new Progress<StatsUpdate>(UpdateStats),
+                    source.Token
+                );
+                Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
+                _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.PosX, rover.PosY);
 
-            try
-            {
-                await Task.Run(sim.Simulate, _source.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Ignore this exception, since it'll only happen when we've already closed the form
-            }
-            catch (OutOfPowerOrMovesException)
-            {
-                // This is to be expected if an AI doesn't keep track of their power or moves
+                try
+                {
+                    await Task.Run(sim.Simulate, source.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Ignore this exception, since it'll only happen when we've already closed the form
+                }
+                catch (OutOfPowerOrMovesException)
+                {
+                    // This is to be expected if an AI doesn't keep track of their power or moves
+                }
             }
         }
 
@@ -166,7 +167,6 @@ namespace MarsRoverScratchHost
 
         private void RenderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _source.Cancel();
         }
     }
 }
