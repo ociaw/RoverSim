@@ -45,5 +45,11 @@ namespace RoverSim
 
             return (rover.PosX + direction.ChangeInX(), rover.PosY + direction.ChangeInY());
         }
+
+        public static Direction RotateCW(this Direction direction) => (Direction)((Int32)(direction + 1) % 4);
+
+        public static Direction RotateCCW(this Direction direction) => (Direction)((Int32)(direction + 3) % 4);
+
+        public static Direction Opposite(this Direction direction) => (Direction)((Int32)(direction + 2) % 4);
     }
 }

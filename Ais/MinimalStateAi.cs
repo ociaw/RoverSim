@@ -14,6 +14,8 @@ namespace RoverSim.Ais
 
         private Direction _destination = Direction.None;
 
+        private Direction _avoidanceDestination = Direction.None;
+
         private readonly HashSet<(Int32 x, Int32 y)> _deadEnds = new HashSet<(Int32 x, Int32 y)>();
 
         public MinimalStateAi(Int32 identifier, SimulationParameters parameters)
@@ -44,61 +46,101 @@ namespace RoverSim.Ais
                 {
                     if (!HasExcessPower(rover))
                         rover.CollectPower();
+                    if (rover.Power < 30)
+                        rover.Transmit();
                 }
 
                 if (occupied.IsSampleable())
                 {
                     rover.CollectSample();
-                    if (rover.SamplesCollected >= Parameters.HopperSize)
+                    if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
                         rover.ProcessSamples();
                 }
 
                 Boolean hasExcessPower = HasExcessPower(rover);
-                (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
-
-                Direction nextMove;
-                if (adjacentSmoothDir.HasValue)
-                    nextMove = adjacentSmoothDir.Value; //Prioritize smooth squares
-                else if (hasExcessPower && adjacentRoughDir.HasValue)
-                    nextMove = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
-                else if (isDeadEnd)
-                {
+                (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(rover, adjacent);
+                if (isDeadEnd)
                     _deadEnds.Add((rover.PosX, rover.PosY));
-                    nextMove = deadEndEscape;
+
+                if (adjacentSmoothDir.HasValue)
+                    _destination = adjacentSmoothDir.Value; // Prioritize smooth squares
+                else if (hasExcessPower && adjacentRoughDir.HasValue)
+                    _destination = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
+                else if (isDeadEnd)
+                    _destination = deadEndEscape;
+
+                Direction nextMove = _destination;
+                if (nextMove == Direction.None || adjacent[(Int32)nextMove] == TerrainType.Impassable || IsDeadEnd(rover, nextMove))
+                {
+                    if (_avoidanceDestination != Direction.None)
+                    {
+                        if (adjacent[(Int32)_avoidanceDestination] == TerrainType.Impassable || IsDeadEnd(rover, _avoidanceDestination))
+                        {
+                            _destination = ResetDestination(rover, adjacent);
+                            nextMove = _destination;
+                            _avoidanceDestination = Direction.None;
+                        }
+                        else
+                        {
+                            nextMove = _avoidanceDestination;
+                        }
+                    }
+                    else
+                    {
+                        nextMove = AvoidObstacle(rover, adjacent); // Obstacle avoidance
+                        _avoidanceDestination = nextMove;
+                    }
                 }
                 else
                 {
-                    Direction destination = _destination;
-                    while (destination == Direction.None || adjacent[(Int32)destination] == TerrainType.Impassable || _deadEnds.Contains(destination.NextCoords(rover)))
-                        destination = DetermineNextMove(rover, adjacent); // Otherwise, we have to do some more complex logic
-
-                    _destination = destination;
-                    nextMove = _destination; // Move towards the destination
+                    _avoidanceDestination = Direction.None;
                 }
+
                 rover.Move(nextMove);
                 _roundRobin++;
             }
         }
 
-        private Direction DetermineNextMove(IRover rover, TerrainType[] adjacent)
+        private Direction AvoidObstacle(IRover rover, TerrainType[] adjacent)
         {
-            _roundRobin++;
-            return (Direction)(_roundRobin % DirectionCount);
+            Direction cw = _destination.RotateCW();
+            Direction ccw = _destination.RotateCCW();
+
+            if (adjacent[(Int32)cw] != TerrainType.Impassable && !IsDeadEnd(rover, cw))
+                return cw;
+            if (adjacent[(Int32)ccw] != TerrainType.Impassable && !IsDeadEnd(rover, ccw))
+                return ccw;
+
+            return _destination.Opposite();
         }
 
-        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(TerrainType[] adjacent)
+        private Direction ResetDestination(IRover rover, TerrainType[] adjacent)
+        {
+            for (Int32 i = _roundRobin; i < _roundRobin + DirectionCount; i++)
+            {
+                Int32 dir = i % DirectionCount;
+                if (adjacent[dir] != TerrainType.Impassable && !IsDeadEnd(rover, (Direction)dir))
+                    return (Direction)dir;
+            }
+
+            return Direction.None;
+        }
+
+        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(IRover rover, TerrainType[] adjacent)
         {
             Direction direction = Direction.None;
             Int32 impassableCount = 0;
             for (Int32 i = 0; i < adjacent.Length; i++)
             {
-                if (adjacent[i] == TerrainType.Impassable)
+                if (adjacent[i] == TerrainType.Impassable || IsDeadEnd(rover, (Direction)i))
                     impassableCount++;
                 else
                     direction = (Direction)i;
             }
             return (impassableCount >= 3, direction);
         }
+
+        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(direction.NextCoords(rover));
 
         private Boolean HasExcessPower(IRover rover) => rover.Power >= (Parameters.MoveRoughCost + 1) * rover.MovesLeft;
 
