@@ -103,13 +103,14 @@ namespace RoverSim.Ais
 
         private Direction AvoidObstacle(TerrainType[] adjacent)
         {
-            Direction cw = _destination.RotateCW();
-            Direction ccw = _destination.RotateCCW();
+            // We use round robin here to avoid always checking the same side first,
+            // as that causes the rover to favor one area.
+            Direction turn = _roundRobin % 2 == 0 ? _destination.RotateCW() : _destination.RotateCCW();
 
-            if (adjacent[(Int32)cw] != TerrainType.Impassable)
-                return cw;
-            if (adjacent[(Int32)ccw] != TerrainType.Impassable)
-                return ccw;
+            if (adjacent[(Int32)turn] != TerrainType.Impassable)
+                return turn;
+            if (adjacent[(Int32)turn.Opposite()] != TerrainType.Impassable)
+                return turn.Opposite();
 
             return _destination.Opposite();
         }
