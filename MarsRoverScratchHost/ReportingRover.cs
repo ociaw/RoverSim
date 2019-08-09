@@ -31,9 +31,7 @@ namespace MarsRoverScratchHost
 
         private CancellationToken CancellationToken { get; }
 
-        public Int32 PosX => WrappedRover.PosX;
-
-        public Int32 PosY => WrappedRover.PosY;
+        public Position Position => WrappedRover.Position;
 
         public Int32 MovesLeft => WrappedRover.MovesLeft;
 
@@ -73,7 +71,7 @@ namespace MarsRoverScratchHost
 
             CancellationToken.ThrowIfCancellationRequested();
             if (isSuccess)
-                TerrainUpdateProgress.Report(new TerrainUpdate(PosX, PosY, newTerrain));
+                TerrainUpdateProgress.Report(new TerrainUpdate(Position, newTerrain));
             StatsUpdateProgress.Report(StatsUpdate);
 
             return (isSuccess, newTerrain);
@@ -81,13 +79,12 @@ namespace MarsRoverScratchHost
 
         public Boolean Move(Direction direction)
         {
-            Int32 previousX = PosX;
-            Int32 previousY = PosY;
+            Position previous = Position;
             Boolean isSuccess = WrappedRover.Move(direction);
 
             CancellationToken.ThrowIfCancellationRequested();
             if (isSuccess)
-                PositionUpdateProgress.Report(new PositionUpdate(previousX, previousY, PosX, PosY));
+                PositionUpdateProgress.Report(new PositionUpdate(previous, Position));
             StatsUpdateProgress.Report(StatsUpdate);
 
             Thread.Sleep(100);
@@ -104,7 +101,7 @@ namespace MarsRoverScratchHost
         public TerrainType SenseSquare(Direction direction)
         {
             TerrainType terrain = WrappedRover.SenseSquare(direction);
-            TerrainUpdateProgress.Report(new TerrainUpdate(PosX + direction.ChangeInX(), PosY + direction.ChangeInY(), terrain));
+            TerrainUpdateProgress.Report(new TerrainUpdate(Position + direction, terrain));
             StatsUpdateProgress.Report(StatsUpdate);
             return terrain;
         }

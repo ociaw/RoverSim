@@ -1,32 +1,32 @@
 ﻿using System;
 
+using RoverSim;
+
 namespace MarsRoverScratchHost
 {
     public readonly struct PositionUpdate
     {
-        public PositionUpdate(Int32 previousX, Int32 previousY, Int32 newX, Int32 newY)
+        public PositionUpdate(Position previous, Position newPosition)
         {
-            if (previousX < 0)
-                throw new ArgumentOutOfRangeException(nameof(previousX), previousX, "Must be non-negative.");
-            if (previousY < 0)
-                throw new ArgumentOutOfRangeException(nameof(previousY), previousY, "Must be non-negative.");
-            if (newX < 0)
-                throw new ArgumentOutOfRangeException(nameof(newX), newX, "Must be non-negative.");
-            if (newY < 0)
-                throw new ArgumentOutOfRangeException(nameof(newY), newY, "Must be non-negative.");
+            if (previous.IsNegative)
+                throw new ArgumentOutOfRangeException(nameof(previous), previous, "Must be non-negative.");
+            if (newPosition.IsNegative)
+                throw new ArgumentOutOfRangeException(nameof(newPosition), newPosition, "Must be non-negative.");
 
-            PreviousX = previousX;
-            PreviousY = previousY;
-            NewX = newX;
-            NewY = newY;
+            Previous = previous;
+            New = newPosition;
         }
 
-        public Int32 PreviousX { get; }
+        public Position Previous { get; }
 
-        public Int32 PreviousY { get; }
+        public Position New { get; }
 
-        public Int32 NewX { get; }
+        public Int32 PreviousX => Previous.X;
 
-        public Int32 NewY { get; }
+        public Int32 PreviousY => Previous.Y;
+
+        public Int32 NewX => New.X;
+
+        public Int32 NewY => New.Y;
     }
 }

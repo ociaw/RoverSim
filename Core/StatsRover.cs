@@ -41,9 +41,7 @@ namespace RoverSim
 
         public Boolean IsHalted => WrappedRover.IsHalted;
 
-        public Int32 PosX => WrappedRover.PosY;
-
-        public Int32 PosY => WrappedRover.PosX;
+        public Position Position => WrappedRover.Position;
 
         public RoverStats GetStats() => new RoverStats(
             MovesLeft,

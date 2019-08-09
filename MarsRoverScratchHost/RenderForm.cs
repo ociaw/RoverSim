@@ -58,7 +58,7 @@ namespace MarsRoverScratchHost
                     source.Token
                 );
                 Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
-                _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.PosX, rover.PosY);
+                _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.Position);
 
                 try
                 {
@@ -103,8 +103,8 @@ namespace MarsRoverScratchHost
         private void Render(RenderData renderData)
         {
             var terrain = renderData.Terrain;
-            Int32 roverX = renderData.RoverX;
-            Int32 roverY = renderData.RoverY;
+            Int32 roverX = renderData.RoverPosition.X;
+            Int32 roverY = renderData.RoverPosition.Y;
             Int32 viewWidth = glControl1.Width;
             Int32 viewHeight = glControl1.Height;
             Int32 widthMultiplier = viewWidth / renderData.Width;

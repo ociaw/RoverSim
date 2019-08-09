@@ -67,14 +67,6 @@ namespace RoverSim
             }
         }
 
-        public (Int32 x, Int32 y) NextCoords(IRover rover)
-        {
-            if (rover == null)
-                throw new ArgumentNullException(nameof(rover));
-
-            return (rover.PosX + ChangeInX(), rover.PosY + ChangeInY());
-        }
-
         public Direction Opposite() => new Direction((Value + 2) % DirectionCount);
 
         public Direction RotateCW() => new Direction((Value + 1) % DirectionCount);

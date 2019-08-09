@@ -8,9 +8,7 @@ namespace RoverSim
 
         public Int32 LevelHeight { get; }
 
-        public Int32 InitialX { get; }
-
-        public Int32 InitialY { get; }
+        public Position InitialPosition { get; }
 
         public Int32 InitialMovesLeft { get; } = 1000;
 
@@ -33,28 +31,25 @@ namespace RoverSim
         public static SimulationParameters Default { get; } = new SimulationParameters(32, 23);
 
         public SimulationParameters(Int32 levelWidth, Int32 levelHeight)
-            : this(levelWidth, levelHeight, levelWidth / 2, levelHeight / 2)
+            : this(levelWidth, levelHeight, new Position(levelWidth / 2, levelHeight / 2))
         { }
 
-        public SimulationParameters(Int32 levelWidth, Int32 levelHeight, Int32 initialX, Int32 initialY)
+        public SimulationParameters(Int32 levelWidth, Int32 levelHeight, Position initialPosition)
         {
             if (levelWidth < 1)
                 throw new ArgumentOutOfRangeException(nameof(levelWidth), levelWidth, "Must be positive.");
             if (levelHeight < 1)
                 throw new ArgumentOutOfRangeException(nameof(levelHeight), levelHeight, "Must be positive.");
-            if (initialX < 1)
-                throw new ArgumentOutOfRangeException(nameof(initialX), initialX, "Must be positive.");
-            if (initialY < 1)
-                throw new ArgumentOutOfRangeException(nameof(initialY), initialY, "Must be positive.");
-            if (initialX >= levelWidth)
-                throw new ArgumentOutOfRangeException(nameof(initialX), initialX, $"Must be less than {levelWidth}.");
-            if (initialY >= levelHeight)
-                throw new ArgumentOutOfRangeException(nameof(initialY), initialY, $"Must be less than {levelHeight}.");
+            if (!initialPosition.IsPositive)
+                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, "Must be positive.");
+            if (initialPosition.X >= levelWidth)
+                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, $"X must be less than {levelWidth}.");
+            if (initialPosition.Y >= levelHeight)
+                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, $"Y must be less than {levelHeight}.");
 
             LevelWidth = levelWidth;
             LevelHeight = levelHeight;
-            InitialX = initialX;
-            InitialY = initialY;
+            InitialPosition = initialPosition;
         }
 
         public Int32 GetMovementPowerCost(TerrainType destinationTerrain)

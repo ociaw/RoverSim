@@ -9,8 +9,8 @@ namespace RoverSim.AvaloniaHost.ViewModels
             Ai = ai ?? throw new ArgumentNullException(nameof(ai));
             Simulation = simulation ?? throw new ArgumentNullException(nameof(simulation));
             Tiles = Simulation.OriginalLevel.AsMutable().Terrain;
-            RoverX = Simulation.Parameters.InitialX;
-            RoverY = Simulation.Parameters.InitialY;
+            RoverX = Simulation.Parameters.InitialPosition.X;
+            RoverY = Simulation.Parameters.InitialPosition.Y;
         }
 
         public IAiFactory Ai { get; }

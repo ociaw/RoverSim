@@ -5,23 +5,22 @@ namespace MarsRoverScratchHost
 {
     public readonly struct TerrainUpdate
     {
-        public TerrainUpdate(Int32 posX, Int32 posY, TerrainType newTerrain)
+        public TerrainUpdate(Position position, TerrainType newTerrain)
         {
-            if (posX < 0)
-                throw new ArgumentOutOfRangeException(nameof(posX), posX, "Must be non-negative.");
-            if (posY < 0)
-                throw new ArgumentOutOfRangeException(nameof(posY), posY, "Must be non-negative.");
+            if (position.IsNegative)
+                throw new ArgumentOutOfRangeException(nameof(position), position, "Must be non-negative.");
             if (newTerrain < TerrainType.Impassable || newTerrain > TerrainType.Unknown)
                 throw new ArgumentOutOfRangeException(nameof(newTerrain), newTerrain, "Must be a defined enum value.");
 
-            PosX = posX;
-            PosY = posY;
+            Position = position;
             NewTerrain = newTerrain;
         }
 
-        public Int32 PosX { get; }
+        public Position Position { get; }
 
-        public Int32 PosY { get; }
+        public Int32 PosX => Position.X;
+
+        public Int32 PosY => Position.Y;
 
         public TerrainType NewTerrain { get; }
     }

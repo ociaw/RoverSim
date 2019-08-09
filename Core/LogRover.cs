@@ -31,9 +31,7 @@ namespace RoverSim
 
         public Boolean IsHalted => WrappedRover.IsHalted;
 
-        public Int32 PosX => throw new NotImplementedException();
-
-        public Int32 PosY => throw new NotImplementedException();
+        public Position Position => WrappedRover.Position;
 
         public Int32 CollectPower()
         {

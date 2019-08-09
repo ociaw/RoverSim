@@ -11,8 +11,7 @@ namespace RoverSim
         {
             Level = level ?? throw new ArgumentNullException(nameof(level));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-            PosX = parameters.InitialX;
-            PosY = parameters.InitialY;
+            Position = parameters.InitialPosition;
             MovesLeft = parameters.InitialMovesLeft;
             Power = parameters.InitialPower;
         }
@@ -21,8 +20,8 @@ namespace RoverSim
 
         public SimulationParameters Parameters { get; }
 
-        public Int32 PosX { get; private set; }
-        public Int32 PosY { get; private set; }
+        public Position Position { get; private set; }
+
         public Int32 SamplesCollected { get; private set; } = 0;
         public Int32 MovesLeft
         {
@@ -44,20 +43,18 @@ namespace RoverSim
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
         public TerrainType SenseSquare(Direction direction)
-            => Level.GetTerrain(PosX + direction.ChangeInX(), PosY + direction.ChangeInY());
+            => Level.GetTerrain(Position + direction);
 
         public Boolean Move(Direction direction)
         {
             ThrowIfHalted();
-            
-            Int32 newX = PosX + direction.ChangeInX();
-            Int32 newY = PosY + direction.ChangeInY();
-            TerrainType newTerrain = Level.GetTerrain(newX, newY);
+
+            Position newPos = Position + direction;
+            TerrainType newTerrain = Level.GetTerrain(newPos);
             if (newTerrain == TerrainType.Impassable)
                 return false;
 
-            PosX = newX;
-            PosY = newY;
+            Position = newPos;
             MovesLeft -= 1;
             Power -= Parameters.GetMovementPowerCost(newTerrain);
             if (newTerrain != TerrainType.Smooth)
@@ -101,12 +98,12 @@ namespace RoverSim
             
             MovesLeft -= 1;
             Power -= Parameters.SampleCost;
-            TerrainType terrain = Level.GetTerrain(PosX, PosY);
+            TerrainType terrain = Level.GetTerrain(Position);
             if (terrain != TerrainType.Smooth && terrain != TerrainType.Rough || SamplesCollected >= Parameters.HopperSize)
                 return (false, terrain);
 
             SamplesCollected += 1;
-            return (true, Level.SampleSquare(PosX, PosY));
+            return (true, Level.SampleSquare(Position));
         }
 
         public Int32 ProcessSamples()

@@ -8,13 +8,12 @@ namespace MarsRoverScratchHost
     /// </summary>
     public sealed class RenderData
     {
-        private RenderData(Int32 width, Int32 height, TerrainType[,] terrain, Int32 roverX, Int32 roverY)
+        private RenderData(Int32 width, Int32 height, TerrainType[,] terrain, Position roverPosition)
         {
             Width = width;
             Height = height;
             Terrain = terrain;
-            RoverX = roverX;
-            RoverY = roverY;
+            RoverPosition = roverPosition;
         }
 
         public Int32 Width { get; }
@@ -23,9 +22,7 @@ namespace MarsRoverScratchHost
 
         public TerrainType[,] Terrain { get; }
 
-        public Int32 RoverX { get; private set; }
-
-        public Int32 RoverY { get; private set; }
+        public Position RoverPosition { get; private set; }
 
         public void UpdateRoverPos(PositionUpdate update)
         {
@@ -38,8 +35,7 @@ namespace MarsRoverScratchHost
             if (update.NewY >= Height)
                 throw new ArgumentOutOfRangeException(nameof(update), update.NewY, "New Y must be less than " + Height);
 
-            RoverX = update.NewX;
-            RoverY = update.NewY;
+            RoverPosition = update.New;
         }
 
         public void UpdateTerrain(TerrainUpdate update)
@@ -52,16 +48,18 @@ namespace MarsRoverScratchHost
             Terrain[update.PosX, update.PosY] = update.NewTerrain;
         }
 
-        public static RenderData GenerateBlank(Int32 width, Int32 height, Int32 roverX, Int32 roverY)
+        public static RenderData GenerateBlank(Int32 width, Int32 height, Position roverPos)
         {
             if (width < 0)
                 throw new ArgumentOutOfRangeException(nameof(width), width, "Must be non-negative");
             if (height < 0)
                 throw new ArgumentOutOfRangeException(nameof(height), height, "Must be non-negative");
-            if (roverX < 0 || roverX >= width)
-                throw new ArgumentOutOfRangeException(nameof(roverX), roverX, "Must non-negative and less than " + nameof(width));
-            if (roverY < 0 || roverY >= height)
-                throw new ArgumentOutOfRangeException(nameof(roverY), roverY, "Must non-negative and less than " + nameof(height));
+            if (roverPos.IsNegative)
+                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Must be non-negative.");
+            if (roverPos.X >= width)
+                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "X must be within " + nameof(width));
+            if (roverPos.Y >= height)
+                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Y must be within " + nameof(height));
 
             TerrainType[,] terrain = new TerrainType[width, height];
             for (Byte i = 1; i < width - 1; i++)
@@ -72,7 +70,7 @@ namespace MarsRoverScratchHost
                 }
             }
 
-            return new RenderData(width, height, terrain, roverX, roverY);
+            return new RenderData(width, height, terrain, roverPos);
         }
     }
 }

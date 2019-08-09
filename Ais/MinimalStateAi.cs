@@ -16,7 +16,7 @@ namespace RoverSim.Ais
 
         private Direction _avoidanceDestination = Direction.None;
 
-        private readonly HashSet<(Int32 x, Int32 y)> _deadEnds = new HashSet<(Int32 x, Int32 y)>();
+        private readonly HashSet<Position> _deadEnds = new HashSet<Position>();
 
         public MinimalStateAi(Int32 identifier, SimulationParameters parameters)
         {
@@ -60,7 +60,7 @@ namespace RoverSim.Ais
                 Boolean hasExcessPower = HasExcessPower(rover);
                 (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
                 if (isDeadEnd)
-                    _deadEnds.Add((rover.PosX, rover.PosY));
+                    _deadEnds.Add(rover.Position);
 
                 if (adjacentSmoothDir.HasValue)
                     _destination = adjacentSmoothDir.Value; // Prioritize smooth squares
@@ -141,7 +141,7 @@ namespace RoverSim.Ais
             return (impassableCount >= 3, direction);
         }
 
-        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(direction.NextCoords(rover));
+        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(rover.Position + direction);
 
         private Boolean HasExcessPower(IRover rover) => rover.Power >= (Parameters.MoveRoughCost + 1) * rover.MovesLeft;
 

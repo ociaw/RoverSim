@@ -19,7 +19,7 @@ namespace RoverSim
                 // Generate the terrain and ensure that the starting square isn't completely blocked in
                 terrain = Generate(parameters, Random);
             }
-            while (!CheckOpen(terrain, parameters.InitialX, parameters.InitialY));
+            while (!CheckOpen(terrain, parameters.InitialPosition));
 
             return new Level(terrain);
         }
@@ -43,7 +43,7 @@ namespace RoverSim
                             terrain[i, j] = TerrainType.Smooth;
                         if (random.Next(1, 11) == 1)
                             terrain[i, j] = TerrainType.Impassable;
-                        if (i == parameters.InitialX && j == parameters.InitialY)
+                        if (i == parameters.InitialPosition.X && j == parameters.InitialPosition.Y)
                             terrain[i, j] = TerrainType.Smooth;
                     }
                 }
@@ -57,8 +57,10 @@ namespace RoverSim
         /// </summary>
         /// <param name="terrain"></param>
         /// <returns></returns>
-        private static Boolean CheckOpen(TerrainType[,] terrain, Int32 x, Int32 y)
+        private static Boolean CheckOpen(TerrainType[,] terrain, Position position)
         {
+            (Int32 x, Int32 y) = position;
+
             Boolean left = terrain[x - 1, y] != TerrainType.Impassable;
             Boolean right = terrain[x + 1, y] != TerrainType.Impassable;
             Boolean up = terrain[x, y - 1] != TerrainType.Impassable;

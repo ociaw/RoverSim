@@ -26,21 +26,20 @@ namespace RoverSim
             Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
         }
 
-        public TerrainType GetTerrain(Int32 x, Int32 y)
+        public TerrainType GetTerrain(Position position)
         {
-            if (x < 0 || y < 0 || x >= Width || y >= Height)
+            if (position.IsNegative || position.X >= Width || position.Y >= Height)
                 return TerrainType.Impassable;
             else
-                return Terrain[x, y];
+                return Terrain[position.X, position.Y];
         }
 
-        public TerrainType SampleSquare(Int32 x, Int32 y)
+        public TerrainType SampleSquare(Position position)
         {
-            if (x < 0 || x >= Width)
-                throw new ArgumentOutOfRangeException(nameof(x));
-            if (y < 0 || y >= Height)
-                throw new ArgumentOutOfRangeException(nameof(y));
+            if (position.IsNegative || position.X >= Width || position.Y >= Height)
+                throw new ArgumentOutOfRangeException(nameof(position));
 
+            (Int32 x, Int32 y) = position;
             if (Terrain[x, y] == TerrainType.Rough)
                 Terrain[x, y] = TerrainType.SampledRough;
             else if (Terrain[x, y] == TerrainType.Smooth)

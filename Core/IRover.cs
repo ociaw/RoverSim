@@ -4,9 +4,7 @@ namespace RoverSim
 {
     public interface IRover
     {
-        Int32 PosX { get; }
-
-        Int32 PosY { get; }
+        Position Position { get; }
 
         Int32 MovesLeft { get; }
 
