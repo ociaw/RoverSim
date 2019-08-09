@@ -58,7 +58,7 @@ namespace RoverSim.Ais
                 }
 
                 Boolean hasExcessPower = HasExcessPower(rover);
-                (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(rover, adjacent);
+                (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
                 if (isDeadEnd)
                     _deadEnds.Add((rover.PosX, rover.PosY));
 
@@ -70,13 +70,13 @@ namespace RoverSim.Ais
                     _destination = deadEndEscape;
 
                 Direction nextMove = _destination;
-                if (nextMove == Direction.None || adjacent[(Int32)nextMove] == TerrainType.Impassable || IsDeadEnd(rover, nextMove))
+                if (nextMove == Direction.None || adjacent[(Int32)nextMove] == TerrainType.Impassable)
                 {
                     if (_avoidanceDestination != Direction.None)
                     {
-                        if (adjacent[(Int32)_avoidanceDestination] == TerrainType.Impassable || IsDeadEnd(rover, _avoidanceDestination))
+                        if (adjacent[(Int32)_avoidanceDestination] == TerrainType.Impassable)
                         {
-                            _destination = ResetDestination(rover, adjacent);
+                            _destination = ResetDestination(adjacent);
                             nextMove = _destination;
                             _avoidanceDestination = Direction.None;
                         }
@@ -87,7 +87,7 @@ namespace RoverSim.Ais
                     }
                     else
                     {
-                        nextMove = AvoidObstacle(rover, adjacent); // Obstacle avoidance
+                        nextMove = AvoidObstacle(adjacent); // Obstacle avoidance
                         _avoidanceDestination = nextMove;
                     }
                 }
@@ -101,38 +101,38 @@ namespace RoverSim.Ais
             }
         }
 
-        private Direction AvoidObstacle(IRover rover, TerrainType[] adjacent)
+        private Direction AvoidObstacle(TerrainType[] adjacent)
         {
             Direction cw = _destination.RotateCW();
             Direction ccw = _destination.RotateCCW();
 
-            if (adjacent[(Int32)cw] != TerrainType.Impassable && !IsDeadEnd(rover, cw))
+            if (adjacent[(Int32)cw] != TerrainType.Impassable)
                 return cw;
-            if (adjacent[(Int32)ccw] != TerrainType.Impassable && !IsDeadEnd(rover, ccw))
+            if (adjacent[(Int32)ccw] != TerrainType.Impassable)
                 return ccw;
 
             return _destination.Opposite();
         }
 
-        private Direction ResetDestination(IRover rover, TerrainType[] adjacent)
+        private Direction ResetDestination(TerrainType[] adjacent)
         {
             for (Int32 i = _roundRobin; i < _roundRobin + DirectionCount; i++)
             {
                 Int32 dir = i % DirectionCount;
-                if (adjacent[dir] != TerrainType.Impassable && !IsDeadEnd(rover, (Direction)dir))
+                if (adjacent[dir] != TerrainType.Impassable)
                     return (Direction)dir;
             }
 
             return Direction.None;
         }
 
-        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(IRover rover, TerrainType[] adjacent)
+        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(TerrainType[] adjacent)
         {
             Direction direction = Direction.None;
             Int32 impassableCount = 0;
             for (Int32 i = 0; i < adjacent.Length; i++)
             {
-                if (adjacent[i] == TerrainType.Impassable || IsDeadEnd(rover, (Direction)i))
+                if (adjacent[i] == TerrainType.Impassable)
                     impassableCount++;
                 else
                     direction = (Direction)i;
@@ -203,7 +203,16 @@ namespace RoverSim.Ais
             TerrainType[] terrain = new TerrainType[DirectionCount];
 
             for (Int32 i = 0; i < terrain.Length; i++)
-                terrain[i] = rover.SenseSquare((Direction)i);
+            {
+                Direction direction = (Direction)i;
+                TerrainType tile = rover.SenseSquare(direction);
+
+                // For simplicity, we'll just ensure dead ends are always considered to be impassable.
+                if (IsDeadEnd(rover, direction))
+                    tile = TerrainType.Impassable;
+
+                terrain[i] = tile;
+            }
 
             return terrain;
         }
