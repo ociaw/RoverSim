@@ -33,11 +33,11 @@ namespace RoverSim.ScratchAis
 
             Direction smoothSquare = Direction.None;
             SenseAdjacentSquares(rover);
-            for (Direction i = 0; i <= Direction.None; i++)
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                if (adjacentSquares[(Int32)i] == TerrainType.Smooth)
+                if (adjacentSquares[i] == TerrainType.Smooth)
                 {
-                    smoothSquare = i;
+                    smoothSquare = (Direction)i;
                     break;
                 }
             }

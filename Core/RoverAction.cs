@@ -7,7 +7,7 @@ namespace RoverSim
         public RoverAction(Instruction instruction, Direction direction)
         {
             Instruction = instruction >= 0 && instruction <= Instruction.Move ? instruction : throw new ArgumentOutOfRangeException();
-            Direction = direction >= 0 && direction <= Direction.Left ? direction : throw new ArgumentOutOfRangeException();
+            Direction = direction.IsValid ? direction : throw new ArgumentOutOfRangeException();
         }
 
         public RoverAction(Instruction instruction)
