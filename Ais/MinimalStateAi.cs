@@ -16,17 +16,21 @@ namespace RoverSim.Ais
 
         private Direction _avoidanceDestination = Direction.None;
 
-        private readonly HashSet<CoordinatePair> _deadEnds = new HashSet<CoordinatePair>();
+        private readonly Queue<CoordinatePair> _deadEnds;
 
-        public MinimalStateAi(Int32 identifier, SimulationParameters parameters)
+        public MinimalStateAi(Int32 identifier, SimulationParameters parameters, Int32 deadEndMemory)
         {
             Identifier = identifier;
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            DeadEndMemory = deadEndMemory >= 0 ? deadEndMemory : throw new ArgumentOutOfRangeException(nameof(deadEndMemory), deadEndMemory, "Must be non-negative.");
+            _deadEnds = new Queue<CoordinatePair>(deadEndMemory);
         }
 
         public Int32 Identifier { get; }
 
         public SimulationParameters Parameters { get; }
+
+        public Int32 DeadEndMemory { get; }
 
         public void Simulate(IRover rover)
         {
@@ -60,7 +64,7 @@ namespace RoverSim.Ais
                 Boolean hasExcessPower = HasExcessPower(rover);
                 (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
                 if (isDeadEnd)
-                    _deadEnds.Add(rover.Position);
+                    AddDeadEnd(rover.Position);
 
                 if (adjacentSmoothDir.HasValue)
                     _destination = adjacentSmoothDir.Value; // Prioritize smooth squares
@@ -140,8 +144,6 @@ namespace RoverSim.Ais
             }
             return (impassableCount >= 3, direction);
         }
-
-        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(rover.Position + direction);
 
         private Boolean HasExcessPower(IRover rover) => rover.Power >= (Parameters.MoveRoughCost + 1) * rover.MovesLeft;
 
@@ -243,6 +245,16 @@ namespace RoverSim.Ais
             }
 
             return (adjacentSmooth, adjacentRough);
+        }
+
+        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(rover.Position + direction);
+
+        private void AddDeadEnd(Position position)
+        {
+            if (_deadEnds.Count == DeadEndMemory)
+                _deadEnds.Dequeue();
+
+            _deadEnds.Enqueue(position);
         }
     }
 }

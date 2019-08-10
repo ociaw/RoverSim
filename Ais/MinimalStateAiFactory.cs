@@ -6,6 +6,6 @@ namespace RoverSim.Ais
     {
         public String Name => "Minimal State AI";
 
-        public IAi Create(Int32 identifier, SimulationParameters parameters) => new MinimalStateAi(identifier, parameters);
+        public IAi Create(Int32 identifier, SimulationParameters parameters) => new MinimalStateAi(identifier, parameters, 5);
     }
 }
