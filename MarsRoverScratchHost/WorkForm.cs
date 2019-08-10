@@ -69,7 +69,7 @@ namespace MarsRoverScratchHost
                 }
 
                 CompletedSimulation worst = kvp.Value.OrderBy(sim => sim.Stats.SamplesTransmitted).FirstOrDefault();
-                if (overallWorst == null || worst != null && worst.Stats.SamplesTransmitted > overallWorst.Stats.SamplesTransmitted)
+                if (overallWorst == null || worst != null && worst.Stats.SamplesTransmitted < overallWorst.Stats.SamplesTransmitted)
                 {
                     overallWorst = worst;
                     worstAi = kvp.Key;
