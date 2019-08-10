@@ -4,13 +4,11 @@ namespace RoverSim
 {
     public sealed class Level
     {
-        public Int32 Width { get; }
+        public Position BottomRight { get; }
 
-        public Int32 Height { get; }
+        public Int32 Width => BottomRight.X + 1;
 
-        public Int32 CenterX => Width / 2;
-
-        public Int32 CenterY => Height / 2;
+        public Int32 Height => BottomRight.Y + 1;
 
         private TerrainType[,] Terrain { get; }
 
@@ -21,20 +19,11 @@ namespace RoverSim
             if (terrain.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(terrain), "Must have at least one element.");
 
-            Width = terrain.GetLength(0);
-            Height = terrain.GetLength(1);
+            BottomRight = new Position(terrain.GetLength(0) - 1, terrain.GetLength(1) - 1);
             Terrain = CloneArray(terrain);
         }
 
-        public TerrainType GetTerrain(Int32 x, Int32 y)
-        {
-            if (x < 0 || y < 0 || x >= Width || y >= Height)
-                return TerrainType.Impassable;
-            else
-                return Terrain[x, y];
-        }
-
-        public MutableLevel AsMutable() => new MutableLevel(Width, Height, CloneArray(Terrain));
+        public MutableLevel AsMutable() => new MutableLevel(BottomRight, CloneArray(Terrain));
 
         private static TerrainType[,] CloneArray(TerrainType[,] original)
         {

@@ -15,6 +15,35 @@ namespace RoverSim
 
         public Boolean IsValid => Value < DirectionCount;
 
+        public CoordinatePair Delta
+        {
+            get
+            {
+                Int32 x = 0;
+                switch (Value)
+                {
+                    case 1:
+                        x = 1;
+                        break;
+                    case 3:
+                        x = -1;
+                        break;
+                }
+                Int32 y = 0;
+                switch (Value)
+                {
+                    case 0:
+                        y = -1;
+                        break;
+                    case 2:
+                        y = 1;
+                        break;
+                }
+
+                return new CoordinatePair(x, y);
+            }
+        }
+
         public static Direction Up => new Direction(0);
 
         public static Direction Right => new Direction(1);
@@ -31,40 +60,6 @@ namespace RoverSim
                 throw new ArgumentOutOfRangeException(nameof(value), $"Must be between 0 and {DirectionCount}.");
 
             return new Direction(value);
-        }
-
-        public Int32 ChangeInX()
-        {
-            switch (Value)
-            {
-                case 0:
-                    return 0;
-                case 1:
-                    return 1;
-                case 2:
-                    return 0;
-                case 3:
-                    return -1;
-                default:
-                    return 0;
-            }
-        }
-
-        public Int32 ChangeInY()
-        {
-            switch (Value)
-            {
-                case 0:
-                    return -1;
-                case 1:
-                    return 0;
-                case 2:
-                    return 1;
-                case 3:
-                    return 0;
-                default:
-                    return 0;
-            }
         }
 
         public Direction Opposite() => new Direction((Value + 2) % DirectionCount);

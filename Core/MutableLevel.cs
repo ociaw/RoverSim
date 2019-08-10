@@ -4,40 +4,28 @@ namespace RoverSim
 {
     public sealed class MutableLevel
     {
-        public Int32 Width { get; }
-
-        public Int32 Height { get; }
-
-        public Int32 CenterX => Width / 2;
-
-        public Int32 CenterY => Height / 2;
+        public Position BottomRight { get; }
 
         public TerrainType[,] Terrain { get; }
 
-        internal MutableLevel(Int32 width, Int32 height, TerrainType[,] terrain)
+        internal MutableLevel(Position bottomRight, TerrainType[,] terrain)
         {
-            if (width < 1)
-                throw new ArgumentOutOfRangeException(nameof(width));
-            if (height < 1)
-                throw new ArgumentOutOfRangeException(nameof(height));
-
-            Width = width;
-            Height = height;
+            BottomRight = bottomRight;
             Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
         }
 
-        public TerrainType GetTerrain(Position position)
+        public TerrainType GetTerrain(CoordinatePair coordinates)
         {
-            if (position.IsNegative || position.X >= Width || position.Y >= Height)
+            if (coordinates.IsNegative || !BottomRight.Coordinates.Contains(coordinates))
                 return TerrainType.Impassable;
             else
-                return Terrain[position.X, position.Y];
+                return Terrain[coordinates.X, coordinates.Y];
         }
 
         public TerrainType SampleSquare(Position position)
         {
-            if (position.IsNegative || position.X >= Width || position.Y >= Height)
-                throw new ArgumentOutOfRangeException(nameof(position));
+            if (!BottomRight.Contains(position))
+                throw new ArgumentOutOfRangeException(nameof(position), position, "Must be contained within this level.");
 
             (Int32 x, Int32 y) = position;
             if (Terrain[x, y] == TerrainType.Rough)

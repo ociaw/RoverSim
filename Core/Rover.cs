@@ -49,12 +49,12 @@ namespace RoverSim
         {
             ThrowIfHalted();
 
-            Position newPos = Position + direction;
-            TerrainType newTerrain = Level.GetTerrain(newPos);
-            if (newTerrain == TerrainType.Impassable)
+            CoordinatePair newCoords = Position + direction;
+            TerrainType newTerrain = Level.GetTerrain(newCoords);
+            if (newTerrain == TerrainType.Impassable || newCoords.IsNegative)
                 return false;
 
-            Position = newPos;
+            Position = new Position(newCoords);
             MovesLeft -= 1;
             Power -= Parameters.GetMovementPowerCost(newTerrain);
             if (newTerrain != TerrainType.Smooth)

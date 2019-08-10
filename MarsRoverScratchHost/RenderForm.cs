@@ -58,7 +58,7 @@ namespace MarsRoverScratchHost
                     source.Token
                 );
                 Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
-                _renderData = RenderData.GenerateBlank(originalLevel.Width, originalLevel.Height, rover.Position);
+                _renderData = RenderData.GenerateBlank(originalLevel.BottomRight, rover.Position);
 
                 try
                 {

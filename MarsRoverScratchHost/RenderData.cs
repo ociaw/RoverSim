@@ -8,17 +8,18 @@ namespace MarsRoverScratchHost
     /// </summary>
     public sealed class RenderData
     {
-        private RenderData(Int32 width, Int32 height, TerrainType[,] terrain, Position roverPosition)
+        private RenderData(Position bottomRight, TerrainType[,] terrain, Position roverPosition)
         {
-            Width = width;
-            Height = height;
+            BottomRight = bottomRight;
             Terrain = terrain;
             RoverPosition = roverPosition;
         }
 
-        public Int32 Width { get; }
+        public Position BottomRight { get; }
 
-        public Int32 Height { get; }
+        public Int32 Width => BottomRight.X + 1;
+
+        public Int32 Height => BottomRight.Y + 1;
 
         public TerrainType[,] Terrain { get; }
 
@@ -26,41 +27,31 @@ namespace MarsRoverScratchHost
 
         public void UpdateRoverPos(PositionUpdate update)
         {
-            if (update.PreviousX >= Width)
-                throw new ArgumentOutOfRangeException(nameof(update), update.PreviousX, "Previous X must be less than " + Width);
-            if (update.PreviousY >= Height)
-                throw new ArgumentOutOfRangeException(nameof(update), update.PreviousY, "Previous Y must be less than " + Height);
-            if (update.NewX >= Width)
-                throw new ArgumentOutOfRangeException(nameof(update), update.NewX, "New X must be less than " + Width);
-            if (update.NewY >= Height)
-                throw new ArgumentOutOfRangeException(nameof(update), update.NewY, "New Y must be less than " + Height);
+            if (!BottomRight.Contains(update.Previous))
+                throw new ArgumentOutOfRangeException(nameof(update), update.Previous, "Previous position must lie within bottom right position.");
+            if (!BottomRight.Contains(update.New))
+                throw new ArgumentOutOfRangeException(nameof(update), update.New, "New position must lie within bottom right position.");
 
             RoverPosition = update.New;
         }
 
         public void UpdateTerrain(TerrainUpdate update)
         {
-            if (update.PosX >= Width)
-                throw new ArgumentOutOfRangeException(nameof(update), update.PosX, "X Position must be less than " + Width);
-            if (update.PosY >= Height)
-                throw new ArgumentOutOfRangeException(nameof(update), update.PosY, "Y Position must be less than " + Height);
+            if (!BottomRight.Contains(update.Position))
+                throw new ArgumentOutOfRangeException(nameof(update), update.Position, "Position must lie within bottom right position.");
 
-            Terrain[update.PosX, update.PosY] = update.NewTerrain;
+            (Int32 x, Int32 y) = update.Position;
+            Terrain[x, y] = update.NewTerrain;
         }
 
-        public static RenderData GenerateBlank(Int32 width, Int32 height, Position roverPos)
+        public static RenderData GenerateBlank(Position bottomRight, Position roverPos)
         {
-            if (width < 0)
-                throw new ArgumentOutOfRangeException(nameof(width), width, "Must be non-negative");
-            if (height < 0)
-                throw new ArgumentOutOfRangeException(nameof(height), height, "Must be non-negative");
-            if (roverPos.IsNegative)
-                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Must be non-negative.");
-            if (roverPos.X >= width)
-                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "X must be within " + nameof(width));
-            if (roverPos.Y >= height)
-                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Y must be within " + nameof(height));
+            if (!bottomRight.Contains(roverPos))
+                throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Must lie within bottom right position.");
 
+            (Int32 x, Int32 y) = bottomRight;
+            Int32 width = x + 1;
+            Int32 height = y + 1;
             TerrainType[,] terrain = new TerrainType[width, height];
             for (Byte i = 1; i < width - 1; i++)
             {
@@ -70,7 +61,7 @@ namespace MarsRoverScratchHost
                 }
             }
 
-            return new RenderData(width, height, terrain, roverPos);
+            return new RenderData(bottomRight, terrain, roverPos);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace RoverSim.Ais
 
         private Direction _avoidanceDestination = Direction.None;
 
-        private readonly HashSet<Position> _deadEnds = new HashSet<Position>();
+        private readonly HashSet<CoordinatePair> _deadEnds = new HashSet<CoordinatePair>();
 
         public MinimalStateAi(Int32 identifier, SimulationParameters parameters)
         {

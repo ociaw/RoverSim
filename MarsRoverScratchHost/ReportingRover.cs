@@ -101,7 +101,9 @@ namespace MarsRoverScratchHost
         public TerrainType SenseSquare(Direction direction)
         {
             TerrainType terrain = WrappedRover.SenseSquare(direction);
-            TerrainUpdateProgress.Report(new TerrainUpdate(Position + direction, terrain));
+            var updatedCoords = Position + direction;
+            if (!updatedCoords.IsNegative)
+                TerrainUpdateProgress.Report(new TerrainUpdate(new Position(updatedCoords), terrain));
             StatsUpdateProgress.Report(StatsUpdate);
             return terrain;
         }
