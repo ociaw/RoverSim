@@ -70,11 +70,11 @@ namespace RoverSim.Ais
                     _destination = deadEndEscape;
 
                 Direction nextMove = _destination;
-                if (nextMove == Direction.None || adjacent[(Int32)nextMove] == TerrainType.Impassable)
+                if (nextMove == Direction.None || adjacent[nextMove] == TerrainType.Impassable)
                 {
                     if (_avoidanceDestination != Direction.None)
                     {
-                        if (adjacent[(Int32)_avoidanceDestination] == TerrainType.Impassable)
+                        if (adjacent[_avoidanceDestination] == TerrainType.Impassable)
                         {
                             _destination = ResetDestination(adjacent);
                             nextMove = _destination;
@@ -107,9 +107,9 @@ namespace RoverSim.Ais
             // as that causes the rover to favor one area.
             Direction turn = _roundRobin % 2 == 0 ? _destination.RotateCW() : _destination.RotateCCW();
 
-            if (adjacent[(Int32)turn] != TerrainType.Impassable)
+            if (adjacent[turn] != TerrainType.Impassable)
                 return turn;
-            if (adjacent[(Int32)turn.Opposite()] != TerrainType.Impassable)
+            if (adjacent[turn.Opposite()] != TerrainType.Impassable)
                 return turn.Opposite();
 
             return _destination.Opposite();
