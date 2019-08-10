@@ -46,18 +46,21 @@ namespace RoverSim
             return completed;
         }
 
-        private async Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, SimulationParameters parameters, Int32 count)
+        private Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, SimulationParameters parameters, Int32 count)
         {
-            for (Int32 i = 0; i < count; i++)
+            return Task.Run(async () =>
             {
-                Level originalLevel = LevelGenerator.Generate(parameters);
-                IRover rover = RoverFactory.Create(originalLevel.AsMutable(), parameters);
-                StatsRover statsRover = new StatsRover(rover);
-                IAi ai = AiFactory.Create(i, parameters);
-                Simulation simulation = new Simulation(originalLevel, Parameters, ai, statsRover);
-                await target.SendAsync((simulation, statsRover));
-            }
-            target.Complete();
+                for (Int32 i = 0; i < count; i++)
+                {
+                    Level originalLevel = LevelGenerator.Generate(parameters);
+                    IRover rover = RoverFactory.Create(originalLevel.AsMutable(), parameters);
+                    StatsRover statsRover = new StatsRover(rover);
+                    IAi ai = AiFactory.Create(i, parameters);
+                    Simulation simulation = new Simulation(originalLevel, Parameters, ai, statsRover);
+                    await target.SendAsync((simulation, statsRover));
+                }
+                target.Complete();
+            });
         }
 
         private static CompletedSimulation DoSimulation((Simulation simulation, StatsRover statsRover) sim)
