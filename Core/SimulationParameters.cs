@@ -26,7 +26,7 @@ namespace RoverSim
 
         public Int32 SamplesPerProcess { get; } = 3;
 
-        public static SimulationParameters Default { get; } = new SimulationParameters(new Position(32, 23));
+        public static SimulationParameters Default { get; } = new SimulationParameters(new Position(31, 22));
 
         public SimulationParameters(Position bottomRight)
             : this(bottomRight, bottomRight / 2)
