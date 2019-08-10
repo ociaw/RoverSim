@@ -82,7 +82,7 @@ namespace MarsRoverScratchHost
         private void SaveResults(Dictionary<IAiFactory, List<CompletedSimulation>> results)
         {
             Double runCount = 0;
-            Dictionary<String, (Int32 moves, Int32 power, Int32 samples)> aggregates = new Dictionary<String, (Int32 moves, Int32 power, Int32 samples)>();
+            Dictionary<String, (Int64 moves, Int64 power, Int64 samples)> aggregates = new Dictionary<String, (Int64 moves, Int64 power, Int64 samples)>();
 
             String documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             TextWriter writer = new StreamWriter(documentsFolder + "\\MarsRoverScratch.csv");
@@ -125,7 +125,7 @@ namespace MarsRoverScratchHost
                 }
             }
 
-            foreach (KeyValuePair<String, (Int32 moves, Int32 power, Int32 samples)> stat in aggregates)
+            foreach (KeyValuePair<String, (Int64 moves, Int64 power, Int64 samples)> stat in aggregates)
             {
                 if (dataGridView1.Rows.Count == 0)
                 {
