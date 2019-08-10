@@ -30,6 +30,8 @@ namespace RoverSim.Ais
 
         public SimulationParameters Parameters { get; }
 
+        public Int32 LowPowerThreshold => Parameters.MoveSmoothCost * 2 + Parameters.SampleCost;
+
         public Int32 DeadEndMemory { get; }
 
         public void Simulate(IRover rover)
@@ -46,11 +48,11 @@ namespace RoverSim.Ais
                     return;
                 }
 
-                if (rover.Power < 30 || (!adjacentSmoothDir.HasValue && rover.SenseSquare(Direction.None) == TerrainType.Smooth))
+                if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && rover.SenseSquare(Direction.None) == TerrainType.Smooth))
                 {
                     if (!HasExcessPower(rover))
                         rover.CollectPower();
-                    if (rover.Power < 30)
+                    if (rover.Power < LowPowerThreshold)
                         rover.Transmit();
                 }
 
