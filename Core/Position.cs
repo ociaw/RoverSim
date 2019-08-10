@@ -16,8 +16,6 @@ namespace RoverSim
 
         public Boolean IsNegative => X < 0 || Y < 0;
 
-        public Boolean IsPositive => X > 0 && Y > 0;
-
         public void Deconstruct(out Int32 x, out Int32 y)
         {
             x = X;

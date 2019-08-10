@@ -40,8 +40,6 @@ namespace RoverSim
                 throw new ArgumentOutOfRangeException(nameof(levelWidth), levelWidth, "Must be positive.");
             if (levelHeight < 1)
                 throw new ArgumentOutOfRangeException(nameof(levelHeight), levelHeight, "Must be positive.");
-            if (!initialPosition.IsPositive)
-                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, "Must be positive.");
             if (initialPosition.X >= levelWidth)
                 throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, $"X must be less than {levelWidth}.");
             if (initialPosition.Y >= levelHeight)
