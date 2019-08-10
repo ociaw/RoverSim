@@ -4,9 +4,7 @@ namespace RoverSim
 {
     public sealed class SimulationParameters
     {
-        public Int32 LevelWidth { get; }
-
-        public Int32 LevelHeight { get; }
+        public Position BottomRight { get; }
 
         public Position InitialPosition { get; }
 
@@ -28,25 +26,18 @@ namespace RoverSim
 
         public Int32 SamplesPerProcess { get; } = 3;
 
-        public static SimulationParameters Default { get; } = new SimulationParameters(32, 23);
+        public static SimulationParameters Default { get; } = new SimulationParameters(new Position(32, 23));
 
-        public SimulationParameters(Int32 levelWidth, Int32 levelHeight)
-            : this(levelWidth, levelHeight, new Position(levelWidth / 2, levelHeight / 2))
+        public SimulationParameters(Position bottomRight)
+            : this(bottomRight, bottomRight / 2)
         { }
 
-        public SimulationParameters(Int32 levelWidth, Int32 levelHeight, Position initialPosition)
+        public SimulationParameters(Position bottomRight, Position initialPosition)
         {
-            if (levelWidth < 1)
-                throw new ArgumentOutOfRangeException(nameof(levelWidth), levelWidth, "Must be positive.");
-            if (levelHeight < 1)
-                throw new ArgumentOutOfRangeException(nameof(levelHeight), levelHeight, "Must be positive.");
-            if (initialPosition.X >= levelWidth)
-                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, $"X must be less than {levelWidth}.");
-            if (initialPosition.Y >= levelHeight)
-                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, $"Y must be less than {levelHeight}.");
+            if (!bottomRight.Contains(initialPosition))
+                throw new ArgumentOutOfRangeException(nameof(initialPosition), initialPosition, "Must lie within bottom right position.");
 
-            LevelWidth = levelWidth;
-            LevelHeight = levelHeight;
+            BottomRight = bottomRight;
             InitialPosition = initialPosition;
         }
 

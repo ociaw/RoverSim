@@ -74,7 +74,9 @@ namespace RoverSim
 
         public static implicit operator CoordinatePair(Position position) => position.Coordinates;
 
-        public static Position operator +(Position left, Position right) => new Position(left.X + right.X, left.Y + right.Y);
+        public static Position operator +(Position left, Position right) => checked(new Position(left.X + right.X, left.Y + right.Y));
+
+        public static Position operator /(Position left, Int32 right) => right > 0 ? new Position(left.X / right, left.Y / right) : throw new ArgumentOutOfRangeException(nameof(right));
 
         public static CoordinatePair operator +(Position left, CoordinatePair right) => left.Coordinates + right;
 

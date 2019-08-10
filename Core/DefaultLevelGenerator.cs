@@ -26,8 +26,8 @@ namespace RoverSim
 
         private static TerrainType[,] Generate(SimulationParameters parameters, Random random)
         {
-            Int32 width = parameters.LevelWidth;
-            Int32 height = parameters.LevelHeight;
+            Int32 width = parameters.BottomRight.X + 1;
+            Int32 height = parameters.BottomRight.Y + 1;
 
             TerrainType[,] terrain = new TerrainType[width, height];
 
