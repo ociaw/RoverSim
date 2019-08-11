@@ -38,7 +38,7 @@ namespace MarsRoverScratchHost
         public void UpdateTerrain(TerrainUpdate update)
         {
             if (!BottomRight.Contains(update.Position))
-                throw new ArgumentOutOfRangeException(nameof(update), update.Position, "Position must lie within bottom right position.");
+                return; // We can ignore out of bound updates, as these are not accessible anyway.
 
             (Int32 x, Int32 y) = update.Position;
             Terrain[x, y] = update.NewTerrain;
