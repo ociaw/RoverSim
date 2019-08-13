@@ -19,34 +19,38 @@ namespace RoverSim
 
             TerrainType[,] terrain = new TerrainType[width, height];
 
-            HashSet<Position> visited = new HashSet<Position>();
-            Stack<Position> intersections = new Stack<Position>();
-            intersections.Push(parameters.InitialPosition);
-            
-            while (intersections.Count > 0)
-            {
-                Position current = intersections.Pop();
-                if (visited.Contains(current))
-                    continue;
+            Position start = parameters.InitialPosition;
+            Stack<CoordinatePair> stack = new Stack<CoordinatePair>();
+            HashSet<CoordinatePair> visited = new HashSet<CoordinatePair>();
+            stack.Push(start);
+            visited.Add(start);
+            terrain[start.X, start.Y] = TerrainType.Smooth;
 
-                visited.Add(current);
+            while (stack.Count > 0)
+            {
+                var current = stack.Peek();
+
+                Int32 offset = Random.Next(0, Direction.DirectionCount + 1);
+                Boolean anyNewNeighbors = false;
                 for (Int32 i = 0; i < Direction.DirectionCount; i++)
                 {
-                    Direction direction = (Direction)i;
-                    CoordinatePair passage = current + direction;
-                    CoordinatePair intersection = passage + direction;
-                    if (!parameters.BottomRight.Contains(intersection + direction))
+                    Direction direction = (Direction)((i + offset) % Direction.DirectionCount);
+
+                    var passage = current + direction;
+                    var neighbor = passage + direction;
+                    var boundaryCheck = neighbor + direction;
+                    if (!parameters.BottomRight.Contains(boundaryCheck) || visited.Contains(neighbor))
                         continue;
 
-                    Boolean createIntersection = Random.Next(0, 10) < 7;
-                    if (createIntersection)
-                    {
-                        intersections.Push(new Position(intersection));
-                        terrain[passage.X, passage.Y] = TerrainType.Smooth;
-                        terrain[intersection.X, intersection.Y] = TerrainType.Smooth;
-                    }
+                    anyNewNeighbors = true;
+                    terrain[passage.X, passage.Y] = TerrainType.Smooth;
+                    terrain[neighbor.X, neighbor.Y] = TerrainType.Smooth;
+                    visited.Add(neighbor);
+                    stack.Push(neighbor);
                 }
 
+                if (!anyNewNeighbors)
+                    stack.Pop();
             }
 
             return new Level(terrain);
