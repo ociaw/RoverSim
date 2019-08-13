@@ -30,7 +30,7 @@ namespace RoverSim
             {
                 var current = stack.Peek();
 
-                Int32 offset = Random.Next(0, Direction.DirectionCount + 1);
+                Int32 offset = Random.Next(Direction.DirectionCount);
                 Boolean anyNewNeighbors = false;
                 for (Int32 i = 0; i < Direction.DirectionCount; i++)
                 {
@@ -50,7 +50,19 @@ namespace RoverSim
                 }
 
                 if (!anyNewNeighbors)
+                {
+                    if (Random.Next(5) == 0)
+                    {
+                        // 20 % chance of clearing a wall
+                        Direction direction = (Direction)Random.Next(Direction.DirectionCount);
+                        var passage = current + direction;
+                        var boundaryCheck = passage + direction;
+                        if (parameters.BottomRight.Contains(boundaryCheck) && terrain[passage.X, passage.Y] == TerrainType.Impassable)
+                            terrain[passage.X, passage.Y] = TerrainType.Rough;
+                    }
+
                     stack.Pop();
+                }
             }
 
             return new Level(terrain);
