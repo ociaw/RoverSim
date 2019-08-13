@@ -8,8 +8,6 @@ namespace RoverSim.Ais
     /// </summary>
     public sealed class MinimalStateAi : IAi
     {
-        private const Int32 DirectionCount = 4;
-
         private Int32 _roundRobin = 0;
 
         private Direction _destination = Direction.None;
@@ -123,9 +121,9 @@ namespace RoverSim.Ais
 
         private Direction ResetDestination(TerrainType[] adjacent)
         {
-            for (Int32 i = _roundRobin; i < _roundRobin + DirectionCount; i++)
+            for (Int32 i = _roundRobin; i < _roundRobin + Direction.DirectionCount; i++)
             {
-                Int32 dir = i % DirectionCount;
+                Int32 dir = i % Direction.DirectionCount;
                 if (adjacent[dir] != TerrainType.Impassable)
                     return (Direction)dir;
             }
@@ -205,7 +203,7 @@ namespace RoverSim.Ais
 
         private TerrainType[] SenseAdjacent(IRover rover)
         {
-            TerrainType[] terrain = new TerrainType[DirectionCount];
+            TerrainType[] terrain = new TerrainType[Direction.DirectionCount];
 
             for (Int32 i = 0; i < terrain.Length; i++)
             {
@@ -234,7 +232,7 @@ namespace RoverSim.Ais
             Direction? adjacentRough = null;
             for (Int32 i = 0; i < adjacent.Length; i++)
             {
-                Int32 roundRobin = (i + _roundRobin) % DirectionCount;
+                Int32 roundRobin = (i + _roundRobin) % Direction.DirectionCount;
                 switch (adjacent[roundRobin])
                 {
                     case TerrainType.Smooth:
