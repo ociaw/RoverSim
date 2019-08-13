@@ -5,7 +5,7 @@ namespace RoverSim
     /// <summary>
     /// Represents an X-Y coordinate pair where X and Y are any integer.
     /// </summary>
-    public readonly struct CoordinatePair
+    public readonly struct CoordinatePair : IEquatable<CoordinatePair>, IComparable<CoordinatePair>
     {
         public CoordinatePair(Int32 x, Int32 y)
         {
@@ -37,6 +37,14 @@ namespace RoverSim
                 && Math.Sign(Y) == Math.Sign(other.Y) && Math.Abs(Y) >= Math.Abs(other.Y);
         }
 
+        public Int32 CompareTo(CoordinatePair other)
+        {
+            Int64 product = (Int64)X * Y;
+            Int64 otherProduct = (Int64)other.X * other.Y;
+
+            return product.CompareTo(otherProduct);
+        }
+
         public Boolean Equals(CoordinatePair other) => X.Equals(other.X) && Y.Equals(other.Y);
 
         public override Boolean Equals(Object obj) => obj is CoordinatePair coordinates && Equals(coordinates);
@@ -58,8 +66,16 @@ namespace RoverSim
 
         public static Boolean operator !=(CoordinatePair left, CoordinatePair right) => !(left == right);
 
+        public static Boolean operator <(CoordinatePair left, CoordinatePair right) => left.CompareTo(right) < 0;
+
+        public static Boolean operator >(CoordinatePair left, CoordinatePair right) => left.CompareTo(right) > 0;
+
         public static CoordinatePair operator +(CoordinatePair left, CoordinatePair right) => new CoordinatePair(left.X + right.X, left.Y + right.Y);
 
+        public static CoordinatePair operator -(CoordinatePair left, CoordinatePair right) => new CoordinatePair(left.X - right.X, left.Y - right.Y);
+
         public static CoordinatePair operator +(CoordinatePair left, Direction right) => left + right.Delta;
+
+        public static CoordinatePair operator /(CoordinatePair left, Int32 right) => right > 0 ? new CoordinatePair(left.X / right, left.Y / right) : throw new ArgumentOutOfRangeException(nameof(right));
     }
 }
