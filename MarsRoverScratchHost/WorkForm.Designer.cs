@@ -32,12 +32,13 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.ActionButton2 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.openRender = new System.Windows.Forms.Button();
+            this.timeUsed = new System.Windows.Forms.TextBox();
             this.aiType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.movesLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.powerLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.samplesSent = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.openRender = new System.Windows.Forms.Button();
-            this.timeUsed = new System.Windows.Forms.TextBox();
+            this.SampleStdDev = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,6 +52,7 @@
             // 
             // listView1
             // 
+            this.listView1.HideSelection = false;
             this.listView1.LabelWrap = false;
             this.listView1.Location = new System.Drawing.Point(12, 12);
             this.listView1.Name = "listView1";
@@ -76,38 +78,12 @@
             this.aiType,
             this.movesLeft,
             this.powerLeft,
-            this.samplesSent});
+            this.samplesSent,
+            this.SampleStdDev});
             this.dataGridView1.Location = new System.Drawing.Point(12, 192);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(432, 150);
             this.dataGridView1.TabIndex = 4;
-            // 
-            // aiType
-            // 
-            this.aiType.HeaderText = "AI Type";
-            this.aiType.Name = "aiType";
-            this.aiType.ReadOnly = true;
-            // 
-            // movesLeft
-            // 
-            this.movesLeft.HeaderText = "Moves Left";
-            this.movesLeft.Name = "movesLeft";
-            this.movesLeft.ReadOnly = true;
-            this.movesLeft.Width = 85;
-            // 
-            // powerLeft
-            // 
-            this.powerLeft.HeaderText = "Power Left";
-            this.powerLeft.Name = "powerLeft";
-            this.powerLeft.ReadOnly = true;
-            this.powerLeft.Width = 85;
-            // 
-            // samplesSent
-            // 
-            this.samplesSent.HeaderText = "Samples Sent";
-            this.samplesSent.Name = "samplesSent";
-            this.samplesSent.ReadOnly = true;
-            this.samplesSent.Width = 95;
             // 
             // openRender
             // 
@@ -125,6 +101,46 @@
             this.timeUsed.Name = "timeUsed";
             this.timeUsed.Size = new System.Drawing.Size(75, 20);
             this.timeUsed.TabIndex = 6;
+            // 
+            // aiType
+            // 
+            this.aiType.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.aiType.HeaderText = "AI Type";
+            this.aiType.MinimumWidth = 100;
+            this.aiType.Name = "aiType";
+            this.aiType.ReadOnly = true;
+            // 
+            // movesLeft
+            // 
+            this.movesLeft.HeaderText = "Moves Left";
+            this.movesLeft.MinimumWidth = 55;
+            this.movesLeft.Name = "movesLeft";
+            this.movesLeft.ReadOnly = true;
+            this.movesLeft.Width = 55;
+            // 
+            // powerLeft
+            // 
+            this.powerLeft.HeaderText = "Power Left";
+            this.powerLeft.MinimumWidth = 55;
+            this.powerLeft.Name = "powerLeft";
+            this.powerLeft.ReadOnly = true;
+            this.powerLeft.Width = 55;
+            // 
+            // samplesSent
+            // 
+            this.samplesSent.HeaderText = "Samples Sent";
+            this.samplesSent.MinimumWidth = 55;
+            this.samplesSent.Name = "samplesSent";
+            this.samplesSent.ReadOnly = true;
+            this.samplesSent.Width = 55;
+            // 
+            // SampleStdDev
+            // 
+            this.SampleStdDev.HeaderText = "Sample Std. Dev.";
+            this.SampleStdDev.MinimumWidth = 75;
+            this.SampleStdDev.Name = "SampleStdDev";
+            this.SampleStdDev.ReadOnly = true;
+            this.SampleStdDev.Width = 75;
             // 
             // WorkForm
             // 
@@ -151,12 +167,13 @@
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.Button ActionButton2;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Button openRender;
+        private System.Windows.Forms.TextBox timeUsed;
         private System.Windows.Forms.DataGridViewTextBoxColumn aiType;
         private System.Windows.Forms.DataGridViewTextBoxColumn movesLeft;
         private System.Windows.Forms.DataGridViewTextBoxColumn powerLeft;
         private System.Windows.Forms.DataGridViewTextBoxColumn samplesSent;
-        private System.Windows.Forms.Button openRender;
-        private System.Windows.Forms.TextBox timeUsed;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SampleStdDev;
     }
 }
 

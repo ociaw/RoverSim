@@ -81,8 +81,7 @@ namespace MarsRoverScratchHost
 
         private void SaveResults(Dictionary<IAiFactory, List<CompletedSimulation>> results)
         {
-            Double runCount = 0;
-            Dictionary<String, (Int64 moves, Int64 power, Int64 samples)> aggregates = new Dictionary<String, (Int64 moves, Int64 power, Int64 samples)>();
+            var aggregates = new Dictionary<String, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleVariance)>();
 
             String documentsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             TextWriter writer = new StreamWriter(documentsFolder + "\\MarsRoverScratch.csv");
@@ -99,9 +98,17 @@ namespace MarsRoverScratchHost
                 foreach (var kvp in results)
                 {
                     String aiName = kvp.Key.Name;
+                    Int64 moves = 0;
+                    Int64 power = 0;
+                    Int64 samples = 0;
+
+                    // Used for calculating the standard deviation
+                    Int32 count = 0;
+                    Double meanSamples = 0;
+                    Double mean2Samples = 0;
+
                     foreach (var sim in kvp.Value)
                     {
-                        runCount++;
                         RoverStats stats = sim.Stats;
 
                         csv.WriteField(kvp.Key.Name);
@@ -112,27 +119,34 @@ namespace MarsRoverScratchHost
                         csv.WriteField(stats.SamplesTransmitted.ToString());
                         csv.NextRecord();
 
-                        if (aggregates.ContainsKey(aiName))
-                        {
-                            var (moves, power, samples) = aggregates[aiName];
-                            aggregates[aiName] = (moves + stats.MovesLeft, power + stats.Power, samples + stats.SamplesTransmitted);
-                        }
-                        else
-                        {
-                            aggregates[aiName] = (stats.MovesLeft, stats.Power, stats.SamplesTransmitted);
-                        }
+                        moves += stats.MovesLeft;
+                        power += stats.Power;
+                        samples += stats.SamplesTransmitted;
+
+                        count++;
+                        Double delta = stats.SamplesTransmitted - meanSamples;
+                        meanSamples += delta / count;
+                        Double delta2 = stats.SamplesTransmitted - meanSamples;
+                        mean2Samples += delta * delta2;
                     }
+
+                    Double sampleVariance = mean2Samples / (count - 1);
+                    Double sampleStdDev = Math.Sqrt(sampleVariance);
+
+                    aggregates[aiName] = (moves / (Double)count, power / (Double)count, meanSamples, sampleStdDev);
                 }
             }
 
-            foreach (KeyValuePair<String, (Int64 moves, Int64 power, Int64 samples)> stat in aggregates)
+            foreach (KeyValuePair<String, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> stat in aggregates)
             {
                 if (dataGridView1.Rows.Count == 0)
                 {
                     DataGridViewRow row = new DataGridViewRow();
                     dataGridView1.Rows.Add(row);
                 }
-                dataGridView1.Rows[0].SetValues(stat.Key, (stat.Value.moves / runCount).ToString(), (stat.Value.power / runCount).ToString(), (stat.Value.samples / runCount).ToString());
+
+                (var meanMoves, var meanPower, var meanSamples, var sampleStdDev) = stat.Value;
+                dataGridView1.Rows[0].SetValues(stat.Key, meanMoves.ToString("F2"), meanPower.ToString("F2"), meanSamples.ToString("F2"), sampleStdDev.ToString("F2"));
             }
         }
 
