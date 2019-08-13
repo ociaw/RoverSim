@@ -35,14 +35,14 @@ namespace RoverSim
                 DoSimulation,
                 consumerOptions
             );
-            var completerOptions = new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1, BoundedCapacity = 32 };
+            var completerOptions = new ExecutionDataflowBlockOptions { SingleProducerConstrained = true, BoundedCapacity = 32 };
             var completer = new ActionBlock<CompletedSimulation>(sim => completed.Add(sim), completerOptions);
             productionQueue.LinkTo(simConsumer, new DataflowLinkOptions { PropagateCompletion = true });
-            simConsumer.LinkTo(completer);
+            simConsumer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
             var simProducer = ProduceSimulations(productionQueue, Parameters, runCount);
 
-            await Task.WhenAll(simProducer, simConsumer.Completion);
+            await Task.WhenAll(simProducer, simConsumer.Completion, completer.Completion);
             return completed;
         }
 
