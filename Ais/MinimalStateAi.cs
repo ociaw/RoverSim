@@ -14,6 +14,8 @@ namespace RoverSim.Ais
 
         private Direction _avoidanceDestination = Direction.None;
 
+        private Boolean _gatheringPower = true;
+
         private readonly Queue<CoordinatePair> _deadEnds;
 
         public MinimalStateAi(Int32 identifier, SimulationParameters parameters, Int32 deadEndMemory)
@@ -46,7 +48,7 @@ namespace RoverSim.Ais
                     return;
                 }
 
-                if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && rover.SenseSquare(Direction.None) == TerrainType.Smooth))
+                if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && occupied == TerrainType.Smooth))
                 {
                     if (!HasExcessPower(rover))
                         rover.CollectPower();
@@ -54,7 +56,8 @@ namespace RoverSim.Ais
                         rover.Transmit();
                 }
 
-                if (occupied.IsSampleable())
+                // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
+                if (occupied.IsSampleable() && (!_gatheringPower || adjacentSmoothDir == null || occupied != TerrainType.Smooth))
                 {
                     rover.CollectSample();
                     if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
@@ -62,6 +65,9 @@ namespace RoverSim.Ais
                 }
 
                 Boolean hasExcessPower = HasExcessPower(rover);
+                if (hasExcessPower)
+                    _gatheringPower = false;
+
                 (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
                 if (isDeadEnd)
                     AddDeadEnd(rover.Position);
