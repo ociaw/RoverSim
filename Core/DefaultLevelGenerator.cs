@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RoverSim
 {
@@ -19,7 +20,7 @@ namespace RoverSim
                 // Generate the terrain and ensure that the starting square isn't completely blocked in
                 terrain = Generate(parameters, Random);
             }
-            while (!CheckOpen(terrain, parameters.InitialPosition));
+            while (CountOpen(terrain, parameters.InitialPosition, 6) < 6);
 
             return new Level(terrain);
         }
@@ -28,6 +29,8 @@ namespace RoverSim
         {
             Int32 width = parameters.BottomRight.X + 1;
             Int32 height = parameters.BottomRight.Y + 1;
+
+            (Int32 initialX, Int32 initialY) = parameters.InitialPosition;
 
             TerrainType[,] terrain = new TerrainType[width, height];
 
@@ -43,7 +46,7 @@ namespace RoverSim
                             terrain[i, j] = TerrainType.Smooth;
                         if (random.Next(1, 11) == 1)
                             terrain[i, j] = TerrainType.Impassable;
-                        if (i == parameters.InitialPosition.X && j == parameters.InitialPosition.Y)
+                        if (i == initialX && j == initialY)
                             terrain[i, j] = TerrainType.Smooth;
                     }
                 }
@@ -53,20 +56,45 @@ namespace RoverSim
         }
 
         /// <summary>
-        /// Checks if at least one of the squares adjacent to the center is not impassable.
+        /// Counts the number of contiguous non-impassable terrain tiles throuh a BFS.
         /// </summary>
-        /// <param name="terrain"></param>
-        /// <returns></returns>
-        private static Boolean CheckOpen(TerrainType[,] terrain, Position position)
+        /// <param name="terrain">The terrain.</param>
+        /// <param name="limit">The maximum number of matching tiles to count.</param>
+        private static Int32 CountOpen(TerrainType[,] terrain, Position start, Int32 limit)
         {
-            (Int32 x, Int32 y) = position;
+            Int32 width = terrain.GetLength(0);
+            Int32 height = terrain.GetLength(1);
 
-            Boolean left = terrain[x - 1, y] != TerrainType.Impassable;
-            Boolean right = terrain[x + 1, y] != TerrainType.Impassable;
-            Boolean up = terrain[x, y - 1] != TerrainType.Impassable;
-            Boolean down = terrain[x, y + 1] != TerrainType.Impassable;
+            Stack<CoordinatePair> stack = new Stack<CoordinatePair>();
+            HashSet<CoordinatePair> visited = new HashSet<CoordinatePair>();
 
-            return left || right || up || down;
+            Int32 count = 0;
+
+            if (terrain[start.X, start.Y] != TerrainType.Impassable)
+                stack.Push(start);
+
+            while (stack.Count > 0)
+            {
+                CoordinatePair current = stack.Pop();
+                if (!visited.Add(current))
+                    continue;
+
+                count++;
+                if (count == limit)
+                    return count;
+
+                for (Int32 i = 0; i < Direction.DirectionCount; i++)
+                {
+                    Direction direction = (Direction)i;
+                    CoordinatePair neighbor = current + direction;
+                    if (neighbor.X >= width || neighbor.Y >= height || neighbor.X < 0 || neighbor.Y < 0 || terrain[neighbor.X, neighbor.Y] == TerrainType.Impassable)
+                        continue;
+
+                    stack.Push(neighbor);
+                }
+            }
+
+            return count;
         }
     }
 }
