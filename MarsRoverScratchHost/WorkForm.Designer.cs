@@ -112,6 +112,7 @@
             // 
             // movesLeft
             // 
+            this.movesLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
             this.movesLeft.HeaderText = "Moves Left";
             this.movesLeft.MinimumWidth = 55;
             this.movesLeft.Name = "movesLeft";
@@ -120,14 +121,16 @@
             // 
             // powerLeft
             // 
+            this.powerLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
             this.powerLeft.HeaderText = "Power Left";
             this.powerLeft.MinimumWidth = 55;
             this.powerLeft.Name = "powerLeft";
             this.powerLeft.ReadOnly = true;
-            this.powerLeft.Width = 55;
+            this.powerLeft.Width = 60;
             // 
             // samplesSent
             // 
+            this.samplesSent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
             this.samplesSent.HeaderText = "Samples Sent";
             this.samplesSent.MinimumWidth = 55;
             this.samplesSent.Name = "samplesSent";
@@ -136,6 +139,7 @@
             // 
             // SampleStdDev
             // 
+            this.SampleStdDev.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
             this.SampleStdDev.HeaderText = "Sample Std. Dev.";
             this.SampleStdDev.MinimumWidth = 75;
             this.SampleStdDev.Name = "SampleStdDev";
