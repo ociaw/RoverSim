@@ -57,7 +57,7 @@ namespace RoverSim.Ais
                 }
 
                 // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
-                if (occupied.IsSampleable() && (!_gatheringPower || adjacentSmoothDir == null || occupied != TerrainType.Smooth))
+                if (occupied.IsSampleable() && (!_gatheringPower || (adjacentSmoothDir == null && occupied == TerrainType.Smooth)))
                 {
                     rover.CollectSample();
                     if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
@@ -74,7 +74,7 @@ namespace RoverSim.Ais
 
                 if (adjacentSmoothDir.HasValue)
                     _destination = adjacentSmoothDir.Value; // Prioritize smooth squares
-                else if (hasExcessPower && adjacentRoughDir.HasValue)
+                else if (hasExcessPower && !_gatheringPower && adjacentRoughDir.HasValue)
                     _destination = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
                 else if (isDeadEnd)
                     _destination = deadEndEscape;
@@ -150,7 +150,7 @@ namespace RoverSim.Ais
             }
             return (impassableCount >= 3, direction);
         }
-
+        
         private Boolean HasExcessPower(IRover rover) => rover.Power >= (Parameters.MoveRoughCost + 1) * rover.MovesLeft;
 
         private void DoLowMoves(IRover rover)
