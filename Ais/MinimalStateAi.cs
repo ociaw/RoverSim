@@ -157,10 +157,11 @@ namespace RoverSim.Ais
         {
             if (rover.MovesLeft > 5)
                 return;
+
             Boolean smoothOccupied = rover.SenseSquare(Direction.None) == TerrainType.Smooth;
             Boolean roughOccupied = rover.SenseSquare(Direction.None) == TerrainType.Rough;
             (Direction? smoothDir, Direction? roughDir) = FindAdjacentUnsampled(rover);
-            if (rover.MovesLeft == 5) // And lots of power
+            if (rover.MovesLeft == 5 && rover.Power > Parameters.SampleCost + Parameters.MoveRoughCost + Parameters.SampleCost + Parameters.ProcessCost)
             {
                 if (smoothOccupied || roughOccupied)
                     rover.CollectSample();
@@ -176,7 +177,7 @@ namespace RoverSim.Ais
                 return;
             }
 
-            if (rover.MovesLeft == 4)
+            if (rover.MovesLeft >= 4)
             {
                 rover.CollectPower();
                 if (rover.Power > Parameters.ProcessCost)
