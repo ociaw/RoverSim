@@ -151,7 +151,7 @@ namespace RoverSim.Ais
             return (impassableCount >= 3, direction);
         }
         
-        private Boolean HasExcessPower(IRover rover) => rover.Power >= (Parameters.MoveRoughCost + 1) * rover.MovesLeft;
+        private Boolean HasExcessPower(IRover rover) => rover.Power >= (7) * rover.MovesLeft + 1;
 
         private void DoLowMoves(IRover rover)
         {

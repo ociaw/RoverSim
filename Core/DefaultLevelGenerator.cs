@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace RoverSim
 {
@@ -15,13 +14,8 @@ namespace RoverSim
         public Level Generate(SimulationParameters parameters)
         {
             TerrainType[,] terrain;
-            do
-            {
-                // Generate the terrain and ensure that the starting square isn't completely blocked in
-                terrain = Generate(parameters, Random);
-            }
-            while (CountOpen(terrain, parameters.InitialPosition, 6) < 6);
-
+            // Generate the terrain and ensure that the starting square isn't completely blocked in
+            terrain = Generate(parameters, Random);
             return new Level(terrain);
         }
 
@@ -53,48 +47,6 @@ namespace RoverSim
             }
 
             return terrain;
-        }
-
-        /// <summary>
-        /// Counts the number of contiguous non-impassable terrain tiles throuh a BFS.
-        /// </summary>
-        /// <param name="terrain">The terrain.</param>
-        /// <param name="limit">The maximum number of matching tiles to count.</param>
-        private static Int32 CountOpen(TerrainType[,] terrain, Position start, Int32 limit)
-        {
-            Int32 width = terrain.GetLength(0);
-            Int32 height = terrain.GetLength(1);
-
-            Stack<CoordinatePair> stack = new Stack<CoordinatePair>();
-            HashSet<CoordinatePair> visited = new HashSet<CoordinatePair>();
-
-            Int32 count = 0;
-
-            if (terrain[start.X, start.Y] != TerrainType.Impassable)
-                stack.Push(start);
-
-            while (stack.Count > 0)
-            {
-                CoordinatePair current = stack.Pop();
-                if (!visited.Add(current))
-                    continue;
-
-                count++;
-                if (count == limit)
-                    return count;
-
-                for (Int32 i = 0; i < Direction.DirectionCount; i++)
-                {
-                    Direction direction = (Direction)i;
-                    CoordinatePair neighbor = current + direction;
-                    if (neighbor.X >= width || neighbor.Y >= height || neighbor.X < 0 || neighbor.Y < 0 || terrain[neighbor.X, neighbor.Y] == TerrainType.Impassable)
-                        continue;
-
-                    stack.Push(neighbor);
-                }
-            }
-
-            return count;
         }
     }
 }

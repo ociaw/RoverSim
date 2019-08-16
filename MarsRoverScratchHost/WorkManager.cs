@@ -16,7 +16,7 @@ namespace MarsRoverScratchHost
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(levelSeed);
-                var levelGenerator = new DefaultLevelGenerator(levelRand);
+                var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(levelRand), 6);
                 var roverFactory = new DefaultRoverFactory();
 
                 var simulator = new Simulator(levelGenerator, roverFactory, aiFactory);

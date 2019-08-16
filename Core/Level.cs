@@ -12,6 +12,17 @@ namespace RoverSim
 
         private TerrainType[,] Terrain { get; }
 
+        public TerrainType this[CoordinatePair coords]
+        {
+            get
+            {
+                if (!BottomRight.Contains(coords))
+                    throw new ArgumentOutOfRangeException(nameof(coords));
+
+                return Terrain[coords.X, coords.Y];
+            }
+        }
+
         public Level(TerrainType[,] terrain)
         {
             if (terrain == null)
