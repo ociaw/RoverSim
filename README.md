@@ -40,14 +40,14 @@ As its name implies, `Core` is the . `Core` defines the basic types, such as `IR
 as well as simulation and terrain types. Everything else in the solution depends on `Core`.
 
 ## AIs
-`Ais` contains AIs written against the modern API. Currently, there is only `MinimalStateAi`, an
+`Ais` contains AIs written against the modern API. Currently, there is only `FixedStateAi`, an
 AI that tries to make the most out of a fixed amount of memory.
 
 ## Scratch AIs
 `ScratchAis` has all of the AIs originally written and destined for Scratch. This includes
 * `IntelligentRandom` - always moves towards an adjacent smooth tile, or randomly otherwise.
 * `Mark I` - similar to `IntelligentRandom`, but tries to get unstuck deterministically instead of
-randomly. The predecessor to `MinimalStateAi`.
+randomly. The predecessor to `FixedStateAi`.
 * `Mark II` - uses Dijkstra's algorithm to always find the closest smooth tile.
 
 # TODO

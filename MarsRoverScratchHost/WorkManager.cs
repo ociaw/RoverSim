@@ -38,7 +38,7 @@ namespace RoverSim.WinFormsClient
                 new IntelligentRandomAiFactory(),
                 new MarkIFactory(),
                 new MarkIIFactory(),
-                new MinimalStateAiFactory(),
+                new FixedStateAiFactory(),
             };
     }
 }
