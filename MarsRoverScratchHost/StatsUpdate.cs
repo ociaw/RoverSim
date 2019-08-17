@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WinFormsClient
+namespace RoverSim.WinFormsClient
 {
     public readonly struct StatsUpdate
     {

@@ -1,8 +1,4 @@
-﻿using System;
-
-using RoverSim;
-
-namespace WinFormsClient
+﻿namespace RoverSim.WinFormsClient
 {
     public readonly struct PositionUpdate
     {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RoverSim;
 using RoverSim.Ais;
 using RoverSim.ScratchAis;
 
-namespace WinFormsClient
+namespace RoverSim.WinFormsClient
 {
     internal class WorkManager
     {

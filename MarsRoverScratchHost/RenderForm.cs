@@ -3,9 +3,8 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
-using RoverSim;
 
-namespace WinFormsClient
+namespace RoverSim.WinFormsClient
 {
     internal partial class RenderForm : Form, IDisposable
     {

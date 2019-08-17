@@ -1,4 +1,4 @@
-﻿namespace WinFormsClient
+﻿namespace RoverSim.WinFormsClient
 {
     partial class WorkForm
     {

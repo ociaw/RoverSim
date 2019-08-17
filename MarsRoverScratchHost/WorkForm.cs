@@ -5,9 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using CsvHelper;
-using RoverSim;
 
-namespace WinFormsClient
+namespace RoverSim.WinFormsClient
 {
     public partial class WorkForm : Form
     {

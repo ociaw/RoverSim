@@ -1,7 +1,6 @@
 ﻿using System;
-using RoverSim;
 
-namespace WinFormsClient
+namespace RoverSim.WinFormsClient
 {
     /// <summary>
     /// Contains the information necessary to render the rover.
