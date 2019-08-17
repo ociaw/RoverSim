@@ -5,7 +5,7 @@ using RoverSim;
 using RoverSim.Ais;
 using RoverSim.ScratchAis;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     internal class WorkManager
     {

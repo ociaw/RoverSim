@@ -7,8 +7,8 @@
     <ProjectGuid>{ACCE344A-C4BF-4492-A98E-063FD49304AC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MarsRoverScratchHost</RootNamespace>
-    <AssemblyName>MarsRoverScratchHost</AssemblyName>
+    <RootNamespace>WinFormsClient</RootNamespace>
+    <AssemblyName>WinFormsClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

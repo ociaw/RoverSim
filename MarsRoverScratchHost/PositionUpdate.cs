@@ -2,7 +2,7 @@
 
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     public readonly struct PositionUpdate
     {

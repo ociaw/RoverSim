@@ -1,4 +1,4 @@
-﻿namespace MarsRoverScratchHost
+﻿namespace WinFormsClient
 {
     partial class RenderForm
     {

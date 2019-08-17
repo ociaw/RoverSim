@@ -1,7 +1,7 @@
 ﻿using System;
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     public readonly struct TerrainUpdate
     {

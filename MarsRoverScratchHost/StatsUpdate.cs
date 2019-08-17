@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     public readonly struct StatsUpdate
     {

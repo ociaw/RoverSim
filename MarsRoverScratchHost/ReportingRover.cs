@@ -2,7 +2,7 @@
 using System.Threading;
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     public sealed class ReportingRover : IRover
     {

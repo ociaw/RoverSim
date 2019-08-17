@@ -1,7 +1,7 @@
 ﻿using System;
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     /// <summary>
     /// Contains the information necessary to render the rover.

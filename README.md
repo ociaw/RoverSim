@@ -12,7 +12,7 @@ detailed description of each AI is available [here](https://ociaw.com/rover-ai).
 All releases are available [On GitHub](https://github.com/ociaw/RoverSim/releases). However, for
 the most up-to-date code, you should clone this repository and build from source.
 
-Run either `MarsRoverScratchHost.exe` or `RoverSim.AvaloniaHost.exe`, depending on which host
+Run either `WinFormsClient.exe` or `RoverSim.AvaloniaHost.exe`, depending on which host
 you're using.
 
 # Create an AI
@@ -22,7 +22,7 @@ tracks the position of the rover. `IAiFactory` must also be implemented to creat
 the AI.
 
 Once that's done, the factory needs to be added to the list of available AIs in each client.
-This is in `MarsRoverScratchHost.WorkManager.GetAIs` and `AvaloniaHost.Program.GetAvailableAis`.
+This is in `WinFormsClient.WorkManager.GetAIs` and `AvaloniaHost.Program.GetAvailableAis`.
 
 ## Scratch AI
 Scratch AIs are restricted to a Scratch-like interface similar to the original in functionality.

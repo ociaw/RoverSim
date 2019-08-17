@@ -7,7 +7,7 @@ using System.IO;
 using CsvHelper;
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     public partial class WorkForm : Form
     {

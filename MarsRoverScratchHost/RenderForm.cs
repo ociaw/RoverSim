@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using RoverSim;
 
-namespace MarsRoverScratchHost
+namespace WinFormsClient
 {
     internal partial class RenderForm : Form, IDisposable
     {
