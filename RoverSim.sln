@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchAis", "ScratchAis\Sc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaHost", "RoverSim.AvaloniaHost\AvaloniaHost.csproj", "{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ais", "Ais\Ais.csproj", "{5FB31145-C042-49DF-A230-90DA52CBE63E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ais", "Ais\Ais.csproj", "{5FB31145-C042-49DF-A230-90DA52CBE63E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FCC24739-32C9-4755-9AF5-89B9AD91D1ED}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
