@@ -28,114 +28,115 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.ActionButton2 = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.openRender = new System.Windows.Forms.Button();
-            this.timeUsed = new System.Windows.Forms.TextBox();
-            this.aiType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.movesLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.powerLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.samplesSent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            System.Windows.Forms.Button OpenRenderer;
+            this.RunCount = new System.Windows.Forms.TextBox();
+            this.AiList = new System.Windows.Forms.ListView();
+            this.Simulate = new System.Windows.Forms.Button();
+            this.Results = new System.Windows.Forms.DataGridView();
+            this.TimeUsed = new System.Windows.Forms.TextBox();
+            this.AiType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MovesLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PowerLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SamplesSent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SampleStdDev = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            OpenRenderer = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.Results)).BeginInit();
             this.SuspendLayout();
             // 
-            // textBox1
+            // RunCount
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 165);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(75, 20);
-            this.textBox1.TabIndex = 1;
-            this.textBox1.Text = "4";
+            this.RunCount.Location = new System.Drawing.Point(12, 165);
+            this.RunCount.Name = "RunCount";
+            this.RunCount.Size = new System.Drawing.Size(75, 20);
+            this.RunCount.TabIndex = 1;
+            this.RunCount.Text = "4";
             // 
-            // listView1
+            // AiList
             // 
-            this.listView1.HideSelection = false;
-            this.listView1.LabelWrap = false;
-            this.listView1.Location = new System.Drawing.Point(12, 12);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(341, 147);
-            this.listView1.TabIndex = 2;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.List;
+            this.AiList.HideSelection = false;
+            this.AiList.LabelWrap = false;
+            this.AiList.Location = new System.Drawing.Point(12, 12);
+            this.AiList.Name = "AiList";
+            this.AiList.Size = new System.Drawing.Size(341, 147);
+            this.AiList.TabIndex = 2;
+            this.AiList.UseCompatibleStateImageBehavior = false;
+            this.AiList.View = System.Windows.Forms.View.List;
             // 
-            // ActionButton2
+            // Simulate
             // 
-            this.ActionButton2.Location = new System.Drawing.Point(93, 163);
-            this.ActionButton2.Name = "ActionButton2";
-            this.ActionButton2.Size = new System.Drawing.Size(101, 23);
-            this.ActionButton2.TabIndex = 3;
-            this.ActionButton2.Text = "Simulate";
-            this.ActionButton2.UseVisualStyleBackColor = true;
-            this.ActionButton2.Click += new System.EventHandler(this.ActionButton2_Click);
+            this.Simulate.Location = new System.Drawing.Point(93, 163);
+            this.Simulate.Name = "Simulate";
+            this.Simulate.Size = new System.Drawing.Size(101, 23);
+            this.Simulate.TabIndex = 3;
+            this.Simulate.Text = "Simulate";
+            this.Simulate.UseVisualStyleBackColor = true;
+            this.Simulate.Click += new System.EventHandler(this.SimulateButton_Click);
             // 
-            // dataGridView1
+            // Results
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.aiType,
-            this.movesLeft,
-            this.powerLeft,
-            this.samplesSent,
+            this.Results.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Results.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.AiType,
+            this.MovesLeft,
+            this.PowerLeft,
+            this.SamplesSent,
             this.SampleStdDev});
-            this.dataGridView1.Location = new System.Drawing.Point(12, 192);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(432, 150);
-            this.dataGridView1.TabIndex = 4;
+            this.Results.Location = new System.Drawing.Point(12, 192);
+            this.Results.Name = "Results";
+            this.Results.Size = new System.Drawing.Size(432, 152);
+            this.Results.TabIndex = 4;
             // 
-            // openRender
+            // OpenRenderer
             // 
-            this.openRender.Location = new System.Drawing.Point(201, 163);
-            this.openRender.Name = "openRender";
-            this.openRender.Size = new System.Drawing.Size(75, 23);
-            this.openRender.TabIndex = 5;
-            this.openRender.Text = "Open Renderer";
-            this.openRender.UseVisualStyleBackColor = true;
-            this.openRender.Click += new System.EventHandler(this.OpenRender_Click);
+            OpenRenderer.Location = new System.Drawing.Point(201, 163);
+            OpenRenderer.Name = "OpenRenderer";
+            OpenRenderer.Size = new System.Drawing.Size(75, 23);
+            OpenRenderer.TabIndex = 5;
+            OpenRenderer.Text = "View";
+            OpenRenderer.UseVisualStyleBackColor = true;
+            OpenRenderer.Click += new System.EventHandler(this.OpenRender_Click);
             // 
-            // timeUsed
+            // TimeUsed
             // 
-            this.timeUsed.Location = new System.Drawing.Point(369, 12);
-            this.timeUsed.Name = "timeUsed";
-            this.timeUsed.Size = new System.Drawing.Size(75, 20);
-            this.timeUsed.TabIndex = 6;
+            this.TimeUsed.Location = new System.Drawing.Point(369, 12);
+            this.TimeUsed.Name = "TimeUsed";
+            this.TimeUsed.Size = new System.Drawing.Size(75, 20);
+            this.TimeUsed.TabIndex = 6;
             // 
-            // aiType
+            // AiType
             // 
-            this.aiType.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.aiType.HeaderText = "AI Type";
-            this.aiType.MinimumWidth = 100;
-            this.aiType.Name = "aiType";
-            this.aiType.ReadOnly = true;
+            this.AiType.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.AiType.HeaderText = "AI Type";
+            this.AiType.MinimumWidth = 100;
+            this.AiType.Name = "AiType";
+            this.AiType.ReadOnly = true;
             // 
-            // movesLeft
+            // MovesLeft
             // 
-            this.movesLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.movesLeft.HeaderText = "Moves Left";
-            this.movesLeft.MinimumWidth = 55;
-            this.movesLeft.Name = "movesLeft";
-            this.movesLeft.ReadOnly = true;
-            this.movesLeft.Width = 55;
+            this.MovesLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.MovesLeft.HeaderText = "Moves Left";
+            this.MovesLeft.MinimumWidth = 55;
+            this.MovesLeft.Name = "MovesLeft";
+            this.MovesLeft.ReadOnly = true;
+            this.MovesLeft.Width = 55;
             // 
-            // powerLeft
+            // PowerLeft
             // 
-            this.powerLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.powerLeft.HeaderText = "Power Left";
-            this.powerLeft.MinimumWidth = 55;
-            this.powerLeft.Name = "powerLeft";
-            this.powerLeft.ReadOnly = true;
-            this.powerLeft.Width = 60;
+            this.PowerLeft.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.PowerLeft.HeaderText = "Power Left";
+            this.PowerLeft.MinimumWidth = 55;
+            this.PowerLeft.Name = "PowerLeft";
+            this.PowerLeft.ReadOnly = true;
+            this.PowerLeft.Width = 55;
             // 
-            // samplesSent
+            // SamplesSent
             // 
-            this.samplesSent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.samplesSent.HeaderText = "Samples Sent";
-            this.samplesSent.MinimumWidth = 55;
-            this.samplesSent.Name = "samplesSent";
-            this.samplesSent.ReadOnly = true;
-            this.samplesSent.Width = 55;
+            this.SamplesSent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.SamplesSent.HeaderText = "Samples Sent";
+            this.SamplesSent.MinimumWidth = 55;
+            this.SamplesSent.Name = "SamplesSent";
+            this.SamplesSent.ReadOnly = true;
+            this.SamplesSent.Width = 55;
             // 
             // SampleStdDev
             // 
@@ -150,16 +151,16 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(456, 466);
-            this.Controls.Add(this.timeUsed);
-            this.Controls.Add(this.openRender);
-            this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.ActionButton2);
-            this.Controls.Add(this.listView1);
-            this.Controls.Add(this.textBox1);
+            this.ClientSize = new System.Drawing.Size(456, 356);
+            this.Controls.Add(this.TimeUsed);
+            this.Controls.Add(OpenRenderer);
+            this.Controls.Add(this.Results);
+            this.Controls.Add(this.Simulate);
+            this.Controls.Add(this.AiList);
+            this.Controls.Add(this.RunCount);
             this.Name = "WorkForm";
             this.Text = "Mars Rover Simulator";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Results)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -167,17 +168,16 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.Button ActionButton2;
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.Button openRender;
-        private System.Windows.Forms.TextBox timeUsed;
-        private System.Windows.Forms.DataGridViewTextBoxColumn aiType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn movesLeft;
-        private System.Windows.Forms.DataGridViewTextBoxColumn powerLeft;
-        private System.Windows.Forms.DataGridViewTextBoxColumn samplesSent;
+        private System.Windows.Forms.TextBox RunCount;
+        private System.Windows.Forms.Button Simulate;
+        private System.Windows.Forms.DataGridView Results;
+        private System.Windows.Forms.TextBox TimeUsed;
+        private System.Windows.Forms.DataGridViewTextBoxColumn AiType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MovesLeft;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PowerLeft;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SamplesSent;
         private System.Windows.Forms.DataGridViewTextBoxColumn SampleStdDev;
+        private System.Windows.Forms.ListView AiList;
     }
 }
 

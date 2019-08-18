@@ -24,27 +24,27 @@ namespace RoverSim.WinFormsClient
 
             foreach (var ai in aiFactories)
             {
-                listView1.Items.Add(ai.Name, ai.Name, 0);
+                AiList.Items.Add(ai.Name, ai.Name, 0);
             }
         }
 
-        private async void ActionButton2_Click(object sender, EventArgs e)
+        private async void SimulateButton_Click(object sender, EventArgs e)
         {
             if (!running)
                 running = true;
             else
                 return;
             
-            if (!Int32.TryParse(textBox1.Text, out Int32 runCount)) return;
+            if (!Int32.TryParse(RunCount.Text, out Int32 runCount)) return;
 
             WorkManager manager = new WorkManager();
             
-            List<IAiFactory> selectedAis = aiFactories.Where(t => listView1.SelectedItems.ContainsKey(t.Name)).ToList();
-            timeUsed.Text = "Working...";
+            List<IAiFactory> selectedAis = aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
+            TimeUsed.Text = "Working...";
             var stopwatch = Stopwatch.StartNew();
             var results = await manager.Simulate(selectedAis, runCount);
             stopwatch.Stop();
-            timeUsed.Text = stopwatch.Elapsed.TotalSeconds.ToString();
+            TimeUsed.Text = stopwatch.Elapsed.TotalSeconds.ToString();
 
             (_renderSim, _renderAiFactory) = FindWorstSim(results);
             if (_renderSim != null && _renderSim.HasError)
@@ -138,14 +138,14 @@ namespace RoverSim.WinFormsClient
 
             foreach (KeyValuePair<String, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> stat in aggregates)
             {
-                if (dataGridView1.Rows.Count == 0)
+                if (Results.Rows.Count == 0)
                 {
                     DataGridViewRow row = new DataGridViewRow();
-                    dataGridView1.Rows.Add(row);
+                    Results.Rows.Add(row);
                 }
 
                 (var meanMoves, var meanPower, var meanSamples, var sampleStdDev) = stat.Value;
-                dataGridView1.Rows[0].SetValues(stat.Key, meanMoves.ToString("F2"), meanPower.ToString("F2"), meanSamples.ToString("F2"), sampleStdDev.ToString("F2"));
+                Results.Rows[0].SetValues(stat.Key, meanMoves.ToString("F2"), meanPower.ToString("F2"), meanSamples.ToString("F2"), sampleStdDev.ToString("F2"));
             }
         }
 
