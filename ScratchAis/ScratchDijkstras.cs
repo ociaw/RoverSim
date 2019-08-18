@@ -74,7 +74,7 @@ namespace RoverSim.ScratchAis
             }
 
 
-             if (distances[destinationIndex] == DISTANCE_HIGH_VALUE)
+             if (destinationIndex == -1 || distances[destinationIndex] == DISTANCE_HIGH_VALUE)
             {
                 return new List<Direction>();
             }

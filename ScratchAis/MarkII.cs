@@ -69,6 +69,8 @@ namespace RoverSim.ScratchAis
                     path = pathFinder.BeginSolve(_posX, _posY, roughTerrainDistMultiplier);
                     if (path.Count < 1)
                     {
+                        if (pathFinder.destinationIndex == -1)
+                            return true; // We have no more squares to go to.
                         // Found an unreachable square
                         _mappedTerrain[pathFinder.destinationIndex] = TerrainType.Impassable;
                     }
