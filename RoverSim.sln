@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28822.285
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsClient", "MarsRoverScratchHost\WinFormsClient.csproj", "{ACCE344A-C4BF-4492-A98E-063FD49304AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsClient", "WinFormsClient\WinFormsClient.csproj", "{ACCE344A-C4BF-4492-A98E-063FD49304AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{E8360261-11EC-46DC-B67B-4BD071A3416F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchAis", "ScratchAis\ScratchAis.csproj", "{9133BA4E-ADFC-4925-A7D5-33D9D1E6B237}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaHost", "RoverSim.AvaloniaHost\AvaloniaHost.csproj", "{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaloniaHost", "AvaloniaHost\AvaloniaHost.csproj", "{8E6DEE0E-E7F2-44FE-8F05-41F573210F8F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ais", "Ais\Ais.csproj", "{5FB31145-C042-49DF-A230-90DA52CBE63E}"
 EndProject
