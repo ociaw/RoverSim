@@ -26,7 +26,8 @@ namespace RoverSim
 
         public Task SimulateAsync(Int32 runCount, Action<CompletedSimulation> completionAction)
         {
-            var productionQueue = new BufferBlock<(Simulation simulation, StatsRover statsRover)>();
+            var productionOptions = new DataflowBlockOptions { BoundedCapacity = 64, EnsureOrdered = false };
+            var productionQueue = new BufferBlock<(Simulation simulation, StatsRover statsRover)>(productionOptions);
 
             var consumerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = 64, MaxDegreeOfParallelism = 16 };
             var simConsumer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
