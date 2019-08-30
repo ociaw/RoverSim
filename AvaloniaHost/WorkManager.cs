@@ -25,22 +25,23 @@ namespace RoverSim.AvaloniaHost
 
         internal async Task SimulateAsync(IReadOnlyList<IAiFactory> aiFactories, Int32 runCount)
         {
-            var aiSimulations = new List<Task<List<CompletedSimulation>>>(aiFactories.Count);
+            var tasks = new List<Task>(aiFactories.Count);
+            var results = new Dictionary<IAiFactory, List<CompletedSimulation>>(aiFactories.Count);
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(LevelSeed);
                 var levelGenerator = new DefaultLevelGenerator(levelRand);
                 var roverFactory = new DefaultRoverFactory();
-
                 var simulator = new Simulator(levelGenerator, roverFactory, aiFactory);
-                aiSimulations.Add(simulator.SimulateAsync(runCount));
+
+                results[aiFactory] = new List<CompletedSimulation>(runCount);
+                tasks.Add(simulator.SimulateAsync(runCount, sim => results[aiFactory].Add(sim)));
             }
 
-            var completed = await Task.WhenAll(aiSimulations);
-            for (Int32 i = 0; i < completed.Length; i++)
+            await Task.WhenAll(tasks);
+            foreach (var ai in aiFactories)
             {
-                IAiFactory ai = aiFactories[i];
-                Simulations.AddRange(completed[i].Select(sim => new SimulationRowViewModel(ai, sim)));
+                Simulations.AddRange(results[ai].Select(sim => new SimulationRowViewModel(ai, sim)));
             }
         }
     }

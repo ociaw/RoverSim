@@ -24,10 +24,9 @@ namespace RoverSim
 
         public String AiName => AiFactory.Name;
 
-        public async Task<List<CompletedSimulation>> SimulateAsync(Int32 runCount)
+        public Task SimulateAsync(Int32 runCount, Action<CompletedSimulation> completionAction)
         {
             var productionQueue = new BufferBlock<(Simulation simulation, StatsRover statsRover)>();
-            var completed = new List<CompletedSimulation>(runCount);
 
             var consumerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = 64, MaxDegreeOfParallelism = 16 };
             var simConsumer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
@@ -36,14 +35,14 @@ namespace RoverSim
                 consumerOptions
             );
             var completerOptions = new ExecutionDataflowBlockOptions { SingleProducerConstrained = true, BoundedCapacity = 32 };
-            var completer = new ActionBlock<CompletedSimulation>(sim => completed.Add(sim), completerOptions);
+            var completer = new ActionBlock<CompletedSimulation>(completionAction, completerOptions);
+
             productionQueue.LinkTo(simConsumer, new DataflowLinkOptions { PropagateCompletion = true });
             simConsumer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
             var simProducer = ProduceSimulations(productionQueue, Parameters, runCount);
 
-            await Task.WhenAll(simProducer, simConsumer.Completion, completer.Completion);
-            return completed;
+            return Task.WhenAll(simProducer, simConsumer.Completion, completer.Completion);
         }
 
         private Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, SimulationParameters parameters, Int32 count)

@@ -10,24 +10,21 @@ namespace RoverSim.WinFormsClient
     {
         internal async Task<Dictionary<IAiFactory, List<CompletedSimulation>>> Simulate(IList<IAiFactory> aiFactories, Int32 runCount)
         {
-            var aiSimulations = new List<Task<List<CompletedSimulation>>>(aiFactories.Count);
+            var tasks = new List<Task>(aiFactories.Count);
+            var results = new Dictionary<IAiFactory, List<CompletedSimulation>>(aiFactories.Count);
             Int32 levelSeed = Rando.Next(Int32.MinValue, Int32.MaxValue);
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(levelSeed);
                 var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(levelRand), 6);
                 var roverFactory = new DefaultRoverFactory();
-
                 var simulator = new Simulator(levelGenerator, roverFactory, aiFactory);
-                aiSimulations.Add(simulator.SimulateAsync(runCount));
+
+                results[aiFactory] = new List<CompletedSimulation>(runCount);
+                tasks.Add(simulator.SimulateAsync(runCount, sim => results[aiFactory].Add(sim)));
             }
 
-            var completed = await Task.WhenAll(aiSimulations);
-            var results = new Dictionary<IAiFactory, List<CompletedSimulation>>(aiFactories.Count);
-            for (Int32 i = 0; i < completed.Length; i++)
-            {
-                results.Add(aiFactories[i], completed[i]);
-            }
+            await Task.WhenAll(tasks);
             return results;
         }
         
