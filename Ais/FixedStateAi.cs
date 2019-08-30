@@ -115,7 +115,7 @@ namespace RoverSim.Ais
         {
             // We use round robin here to avoid always checking the same side first,
             // as that causes the rover to favor one area.
-            Direction turn = _roundRobin % 2 == 0 ? _destination.RotateCW() : _destination.RotateCCW();
+            Direction turn = _roundRobin % 8 <= 5 ? _destination.RotateCW() : _destination.RotateCCW();
 
             if (adjacent[turn] != TerrainType.Impassable)
                 return turn;
@@ -127,9 +127,13 @@ namespace RoverSim.Ais
 
         private Direction ResetDestination(TerrainType[] adjacent)
         {
-            for (Int32 i = _roundRobin; i < _roundRobin + Direction.DirectionCount; i++)
+            // We do some weird things here to avoid getting stuck in a loop too easily.
+            Int32 addend = _roundRobin % 7;
+            Boolean shouldAdd = _roundRobin % 3 != 0;
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                Int32 dir = i % Direction.DirectionCount;
+                Int32 modified = _roundRobin + addend + (shouldAdd ? i : Direction.DirectionCount - i);
+                Int32 dir = modified % Direction.DirectionCount;
                 if (adjacent[dir] != TerrainType.Impassable)
                     return (Direction)dir;
             }
