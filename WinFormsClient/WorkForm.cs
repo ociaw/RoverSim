@@ -154,7 +154,9 @@ namespace RoverSim.WinFormsClient
             if (_renderSim == null)
                 return;
 
+#pragma warning disable IDE0067 // Dispose objects before losing scope
             RenderForm form = new RenderForm(_renderSim, _renderAiFactory);
+#pragma warning restore IDE0067 // Dispose objects before losing scope
             form.Show();
         }
     }
