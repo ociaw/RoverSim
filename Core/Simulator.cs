@@ -7,14 +7,16 @@ namespace RoverSim
 {
     public sealed class Simulator
     {
-        public Simulator(ILevelGenerator levelGenerator, IRoverFactory roverFactory, IAiFactory aiFactory)
+        private Int32 _simId = 0;
+
+        public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IRoverFactory roverFactory, IAiFactory aiFactory)
         {
-            LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
+            LevelGeneratorFactory = levelGeneratorFactory ?? throw new ArgumentNullException(nameof(levelGeneratorFactory));
             RoverFactory = roverFactory ?? throw new ArgumentNullException(nameof(roverFactory));
             AiFactory = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
         }
 
-        public ILevelGenerator LevelGenerator { get; }
+        public ILevelGeneratorFactory LevelGeneratorFactory { get; }
 
         public IRoverFactory RoverFactory { get; }
 
@@ -26,44 +28,65 @@ namespace RoverSim
 
         public Task SimulateAsync(Int32 runCount, Action<CompletedSimulation> completionAction)
         {
-            var productionOptions = new DataflowBlockOptions { BoundedCapacity = 64, EnsureOrdered = false };
-            var productionQueue = new BufferBlock<(Simulation simulation, StatsRover statsRover)>(productionOptions);
+            var factoryOptions = new DataflowBlockOptions { BoundedCapacity = 64 };
+            var factory = new BufferBlock<(ILevelGenerator generator, Int32 count)>(factoryOptions);
 
-            var consumerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = 64, MaxDegreeOfParallelism = 16 };
-            var simConsumer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
+            var generatorOptions = new DataflowBlockOptions();
+            var generator = new TransformManyBlock<(ILevelGenerator generator, Int32 count), Level>(CreateLevels);
+
+            var simCreatorOptions = new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1 };
+            var simCreator = new TransformBlock<Level, (Simulation simulation, StatsRover statsRover)>(CreateSim, simCreatorOptions);
+
+            var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = 64, MaxDegreeOfParallelism = 16 };
+            var performer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
             (
-                DoSimulation,
-                consumerOptions
+                PerformSim,
+                performerOptions
             );
             var completerOptions = new ExecutionDataflowBlockOptions { SingleProducerConstrained = true, BoundedCapacity = 32 };
             var completer = new ActionBlock<CompletedSimulation>(completionAction, completerOptions);
 
-            productionQueue.LinkTo(simConsumer, new DataflowLinkOptions { PropagateCompletion = true });
-            simConsumer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
+            factory.LinkTo(generator, new DataflowLinkOptions { PropagateCompletion = true });
+            generator.LinkTo(simCreator, new DataflowLinkOptions { PropagateCompletion = true });
+            simCreator.LinkTo(performer, new DataflowLinkOptions { PropagateCompletion = true });
+            performer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
-            var simProducer = ProduceSimulations(productionQueue, Parameters, runCount);
+            CreateGenerators(LevelGeneratorFactory, 4, runCount, factory);
 
-            return Task.WhenAll(simProducer, simConsumer.Completion, completer.Completion);
+            return Task.WhenAll(generator.Completion, simCreator.Completion, performer.Completion, completer.Completion);
         }
 
-        private Task ProduceSimulations(ITargetBlock<(Simulation simulation, StatsRover statsRover)> target, SimulationParameters parameters, Int32 count)
+        private void CreateGenerators(ILevelGeneratorFactory generatorFactory, Int32 generatorCount, Int32 levelCount,
+            ITargetBlock<(ILevelGenerator factory, Int32 count)> target)
         {
-            return Task.Run(async () =>
+            Int32 levelsPerGenerator = levelCount / generatorCount;
+            Int32 extraLevels = levelCount % generatorCount;
+            for (Int32 i = 0; i < generatorCount; i++)
             {
-                for (Int32 i = 0; i < count; i++)
-                {
-                    Level originalLevel = LevelGenerator.Generate(parameters);
-                    IRover rover = RoverFactory.Create(originalLevel.AsMutable(), parameters);
-                    StatsRover statsRover = new StatsRover(rover);
-                    IAi ai = AiFactory.Create(i, parameters);
-                    Simulation simulation = new Simulation(originalLevel, Parameters, ai, statsRover);
-                    await target.SendAsync((simulation, statsRover));
-                }
-                target.Complete();
-            });
+                Int32 count = levelsPerGenerator + (i < extraLevels ? 1 : 0);
+                target.Post((generatorFactory.Create(), count));
+            }
+
+            target.Complete();
         }
 
-        private static CompletedSimulation DoSimulation((Simulation simulation, StatsRover statsRover) sim)
+        private IEnumerable<Level> CreateLevels((ILevelGenerator generator, Int32 count) gen)
+        {
+            for (Int32 i = 0; i < gen.count; i++)
+                yield return gen.generator.Generate(Parameters);
+        }
+
+        private (Simulation simulation, StatsRover statsRover) CreateSim(Level level)
+        {
+            IRover rover = RoverFactory.Create(level.AsMutable(), Parameters);
+            StatsRover statsRover = new StatsRover(rover);
+            IAi ai = AiFactory.Create(_simId, Parameters);
+            _simId++;
+            Simulation simulation = new Simulation(level, Parameters, ai, statsRover);
+            return (simulation, statsRover);
+        }
+
+        private static CompletedSimulation PerformSim((Simulation simulation, StatsRover statsRover) sim)
         {
             (Simulation simulation, StatsRover statsRover) = sim;
             try
