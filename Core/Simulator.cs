@@ -28,52 +28,52 @@ namespace RoverSim
 
         public Task SimulateAsync(Int32 runCount, Action<CompletedSimulation> completionAction)
         {
-            var factoryOptions = new DataflowBlockOptions { BoundedCapacity = 64 };
-            var factory = new BufferBlock<(ILevelGenerator generator, Int32 count)>(factoryOptions);
+            Int32 processorCount = Environment.ProcessorCount;
+            Int32 capacity = processorCount * 4;
 
-            var generatorOptions = new DataflowBlockOptions();
-            var generator = new TransformManyBlock<(ILevelGenerator generator, Int32 count), Level>(CreateLevels);
-
-            var simCreatorOptions = new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 1 };
+            var simCreatorOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
             var simCreator = new TransformBlock<Level, (Simulation simulation, StatsRover statsRover)>(CreateSim, simCreatorOptions);
 
-            var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = 64, MaxDegreeOfParallelism = 16 };
+            var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = processorCount };
             var performer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
             (
                 PerformSim,
                 performerOptions
             );
-            var completerOptions = new ExecutionDataflowBlockOptions { SingleProducerConstrained = true, BoundedCapacity = 32 };
+            var completerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
             var completer = new ActionBlock<CompletedSimulation>(completionAction, completerOptions);
 
-            factory.LinkTo(generator, new DataflowLinkOptions { PropagateCompletion = true });
-            generator.LinkTo(simCreator, new DataflowLinkOptions { PropagateCompletion = true });
             simCreator.LinkTo(performer, new DataflowLinkOptions { PropagateCompletion = true });
             performer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
-            CreateGenerators(LevelGeneratorFactory, 4, runCount, factory);
+            Int32 genCount = processorCount / 2;
+            var genTask = StartGenerators(LevelGeneratorFactory, genCount, runCount, simCreator);
 
-            return Task.WhenAll(generator.Completion, simCreator.Completion, performer.Completion, completer.Completion);
+            return Task.WhenAll(genTask, simCreator.Completion, performer.Completion, completer.Completion);
         }
 
-        private void CreateGenerators(ILevelGeneratorFactory generatorFactory, Int32 generatorCount, Int32 levelCount,
-            ITargetBlock<(ILevelGenerator factory, Int32 count)> target)
+        private async Task StartGenerators(ILevelGeneratorFactory generatorFactory, Int32 generatorCount, Int32 levelCount, ITargetBlock<Level> target)
         {
             Int32 levelsPerGenerator = levelCount / generatorCount;
             Int32 extraLevels = levelCount % generatorCount;
+            List<Task> list = new List<Task>();
             for (Int32 i = 0; i < generatorCount; i++)
             {
                 Int32 count = levelsPerGenerator + (i < extraLevels ? 1 : 0);
-                target.Post((generatorFactory.Create(), count));
+                list.Add(RunGenerator(generatorFactory.Create(), count, target));
             }
 
+            await Task.WhenAll(list);
             target.Complete();
         }
 
-        private IEnumerable<Level> CreateLevels((ILevelGenerator generator, Int32 count) gen)
+        private Task RunGenerator(ILevelGenerator generator, Int32 count, ITargetBlock<Level> target)
         {
-            for (Int32 i = 0; i < gen.count; i++)
-                yield return gen.generator.Generate(Parameters);
+            return Task.Run(async () =>
+            {
+                for (Int32 i = 0; i < count; i++)
+                    await target.SendAsync(generator.Generate(Parameters));
+            });
         }
 
         private (Simulation simulation, StatsRover statsRover) CreateSim(Level level)
