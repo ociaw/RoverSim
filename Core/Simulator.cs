@@ -8,6 +8,7 @@ namespace RoverSim
     public sealed class Simulator
     {
         private Int32 _simId = 0;
+        private Int32 _taskCount = Environment.ProcessorCount;
 
         public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IRoverFactory roverFactory, IAiFactory aiFactory)
         {
@@ -26,27 +27,39 @@ namespace RoverSim
 
         public String AiName => AiFactory.Name;
 
+        public Int32 TaskCount
+        {
+            get => _taskCount;
+            set => _taskCount = value >= 1 ? value : throw new ArgumentOutOfRangeException(nameof(value), "Must be positive.");
+        }
+
         public Task SimulateAsync(Int32 runCount, Action<CompletedSimulation> completionAction)
         {
-            Int32 processorCount = Environment.ProcessorCount;
-            Int32 capacity = processorCount * 4;
+            Int32 capacity = TaskCount * 4;
+            var completerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
+            var completer = new ActionBlock<CompletedSimulation>(completionAction, completerOptions);
+
+            return SimulateAsync(runCount, completer);
+        }
+
+        public Task SimulateAsync(Int32 runCount, ActionBlock<CompletedSimulation> completer)
+        {
+            Int32 capacity = TaskCount * 4;
 
             var simCreatorOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
             var simCreator = new TransformBlock<Level, (Simulation simulation, StatsRover statsRover)>(CreateSim, simCreatorOptions);
 
-            var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = processorCount };
+            var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = TaskCount };
             var performer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
             (
                 PerformSim,
                 performerOptions
             );
-            var completerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
-            var completer = new ActionBlock<CompletedSimulation>(completionAction, completerOptions);
 
             simCreator.LinkTo(performer, new DataflowLinkOptions { PropagateCompletion = true });
             performer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
-            Int32 genCount = processorCount / 2;
+            Int32 genCount = TaskCount / 2;
             var genTask = StartGenerators(LevelGeneratorFactory, genCount, runCount, simCreator);
 
             return Task.WhenAll(genTask, simCreator.Completion, performer.Completion, completer.Completion);
