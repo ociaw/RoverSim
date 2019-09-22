@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace RoverSim.WinFormsClient
+namespace RoverSim.Rendering
 {
     public sealed class ReportingRover : IRover
     {

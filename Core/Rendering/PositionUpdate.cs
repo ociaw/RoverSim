@@ -1,4 +1,4 @@
-﻿namespace RoverSim.WinFormsClient
+﻿namespace RoverSim.Rendering
 {
     public readonly struct PositionUpdate
     {

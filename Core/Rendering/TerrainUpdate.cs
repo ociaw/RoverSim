@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RoverSim.WinFormsClient
+namespace RoverSim.Rendering
 {
     public readonly struct TerrainUpdate
     {

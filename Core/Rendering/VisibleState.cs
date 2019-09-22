@@ -1,16 +1,18 @@
 ﻿using System;
 
-namespace RoverSim.WinFormsClient
+namespace RoverSim.Rendering
 {
     /// <summary>
     /// Contains the information necessary to render the rover.
     /// </summary>
-    public sealed class RenderData
+    public sealed class VisibleState
     {
-        private RenderData(Position bottomRight, TerrainType[,] terrain, Position roverPosition)
+        private readonly TerrainType[,] _terrain;
+
+        private VisibleState(Position bottomRight, TerrainType[,] terrain, Position roverPosition)
         {
             BottomRight = bottomRight;
-            Terrain = terrain;
+            _terrain = terrain;
             RoverPosition = roverPosition;
         }
 
@@ -20,7 +22,7 @@ namespace RoverSim.WinFormsClient
 
         public Int32 Height => BottomRight.Y + 1;
 
-        public TerrainType[,] Terrain { get; }
+        public TerrainType this[Int32 x, Int32 y] => _terrain[x, y];
 
         public Position RoverPosition { get; private set; }
 
@@ -40,10 +42,10 @@ namespace RoverSim.WinFormsClient
                 return; // We can ignore out of bound updates, as these are not accessible anyway.
 
             (Int32 x, Int32 y) = update.Position;
-            Terrain[x, y] = update.NewTerrain;
+            _terrain[x, y] = update.NewTerrain;
         }
 
-        public static RenderData GenerateBlank(Position bottomRight, Position roverPos)
+        public static VisibleState GenerateBlank(Position bottomRight, Position roverPos)
         {
             if (!bottomRight.Contains(roverPos))
                 throw new ArgumentOutOfRangeException(nameof(roverPos), roverPos, "Must lie within bottom right position.");
@@ -60,7 +62,7 @@ namespace RoverSim.WinFormsClient
                 }
             }
 
-            return new RenderData(bottomRight, terrain, roverPos);
+            return new VisibleState(bottomRight, terrain, roverPos);
         }
     }
 }

@@ -3,14 +3,15 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
+using RoverSim.Rendering;
 
 namespace RoverSim.WinFormsClient
 {
     internal partial class RenderForm : Form, IDisposable
     {
-        private delegate void UpdateUICallBack(RenderData renderData, Int32 movesLeft, Int32 power, Int32 samplesSent);
+        private delegate void UpdateUICallBack(VisibleState state, Int32 movesLeft, Int32 power, Int32 samplesSent);
 
-        private RenderData _renderData;
+        private VisibleState _state;
 
         public RenderForm(CompletedSimulation demoResult, IAiFactory demoAi)
         {
@@ -57,7 +58,7 @@ namespace RoverSim.WinFormsClient
                     source.Token
                 );
                 Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
-                _renderData = RenderData.GenerateBlank(originalLevel.BottomRight, rover.Position);
+                _state = VisibleState.GenerateBlank(originalLevel.BottomRight, rover.Position);
 
                 try
                 {
@@ -79,8 +80,8 @@ namespace RoverSim.WinFormsClient
             if (IsDisposed)
                 return;
 
-            _renderData.UpdateTerrain(update);
-            Render(_renderData);
+            _state.UpdateTerrain(update);
+            Render(_state);
         }
 
         private void UpdateRoverPosition(PositionUpdate update)
@@ -88,8 +89,8 @@ namespace RoverSim.WinFormsClient
             if (IsDisposed)
                 return;
 
-            _renderData.UpdateRoverPos(update);
-            Render(_renderData);
+            _state.UpdateRoverPos(update);
+            Render(_state);
         }
 
         private void UpdateStats(StatsUpdate update)
@@ -99,20 +100,19 @@ namespace RoverSim.WinFormsClient
             SamplesSentText.Text = update.TransmitedCount.ToString();
         }
 
-        private void Render(RenderData renderData)
+        private void Render(VisibleState state)
         {
-            var terrain = renderData.Terrain;
-            Int32 roverX = renderData.RoverPosition.X;
-            Int32 roverY = renderData.RoverPosition.Y;
+            Int32 roverX = state.RoverPosition.X;
+            Int32 roverY = state.RoverPosition.Y;
             Int32 viewWidth = glControl1.Width;
             Int32 viewHeight = glControl1.Height;
-            Int32 widthMultiplier = viewWidth / renderData.Width;
-            Int32 heightMultiplier = viewHeight / renderData.Height;
-            for (Int16 i = 0; i < renderData.Width; i++)
+            Int32 widthMultiplier = viewWidth / state.Width;
+            Int32 heightMultiplier = viewHeight / state.Height;
+            for (Int16 i = 0; i < state.Width; i++)
             {
-                for (Int16 j = 0; j < renderData.Height; j++)
+                for (Int16 j = 0; j < state.Height; j++)
                 {
-                    DrawTile(i, j, terrain[i, j], widthMultiplier, heightMultiplier);
+                    DrawTile(i, j, state[i, j], widthMultiplier, heightMultiplier);
                 }
             }
 
