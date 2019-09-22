@@ -7,9 +7,15 @@
              xmlns:custom="clr-namespace:RoverSim.AvaloniaHost.Controls"
              mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
              x:Class="RoverSim.AvaloniaHost.Views.RenderView">
-  <Grid ColumnDefinitions="*, 135">
-    <custom:RenderControl Tiles="{Binding Tiles}" RoverX="{Binding RoverX}" RoverY="{Binding RoverY}" />
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition MinWidth="135" Width="*" />
+      <ColumnDefinition Width="135" />
+    </Grid.ColumnDefinitions>
+    <custom:RenderControl State="{Binding State}" />
     <StackPanel Grid.Column="1">
+      <Button Command="{Binding Start}">Start</Button>
+      <Button>Reset</Button>
     </StackPanel>
   </Grid>
 </UserControl>
