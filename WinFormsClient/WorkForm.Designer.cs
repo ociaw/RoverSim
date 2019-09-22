@@ -33,15 +33,26 @@
             this.AiList = new System.Windows.Forms.ListView();
             this.Simulate = new System.Windows.Forms.Button();
             this.Results = new System.Windows.Forms.DataGridView();
-            this.TimeUsed = new System.Windows.Forms.TextBox();
             this.AiType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MovesLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PowerLeft = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SamplesSent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SampleStdDev = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TimeUsed = new System.Windows.Forms.TextBox();
+            this.TimeUsedLabel = new System.Windows.Forms.Label();
             OpenRenderer = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Results)).BeginInit();
             this.SuspendLayout();
+            // 
+            // OpenRenderer
+            // 
+            OpenRenderer.Location = new System.Drawing.Point(201, 163);
+            OpenRenderer.Name = "OpenRenderer";
+            OpenRenderer.Size = new System.Drawing.Size(75, 23);
+            OpenRenderer.TabIndex = 4;
+            OpenRenderer.Text = "View";
+            OpenRenderer.UseVisualStyleBackColor = true;
+            OpenRenderer.Click += new System.EventHandler(this.OpenRender_Click);
             // 
             // RunCount
             // 
@@ -84,24 +95,7 @@
             this.Results.Location = new System.Drawing.Point(12, 192);
             this.Results.Name = "Results";
             this.Results.Size = new System.Drawing.Size(432, 152);
-            this.Results.TabIndex = 4;
-            // 
-            // OpenRenderer
-            // 
-            OpenRenderer.Location = new System.Drawing.Point(201, 163);
-            OpenRenderer.Name = "OpenRenderer";
-            OpenRenderer.Size = new System.Drawing.Size(75, 23);
-            OpenRenderer.TabIndex = 5;
-            OpenRenderer.Text = "View";
-            OpenRenderer.UseVisualStyleBackColor = true;
-            OpenRenderer.Click += new System.EventHandler(this.OpenRender_Click);
-            // 
-            // TimeUsed
-            // 
-            this.TimeUsed.Location = new System.Drawing.Point(369, 12);
-            this.TimeUsed.Name = "TimeUsed";
-            this.TimeUsed.Size = new System.Drawing.Size(75, 20);
-            this.TimeUsed.TabIndex = 6;
+            this.Results.TabIndex = 5;
             // 
             // AiType
             // 
@@ -147,11 +141,29 @@
             this.SampleStdDev.ReadOnly = true;
             this.SampleStdDev.Width = 75;
             // 
+            // TimeUsed
+            // 
+            this.TimeUsed.Location = new System.Drawing.Point(369, 28);
+            this.TimeUsed.Name = "TimeUsed";
+            this.TimeUsed.ReadOnly = true;
+            this.TimeUsed.Size = new System.Drawing.Size(75, 20);
+            this.TimeUsed.TabIndex = 6;
+            // 
+            // TimeUsedLabel
+            // 
+            this.TimeUsedLabel.AutoSize = true;
+            this.TimeUsedLabel.Location = new System.Drawing.Point(366, 12);
+            this.TimeUsedLabel.Name = "TimeUsedLabel";
+            this.TimeUsedLabel.Size = new System.Drawing.Size(82, 13);
+            this.TimeUsedLabel.TabIndex = 7;
+            this.TimeUsedLabel.Text = "Time (seconds):";
+            // 
             // WorkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 356);
+            this.Controls.Add(this.TimeUsedLabel);
             this.Controls.Add(this.TimeUsed);
             this.Controls.Add(OpenRenderer);
             this.Controls.Add(this.Results);
@@ -178,6 +190,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn SamplesSent;
         private System.Windows.Forms.DataGridViewTextBoxColumn SampleStdDev;
         private System.Windows.Forms.ListView AiList;
+        private System.Windows.Forms.Label TimeUsedLabel;
     }
 }
 
