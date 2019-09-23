@@ -1,15 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="sidebar">
-    <NavMenu />
-</div>
+<header id="primary-header">
+    <span id="primary-heading">
+        <a href="/">RoverSim</a>
+    </span>
+    <nav id="primary-navbar">
+        <NavMenu />
+    </nav>
+</header>
 
-<div class="main">
-    <div class="top-row px-4">
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-    </div>
+<main>
+    @Body
+</main>
 
-    <div class="content px-4">
-        @Body
-    </div>
-</div>
+<footer>
+    <div class="copyright">Copyright &copy; @DateTime.Now.Year</div>
+    <div class="wyam-attribution">Themed based off of <a href="https://github.com/Ociaw/PlainBlog">Plain Blog</a></div>
+</footer>
+

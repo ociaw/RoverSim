@@ -1,0 +1,59 @@
+#primary-header
+{
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: cover;
+    background-image:
+        url('/assets/img/background.min.svg'),
+        linear-gradient(to left, white, 70%, red);
+    background-blend-mode: hard-light;
+}
+
+.github
+{
+  background-color: #24292e;
+}
+
+.github a
+{
+  padding-left: 1.75em;
+  background-image: url('/assets/img/github.svg');
+  background-repeat: no-repeat;
+}
+
+/* Highlight.js styling */
+.hljs
+{
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+}
+
+.hljs-class,
+.hljs-type
+{
+  color: #2B91AF
+}
+
+.hljs-built_in,
+.hljs-keyword,
+.hljs-literal
+{
+  color: #0000FF
+}
+
+.hljs-string
+{
+  color: #A31515;
+}
+
+.hljs-doctag,
+.hljs-meta
+{
+  color: #808080;
+}
+
+.hljs-comment
+{
+  color: #008000;
+}

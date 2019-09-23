@@ -1,0 +1,12 @@
+<svg viewBox="-544 -544 1088 1088" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="star"
+          d="M 0,-512
+             L -91,-91 -512,0 -91,91 0,512 91,91 512,0 91,-91
+             Z"/>
+  </defs>
+  <circle r="544" fill="#006BA0"/>
+  <circle r="512" fill="#004C72"/>
+  <use href="#star" fill="#005F8E" transform="rotate(45)"/>
+  <use href="#star" fill="#006BA0"/>
+</svg>
