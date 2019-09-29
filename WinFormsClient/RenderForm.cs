@@ -53,7 +53,7 @@ namespace RoverSim.WinFormsClient
                 IRover rover = new ReportingRover(
                     new Rover(workingLevel, DemoResult.Parameters),
                     new Progress<TerrainUpdate>(UpdateTerrain),
-                    new Progress<PositionUpdate>(UpdateRoverPosition),
+                    new WaitingProgress<PositionUpdate>(new Progress<PositionUpdate>(UpdateRoverPosition)),
                     new Progress<StatsUpdate>(UpdateStats),
                     source.Token
                 );
@@ -166,6 +166,19 @@ namespace RoverSim.WinFormsClient
 
         private void RenderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+        }
+
+        private sealed class WaitingProgress<T> : IProgress<T>
+        {
+            private readonly IProgress<T> _wrapped;
+
+            public WaitingProgress(IProgress<T> wrapped) => _wrapped = wrapped ?? throw new ArgumentNullException(nameof(wrapped));
+
+            public void Report(T value)
+            {
+                System.Threading.Thread.Sleep(100);
+                _wrapped.Report(value);
+            }
         }
     }
 }

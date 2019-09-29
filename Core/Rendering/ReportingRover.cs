@@ -86,7 +86,6 @@ namespace RoverSim.Rendering
                 PositionUpdateProgress.Report(new PositionUpdate(previous, Position));
             StatsUpdateProgress.Report(StatsUpdate);
 
-            Thread.Sleep(100);
             return isSuccess;
         }
 
