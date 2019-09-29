@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
 
-namespace BlazorClient
+namespace RoverSim.BlazorClient
 {
     public class Program
     {

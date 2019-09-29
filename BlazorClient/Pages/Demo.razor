@@ -1,0 +1,71 @@
+﻿@using System.Threading;
+@using RoverSim.Rendering;
+@page "/demo"
+
+<h1>Simulation Demo</h1>
+
+<div id=stats>
+    <div id=moves-left>Moves Left: @movesLeft</div>
+    <div id=power>Power: @power</div>
+    <div id=sample-transmitted-count>Transmitted: @sampleTransmittedCount</div>
+</div>
+
+<button @onclick=StartDemo>Start</button>
+
+@code {
+    private Int32 movesLeft = 0;
+    private Int32 power = 0;
+    private Int32 sampleTransmittedCount = 0;
+
+    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+    private void UpdateStats(StatsUpdate stats)
+    {
+        movesLeft = stats.MovesLeft;
+        power = stats.Power;
+        sampleTransmittedCount = stats.TransmitedCount;
+    }
+
+    private Task StartDemo()
+    {
+        SimulationParameters parameters = SimulationParameters.Default;
+
+        IAiFactory aiFactory = new Ais.FixedStateAiFactory();
+        IAi ai = aiFactory.Create(1, parameters);
+
+        ILevelGenerator levelGenerator = new DefaultLevelGenerator(new Random());
+
+        Level originalLevel = levelGenerator.Generate(parameters);
+        MutableLevel workingLevel = originalLevel.AsMutable();
+
+        var terrainProgress = new Progress<TerrainUpdate>();
+        var positionProgress = new Progress<PositionUpdate>();
+        var statsProgress = new Progress<StatsUpdate>(stats => UpdateStats(stats));
+
+        IRover rover = new ReportingRover(
+            new Rover(workingLevel, parameters),
+            terrainProgress,
+            positionProgress,
+            statsProgress,
+            cancellationTokenSource.Token
+        );
+
+        Simulation sim = new Simulation(originalLevel, parameters, ai, rover);
+
+        return Task.Run(() =>
+        {
+            try
+            {
+                sim.Simulate();
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore this exception, since it'll only happen when we've already closed the form
+            }
+            catch (OutOfPowerOrMovesException)
+            {
+                // This is to be expected if an AI doesn't keep track of their power or moves
+            }
+        });
+    }
+}

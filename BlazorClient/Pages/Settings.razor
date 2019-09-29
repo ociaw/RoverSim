@@ -1,0 +1,45 @@
+﻿@using RoverSim;
+@inject AiProvider AiProvider
+@page "/settings"
+
+<h1>Setup Simulation</h1>
+
+<p>Current ai: @currentAi?.GetType().ToString()</p>
+<fieldset id=ai-settings>
+    <h3>AI Settings</h3>
+    <select @bind=selectedAiFactoryName>
+    @foreach (var ai in ais)
+    {
+        <option value=@ai.Name>@ai.Name</option>
+    }
+    </select>
+</fieldset>
+<fieldset id=simulation-parameters>
+    <h3>Simulation Parameters</h3>
+</fieldset>
+<fieldset id=level-parameters>
+    <h3>Level Parameters</h3>
+</fieldset>
+<input type=number step=1 min=1 @bind=runCount />
+<button @onclick=UpdateAi>Begin</button>
+
+@code {
+    private IReadOnlyList<IAiFactory> ais = new IAiFactory[0];
+    private String selectedAiFactoryName = null;
+
+    private Int32 runCount = 1;
+
+    protected override void OnInitialized()
+    {
+        ais = AiProvider.GetAis().ToList();
+        selectedAiFactoryName = ais.FirstOrDefault()?.Name;
+    }
+
+    private void UpdateAi()
+    {
+        if (selectedAiFactoryName != null)
+            currentAi = AiProvider[selectedAiFactoryName].Create(1, SimulationParameters.Default);
+    }
+
+    IAi currentAi = null;
+}
