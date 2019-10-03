@@ -44,6 +44,9 @@ namespace RoverSim.Rendering
             }
         }
 
+        public static VisibleState GenerateBlank(SimulationParameters parameters) =>
+            GenerateBlank(parameters.BottomRight, parameters.InitialPosition);
+
         public static VisibleState GenerateBlank(Position bottomRight, Position roverPos)
         {
             if (!bottomRight.Contains(roverPos))

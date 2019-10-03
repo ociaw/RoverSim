@@ -12,7 +12,7 @@
       <ColumnDefinition MinWidth="135" Width="*" />
       <ColumnDefinition Width="135" />
     </Grid.ColumnDefinitions>
-    <custom:RenderControl State="{Binding State}" />
+    <custom:RenderControl VisibleState="{Binding State, Mode=OneWay}" />
     <StackPanel Grid.Column="1">
       <Button Command="{Binding Start}">Start</Button>
       <Button>Reset</Button>

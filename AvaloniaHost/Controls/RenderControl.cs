@@ -1,25 +1,49 @@
 ﻿using System;
+using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using ReactiveUI;
 using RoverSim.Rendering;
 
 namespace RoverSim.AvaloniaHost.Controls
 {
     public sealed class RenderControl : Control
     {
-        public static readonly StyledProperty<ReactiveVisibleState> StateProperty =
-            AvaloniaProperty.Register<RenderControl, ReactiveVisibleState>(nameof(State));
+        public static readonly StyledProperty<VisibleState> StateProperty =
+            AvaloniaProperty.Register<RenderControl, VisibleState>(nameof(State));
+
+        public static readonly StyledProperty<IObservable<VisibleState>> VisibleStateProperty =
+            AvaloniaProperty.Register<RenderControl, IObservable<VisibleState>>(nameof(VisibleState));
 
         static RenderControl()
         {
             AffectsRender<RenderControl>(StateProperty);
         }
 
-        public ReactiveVisibleState State
+        public RenderControl()
+        {
+            this
+                .WhenAnyObservable(m => m.VisibleState)
+                .Subscribe(state => State = state);
+        }
+
+        public SimulationParameters Parameters => SimulationParameters.Default;
+
+        public VisibleState State
         {
             get => GetValue(StateProperty);
-            set => SetValue(StateProperty, value);
+            set
+            {
+                SetValue(StateProperty, value);
+                // We have to manually raise this, since it seems to be ignored otherwise.
+                RaisePropertyChanged(StateProperty, value, value);
+            }
+        }
+        public IObservable<VisibleState> VisibleState
+        {
+            get => GetValue(VisibleStateProperty);
+            set => SetValue(VisibleStateProperty, value);
         }
 
         private Int32 HorizontalTileCount => State.Width;

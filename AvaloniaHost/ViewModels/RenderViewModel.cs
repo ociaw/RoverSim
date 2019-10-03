@@ -9,8 +9,6 @@ namespace RoverSim.AvaloniaHost.ViewModels
 {
     public sealed class RenderViewModel : ViewModelBase
     {
-        private ReactiveVisibleState _state;
-
         public RenderViewModel(IAiFactory aiFactory, CompletedSimulation simulation)
         {
             Ai = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
@@ -36,21 +34,23 @@ namespace RoverSim.AvaloniaHost.ViewModels
                 });
             });
 
-            _state = new ReactiveVisibleState(VisibleState.GenerateBlank(simulation.OriginalLevel.BottomRight, simulation.Parameters.InitialPosition));
-            Start.Subscribe(update => _state.Apply(update.update));
-
             Stats = Start.Aggregate(RoverStats.Create(Simulation.Parameters), (s, update) => s.Add(update.action, update.update));
+
+            State = this
+                .WhenAnyObservable(m => m.Start)
+                .Select(update => update.update)
+                .Scan(VisibleState.GenerateBlank(Simulation.Parameters), (state, update) =>
+                {
+                    state.Apply(update);
+                    return state;
+                });
         }
 
         public IAiFactory Ai { get; }
 
         public CompletedSimulation Simulation { get; }
 
-        public ReactiveVisibleState State
-        {
-            get => _state;
-            set => this.RaiseAndSetIfChanged(ref _state, value);
-        }
+        public IObservable<VisibleState> State { get; }
 
         public ReactiveCommand<Unit, (RoverAction action, Update update)> Start { get; }
 
