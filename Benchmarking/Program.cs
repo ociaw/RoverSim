@@ -6,7 +6,7 @@ namespace Benchmarking
     {
         static void Main()
         {
-            var summary = BenchmarkRunner.Run<LevelGeneration>();
+            var _ = BenchmarkRunner.Run<LevelGeneration>();
         }
     }
 }
