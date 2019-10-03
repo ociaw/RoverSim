@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RoverSim.ScratchAis
 {
@@ -14,10 +15,17 @@ namespace RoverSim.ScratchAis
 
         public Int32 Identifier { get; }
 
-        public void Simulate(IRover rover)
+        public void Simulate(IRoverStatusAccessor rover)
         {
             var scratchRover = new ScratchRover(rover);
             Ai.Simulate(scratchRover);
+        }
+
+        IEnumerable<RoverAction> IAi.Simulate(IRoverStatusAccessor rover)
+        {
+            var scratchRover = new ScratchRover(rover);
+
+            return Ai.Simulate(scratchRover);
         }
     }
 }

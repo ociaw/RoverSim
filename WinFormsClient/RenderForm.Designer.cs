@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.glControl1 = new OpenTK.GLControl();
             this.beginRender = new System.Windows.Forms.Button();
             this.MovesLeftText = new System.Windows.Forms.TextBox();
@@ -36,6 +37,7 @@
             this.PowerLeftText = new System.Windows.Forms.TextBox();
             this.SamplesSentLabel = new System.Windows.Forms.Label();
             this.SamplesSentText = new System.Windows.Forms.TextBox();
+            this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // glControl1
@@ -110,6 +112,10 @@
             this.SamplesSentText.Size = new System.Drawing.Size(100, 20);
             this.SamplesSentText.TabIndex = 6;
             // 
+            // UpdateTimer
+            // 
+            this.UpdateTimer.Tick += new System.EventHandler(this.UpdateTimer_Tick);
+            // 
             // RenderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -141,5 +147,6 @@
         private System.Windows.Forms.TextBox PowerLeftText;
         private System.Windows.Forms.Label SamplesSentLabel;
         private System.Windows.Forms.TextBox SamplesSentText;
+        private System.Windows.Forms.Timer UpdateTimer;
     }
 }

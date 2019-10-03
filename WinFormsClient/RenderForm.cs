@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using RoverSim.Rendering;
@@ -10,6 +10,12 @@ namespace RoverSim.WinFormsClient
     internal partial class RenderForm : Form, IDisposable
     {
         private delegate void UpdateUICallBack(VisibleState state, Int32 movesLeft, Int32 power, Int32 samplesSent);
+
+        private IEnumerator<RoverAction> _actionEnumerator;
+
+        private Rover _rover;
+
+        private RoverStats _stats;
 
         private VisibleState _state;
 
@@ -41,78 +47,63 @@ namespace RoverSim.WinFormsClient
             GL.Viewport(0, 0, w, h); // Use all of the glControl painting area
         }
 
-        private async void BeginRender_Click(object sender, EventArgs e)
+        private void BeginRender_Click(object sender, EventArgs e)
         {
-            beginRender.Enabled = false;
-
             IAi ai = DemoAi.Create(DemoResult.AiIdentifier, DemoResult.Parameters);
             Level originalLevel = DemoResult.OriginalLevel;
             MutableLevel workingLevel = originalLevel.AsMutable();
-            using (var source = new System.Threading.CancellationTokenSource())
+
+            _rover = new Rover(workingLevel, DemoResult.Parameters);
+            _stats = RoverStats.Create(DemoResult.Parameters);
+            _state = VisibleState.GenerateBlank(originalLevel.BottomRight, _rover.Position);
+            _actionEnumerator = ai.Simulate(_rover.Accessor).GetEnumerator();
+            beginRender.Enabled = false;
+            UpdateTimer.Start();
+        }
+
+        private void UpdateTimer_Tick(Object sender, EventArgs e)
+        {
+            if (!_actionEnumerator.MoveNext() || !_rover.Perform(_actionEnumerator.Current, out Update update))
             {
-                IRover rover = new ReportingRover(
-                    new Rover(workingLevel, DemoResult.Parameters),
-                    new Progress<TerrainUpdate>(UpdateTerrain),
-                    new WaitingProgress<PositionUpdate>(new Progress<PositionUpdate>(UpdateRoverPosition)),
-                    new Progress<StatsUpdate>(UpdateStats),
-                    source.Token
-                );
-                Simulation sim = new Simulation(originalLevel, DemoResult.Parameters, ai, rover);
-                _state = VisibleState.GenerateBlank(originalLevel.BottomRight, rover.Position);
-
-                try
-                {
-                    await Task.Run(sim.Simulate, source.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    // Ignore this exception, since it'll only happen when we've already closed the form
-                }
-                catch (OutOfPowerOrMovesException)
-                {
-                    // This is to be expected if an AI doesn't keep track of their power or moves
-                }
+                UpdateTimer.Stop();
+                beginRender.Enabled = true;
+                _actionEnumerator.Dispose();
+                return;
             }
+
+            UpdateTimer.Interval = _actionEnumerator.Current.Instruction switch
+            {
+                Instruction.Move => 75,
+                Instruction.CollectSample => 50,
+                _ => 1
+            };
+
+            _stats = _stats.Add(_actionEnumerator.Current, update);
+            _state.Apply(update);
+            UpdateStats();
+            Render();
         }
 
-        private void UpdateTerrain(TerrainUpdate update)
+        private void UpdateStats()
         {
-            if (IsDisposed)
-                return;
-
-            _state.UpdateTerrain(update);
-            Render(_state);
+            MovesLeftText.Text = _stats.MovesLeft.ToString();
+            PowerLeftText.Text = _stats.Power.ToString();
+            SamplesSentText.Text = _stats.SamplesTransmitted.ToString();
         }
 
-        private void UpdateRoverPosition(PositionUpdate update)
+        private void Render()
         {
-            if (IsDisposed)
-                return;
-
-            _state.UpdateRoverPos(update);
-            Render(_state);
-        }
-
-        private void UpdateStats(StatsUpdate update)
-        {
-            MovesLeftText.Text = update.MovesLeft.ToString();
-            PowerLeftText.Text = update.Power.ToString();
-            SamplesSentText.Text = update.TransmitedCount.ToString();
-        }
-
-        private void Render(VisibleState state)
-        {
-            Int32 roverX = state.RoverPosition.X;
-            Int32 roverY = state.RoverPosition.Y;
+            Int32 roverX = _state.RoverPosition.X;
+            Int32 roverY = _state.RoverPosition.Y;
             Int32 viewWidth = glControl1.Width;
             Int32 viewHeight = glControl1.Height;
-            Int32 widthMultiplier = viewWidth / state.Width;
-            Int32 heightMultiplier = viewHeight / state.Height;
-            for (Int16 i = 0; i < state.Width; i++)
+            Int32 widthMultiplier = viewWidth / _state.Width;
+            Int32 heightMultiplier = viewHeight / _state.Height;
+            for (Int16 i = 0; i < _state.Width; i++)
             {
-                for (Int16 j = 0; j < state.Height; j++)
+                for (Int16 j = 0; j < _state.Height; j++)
                 {
-                    DrawTile(i, j, state[i, j], widthMultiplier, heightMultiplier);
+                    DrawTile(i, j, _state[i, j], widthMultiplier, heightMultiplier);
                 }
             }
 
@@ -164,21 +155,10 @@ namespace RoverSim.WinFormsClient
             }
         }
 
+        void IDisposable.Dispose() => _actionEnumerator.Dispose();
+
         private void RenderForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-        }
-
-        private sealed class WaitingProgress<T> : IProgress<T>
-        {
-            private readonly IProgress<T> _wrapped;
-
-            public WaitingProgress(IProgress<T> wrapped) => _wrapped = wrapped ?? throw new ArgumentNullException(nameof(wrapped));
-
-            public void Report(T value)
-            {
-                System.Threading.Thread.Sleep(100);
-                _wrapped.Report(value);
-            }
         }
     }
 }

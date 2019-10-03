@@ -40,154 +40,149 @@ namespace RoverSim.ScratchAis
             }
         }
 
-        public void Simulate(ScratchRover rover)
+        public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {
             while (true)
             {
-                if (Step(rover))
-                    break;
-            }
-        }
-
-        public Boolean Step(ScratchRover rover)
-        {
-            // Sense nearby and find a path and anything else free
-            SenseAdjacentSquares(rover);
-            if (_mapDirty == true || path.Count == 0)
-            {
-                do
+                // Sense nearby and find a path and anything else free
+                SenseAdjacentSquares(rover);
+                if (_mapDirty == true || path.Count == 0)
                 {
-                    AnalyzeTerrain(_posX, _posY);
-
-                    roughTerrainDistMultiplier = 70.0 * rover.MovesLeft / rover.Power; // Optimization target
-                    if (roughTerrainDistMultiplier > 3)
-                        roughTerrainDistMultiplier = 3; // Optimization target
-                    else if (roughTerrainDistMultiplier < 1)
-                        roughTerrainDistMultiplier = 1;
-
-                    ScratchDijkstras pathFinder = new ScratchDijkstras(_mappedTerrain);
-                    path = pathFinder.BeginSolve(_posX, _posY, roughTerrainDistMultiplier);
-                    if (path.Count < 1)
+                    do
                     {
-                        if (pathFinder.destinationIndex == -1)
-                            return true; // We have no more squares to go to.
-                        // Found an unreachable square
-                        _mappedTerrain[pathFinder.destinationIndex] = TerrainType.Impassable;
-                    }
-                } while (path.Count == 0);
-            }
-            _moveDir = path[0];
-            path.RemoveAt(0);
+                        AnalyzeTerrain(_posX, _posY);
 
-            // Collect samples and power, move, process, and transmit - anything needing power or moves
-            if (rover.MovesLeft < 5)
-            {
-                if (rover.MovesLeft == 4)
-                {
-                    rover.CollectPower();
-                    if (rover.Power > 40 && _adjacentSquares[4] == TerrainType.Smooth)
-                    {
-                        rover.CollectSample();
-                        rover.ProcessSamples();
-                    }
-                    else if (rover.Power > 30)
-                    {
-                        rover.ProcessSamples();
-                    }
+                        roughTerrainDistMultiplier = 70.0 * rover.MovesLeft / rover.Power; // Optimization target
+                        if (roughTerrainDistMultiplier > 3)
+                            roughTerrainDistMultiplier = 3; // Optimization target
+                        else if (roughTerrainDistMultiplier < 1)
+                            roughTerrainDistMultiplier = 1;
+
+                        ScratchDijkstras pathFinder = new ScratchDijkstras(_mappedTerrain);
+                        path = pathFinder.BeginSolve(_posX, _posY, roughTerrainDistMultiplier);
+                        if (path.Count < 1)
+                        {
+                            if (pathFinder.destinationIndex == -1)
+                                yield break; // We have no more squares to go to.
+                            // Found an unreachable square
+                            _mappedTerrain[pathFinder.destinationIndex] = TerrainType.Impassable;
+                        }
+                    } while (path.Count == 0);
                 }
-                else if (rover.MovesLeft == 3)
-                {
-                    if (rover.Power > 40 && _adjacentSquares[4] == TerrainType.Smooth)
-                    {
-                        rover.CollectSample();
-                    }
-                    else
-                    {
-                        rover.CollectPower();
-                    }
-                    if (rover.Power > 30)
-                    {
-                        rover.ProcessSamples();
-                    }
-                }
-                else if (rover.MovesLeft == 2)
-                {
-                    if (rover.Power > 30)
-                    {
-                        rover.ProcessSamples();
-                    }
-                }
-                rover.Transmit();
-                return true; // Out of moves, end simulation
-            }
+                _moveDir = path[0];
+                path.RemoveAt(0);
 
-            if (rover.Power < 101)
-            {
-                if (rover.Power < 11)
+                // Collect samples and power, move, process, and transmit - anything needing power or moves
+                if (rover.MovesLeft < 5)
                 {
-                    if (_potentialPower[0] + rover.Power < 11)
+                    if (rover.MovesLeft == 4)
                     {
-                        rover.Transmit();
+                        yield return RoverAction.CollectPower;
+                        if (rover.Power > 40 && _adjacentSquares[4] == TerrainType.Smooth)
+                        {
+                            yield return RoverAction.CollectSample;;
+                            yield return RoverAction.ProcessSamples;
+                        }
+                        else if (rover.Power > 30)
+                        {
+                            yield return RoverAction.ProcessSamples;
+                        }
                     }
-                    else
+                    else if (rover.MovesLeft == 3)
                     {
-                        rover.CollectPower();
+                        if (rover.Power > 40 && _adjacentSquares[4] == TerrainType.Smooth)
+                        {
+                            yield return RoverAction.CollectSample;
+                        }
+                        else
+                        {
+                            yield return RoverAction.CollectPower;
+                        }
+                        if (rover.Power > 30)
+                        {
+                            yield return RoverAction.ProcessSamples;
+                        }
                     }
+                    else if (rover.MovesLeft == 2)
+                    {
+                        if (rover.Power > 30)
+                        {
+                            yield return RoverAction.ProcessSamples;
+                        }
+                    }
+                    yield return RoverAction.Transmit;
+                    yield break; // Out of moves, end simulation
                 }
 
                 if (rover.Power < 101)
                 {
-                    _lowPower = true;
-                }
-
-
-                if (rover.Power < 51)
-                {
-                    if (rover.Power > 10 && _adjacentSquares[4] == TerrainType.Smooth)
+                    if (rover.Power < 11)
                     {
-                        rover.CollectPower();
+                        if (_potentialPower[0] + rover.Power < 11)
+                        {
+                            yield return RoverAction.Transmit;
+                        }
+                        else
+                        {
+                            yield return RoverAction.CollectPower;
+                        }
                     }
+
+                    if (rover.Power < 101)
+                    {
+                        _lowPower = true;
+                    }
+
+
                     if (rover.Power < 51)
                     {
-                        rover.Transmit();
+                        if (rover.Power > 10 && _adjacentSquares[4] == TerrainType.Smooth)
+                        {
+                            yield return RoverAction.CollectPower;
+                        }
+                        if (rover.Power < 51)
+                        {
+                            yield return RoverAction.Transmit;
+                        }
                     }
                 }
-            }
 
-            if ((rover.Power + _potentialPower[1]) / rover.MovesLeft > 70)
-            {
-                _lowPower = false;
-            }
-
-            if (_potentialPower[0] > 0)
-            {
-                if (rover.Power < 30 || _potentialPower[1] == 0)
+                if ((rover.Power + _potentialPower[1]) / rover.MovesLeft > 70)
                 {
-                    if (rover.Power / rover.MovesLeft < 51)
-                    {
-                        rover.CollectPower();
-                    }
+                    _lowPower = false;
                 }
-            }
 
-            if (_adjacentSquares[4] == TerrainType.Smooth || _adjacentSquares[4] == TerrainType.Rough)
-            {
-                if (!(_lowPower && _potentialPower[1] > 0))
+                if (_potentialPower[0] > 0)
                 {
-                    rover.CollectSample();
-                    if (rover.SamplesCollected >= 3 && rover.Power > 40)
+                    if (rover.Power < 30 || _potentialPower[1] == 0)
                     {
-                        rover.ProcessSamples();
+                        if (rover.Power / rover.MovesLeft < 51)
+                        {
+                            yield return RoverAction.CollectPower;
+                        }
                     }
                 }
+
+                if (_adjacentSquares[4] == TerrainType.Smooth || _adjacentSquares[4] == TerrainType.Rough)
+                {
+                    if (!(_lowPower && _potentialPower[1] > 0))
+                    {
+                        yield return RoverAction.CollectSample;
+                        if (rover.SamplesCollected >= 3 && rover.Power > 40)
+                        {
+                            yield return RoverAction.ProcessSamples;
+                        }
+                    }
+                }
+
+                yield return Move();
+
+                if (rover.MovesLeft == 0 || rover.Power == 0)
+                    yield break;
             }
-
-            Move(rover);
-
-            return rover.MovesLeft == 0 || rover.Power == 0;
         }
 
-        private void Move(ScratchRover rover)
+        private RoverAction Move()
         {
             if (_moveDir == Direction.Up)
             {
@@ -217,7 +212,7 @@ namespace RoverSim.ScratchAis
                 else
                     throw new InvalidOperationException();
             }
-            rover.Move(_moveDir);
+            return new RoverAction(_moveDir);
         }
 
         private void SenseAdjacentSquares(ScratchRover rover)

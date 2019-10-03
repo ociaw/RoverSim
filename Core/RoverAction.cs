@@ -2,11 +2,11 @@
 
 namespace RoverSim
 {
-    public struct RoverAction
+    public readonly struct RoverAction
     {
-        public RoverAction(Instruction instruction, Direction direction)
+        public RoverAction(Direction direction)
         {
-            Instruction = instruction >= 0 && instruction <= Instruction.Move ? instruction : throw new ArgumentOutOfRangeException();
+            Instruction = Instruction.Move;
             Direction = direction.IsValid ? direction : throw new ArgumentOutOfRangeException();
         }
 
@@ -19,6 +19,16 @@ namespace RoverSim
         public Instruction Instruction { get; }
 
         public Direction Direction { get; }
+
+        public static RoverAction CollectPower { get; } = new RoverAction(Instruction.CollectPower);
+
+        public static RoverAction CollectSample { get; } = new RoverAction(Instruction.CollectSample);
+
+        public static RoverAction ProcessSamples { get; } = new RoverAction(Instruction.ProcessSamples);
+
+        public static RoverAction Transmit { get; } = new RoverAction(Instruction.Transmit);
+
+        public override String ToString() => Instruction.ToString() + (Instruction == Instruction.Move ? " " + Direction.ToString() : "");
 
         public override Int32 GetHashCode() => (Int32)Instruction << 4 | (Int32)Direction;
 

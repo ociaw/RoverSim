@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RoverSim.ScratchAis
 {
@@ -14,38 +15,29 @@ namespace RoverSim.ScratchAis
             _random = random ?? throw new ArgumentNullException(nameof(random));
         }
 
-        public void Simulate(ScratchRover rover)
+        public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {
             while (true)
             {
-                if (Step(rover))
-                    break;
+                yield return RoverAction.CollectSample;
+                yield return RoverAction.ProcessSamples;
+                yield return RoverAction.Transmit;
+
+                Int32 num = _random.Next(0, 4);
+                if (num == 0)
+                    yield return new RoverAction(Direction.Up);
+                else if (num == 1)
+                    yield return new RoverAction(Direction.Right);
+                else if (num == 2)
+                    yield return new RoverAction(Direction.Down);
+                else if (num == 3)
+                    yield return new RoverAction(Direction.Left);
+
+                if (rover.IsHalted)
+                    yield break;
+
+                yield return RoverAction.CollectPower;
             }
-        }
-
-        public Boolean Step(ScratchRover rover)
-        {
-            if (rover == null)
-                throw new ArgumentNullException(nameof(rover));
-
-            if (rover.CollectSample()) return true;
-            if (rover.ProcessSamples()) return true;
-            if (rover.Transmit()) return true;
-
-            Int32 num = _random.Next(0, 4);
-            if (num == 0)
-                rover.Move(Direction.Up);
-            else if (num == 1)
-                rover.Move(Direction.Right);
-            else if (num == 2)
-                rover.Move(Direction.Down);
-            else if (num == 3)
-                rover.Move(Direction.Left);
-
-            if (rover.IsHalted)
-                return true;
-
-            return rover.CollectPower();
         }
     }
 }

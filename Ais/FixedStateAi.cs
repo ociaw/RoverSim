@@ -34,34 +34,35 @@ namespace RoverSim.Ais
 
         public Int32 DeadEndMemory { get; }
 
-        public void Simulate(IRover rover)
+        public IEnumerable<RoverAction> Simulate(IRoverStatusAccessor rover)
         {
             while (true)
             {
-                var adjacent = SenseAdjacent(rover);
-                TerrainType occupied = rover.SenseSquare(Direction.None);
+                var adjacent = GetAdjacent(rover);
+                TerrainType occupied = adjacent[Direction.None];
                 (Direction? adjacentSmoothDir, Direction? adjacentRoughDir) = FindAdjacentUnsampled(adjacent);
 
                 if (rover.MovesLeft <= 5)
                 {
-                    DoLowMoves(rover);
-                    return;
+                    foreach (var action in DoLowMoves(rover, adjacent))
+                        yield return action;
+                    yield break;
                 }
 
                 if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && occupied == TerrainType.Smooth))
                 {
                     if (!HasExcessPower(rover))
-                        rover.CollectPower();
+                        yield return RoverAction.CollectPower;
                     if (rover.Power < LowPowerThreshold)
-                        rover.Transmit();
+                        yield return RoverAction.Transmit;
                 }
 
                 // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
                 if (occupied.IsSampleable() && (!_gatheringPower || (adjacentSmoothDir == null && occupied == TerrainType.Smooth)))
                 {
-                    rover.CollectSample();
+                    yield return RoverAction.CollectSample;
                     if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
-                        rover.ProcessSamples();
+                        yield return RoverAction.ProcessSamples;
                 }
 
                 Boolean hasExcessPower = HasExcessPower(rover);
@@ -106,12 +107,12 @@ namespace RoverSim.Ais
                     _avoidanceDestination = Direction.None;
                 }
 
-                rover.Move(nextMove);
+                yield return new RoverAction(nextMove);
                 _roundRobin++;
             }
         }
 
-        private Direction AvoidObstacle(TerrainType[] adjacent)
+        private Direction AvoidObstacle(AdjacentTerrain adjacent)
         {
             // We use round robin here to avoid always checking the same side first,
             // as that causes the rover to favor one area.
@@ -125,7 +126,7 @@ namespace RoverSim.Ais
             return _destination.Opposite();
         }
 
-        private Direction ResetDestination(TerrainType[] adjacent)
+        private Direction ResetDestination(AdjacentTerrain adjacent)
         {
             // We do some weird things here to avoid getting stuck in a loop too easily.
             Int32 addend = _roundRobin % 7;
@@ -133,124 +134,100 @@ namespace RoverSim.Ais
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
                 Int32 modified = _roundRobin + addend + (shouldAdd ? i : Direction.DirectionCount - i);
-                Int32 dir = modified % Direction.DirectionCount;
+                Direction dir = Direction.Create(modified % Direction.DirectionCount);
                 if (adjacent[dir] != TerrainType.Impassable)
-                    return (Direction)dir;
+                    return dir;
             }
 
             return Direction.None;
         }
 
-        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(TerrainType[] adjacent)
+        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(AdjacentTerrain adjacent)
         {
             Direction direction = Direction.None;
             Int32 impassableCount = 0;
-            for (Int32 i = 0; i < adjacent.Length; i++)
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                if (adjacent[i] == TerrainType.Impassable)
+                Direction dir = (Direction)i;
+                if (adjacent[dir] == TerrainType.Impassable)
                     impassableCount++;
                 else
-                    direction = (Direction)i;
+                    direction = dir;
             }
             return (impassableCount >= 3, direction);
         }
         
-        private Boolean HasExcessPower(IRover rover) => rover.Power >= (7) * rover.MovesLeft + 1;
+        private Boolean HasExcessPower(IRoverStatusAccessor rover) => rover.Power >= (7) * rover.MovesLeft + 1;
 
-        private void DoLowMoves(IRover rover)
+        private IEnumerable<RoverAction> DoLowMoves(IRoverStatusAccessor rover, AdjacentTerrain adjacent)
         {
             if (rover.MovesLeft > 5)
-                return;
+                yield break;
 
-            Boolean smoothOccupied = rover.SenseSquare(Direction.None) == TerrainType.Smooth;
-            Boolean roughOccupied = rover.SenseSquare(Direction.None) == TerrainType.Rough;
-            (Direction? smoothDir, Direction? roughDir) = FindAdjacentUnsampled(rover);
+            Boolean smoothOccupied = adjacent[Direction.None] == TerrainType.Smooth;
+            Boolean roughOccupied = adjacent[Direction.None] == TerrainType.Rough;
+            (Direction? smoothDir, Direction? roughDir) = FindAdjacentUnsampled(adjacent);
             if (rover.MovesLeft == 5 && rover.Power > Parameters.SampleCost + Parameters.MoveRoughCost + Parameters.SampleCost + Parameters.ProcessCost)
             {
                 if (smoothOccupied || roughOccupied)
-                    rover.CollectSample();
+                    yield return RoverAction.CollectSample;
                 Direction? moveDir = smoothDir ?? roughDir;
                 if (moveDir.HasValue)
                 {
-                    rover.Move(moveDir.Value);
-                    rover.CollectSample();
+                    yield return new RoverAction(moveDir.Value);
+                    yield return RoverAction.CollectSample;
                 }
 
-                rover.ProcessSamples();
-                rover.Transmit();
-                return;
+                yield return RoverAction.ProcessSamples;
+                yield return RoverAction.Transmit;
+                yield break;
             }
 
             if (rover.MovesLeft >= 4)
             {
-                rover.CollectPower();
+                yield return RoverAction.CollectPower;
                 if (rover.Power > Parameters.ProcessCost)
                 {
                     if (rover.Power > Parameters.ProcessCost + Parameters.SampleCost && smoothOccupied)
-                        rover.CollectSample();
-                    rover.ProcessSamples();
+                        yield return RoverAction.CollectSample;
+                    yield return RoverAction.ProcessSamples;
                 }
             }
             else if (rover.MovesLeft == 3)
             {
                 if (rover.Power > Parameters.ProcessCost + Parameters.SampleCost && smoothOccupied)
-                    rover.CollectSample();
+                    yield return RoverAction.CollectSample;
                 else
-                    rover.CollectPower();
+                    yield return RoverAction.CollectPower;
                 if (rover.Power > Parameters.ProcessCost)
-                    rover.ProcessSamples();
+                    yield return RoverAction.ProcessSamples;
             }
             if (rover.MovesLeft == 2)
             {
                 if (rover.Power == 0)
-                    rover.CollectPower();
+                    yield return RoverAction.CollectPower;
                 else if (rover.Power > Parameters.ProcessCost && rover.SamplesCollected > 0)
-                    rover.ProcessSamples();
+                    yield return RoverAction.ProcessSamples;
             }
             if (rover.SamplesProcessed > 0)
-                rover.Transmit();
-            return;
+                yield return RoverAction.Transmit;
+            yield break;
         }
 
-        private TerrainType[] SenseAdjacent(IRover rover)
-        {
-            TerrainType[] terrain = new TerrainType[Direction.DirectionCount];
-
-            for (Int32 i = 0; i < terrain.Length; i++)
-            {
-                Direction direction = (Direction)i;
-                TerrainType tile = rover.SenseSquare(direction);
-
-                // For simplicity, we'll just ensure dead ends are always considered to be impassable.
-                if (IsDeadEnd(rover, direction))
-                    tile = TerrainType.Impassable;
-
-                terrain[i] = tile;
-            }
-
-            return terrain;
-        }
-
-        private (Direction? smoothDir, Direction? roughDir) FindAdjacentUnsampled(IRover rover)
-        {
-            var adjacent = SenseAdjacent(rover);
-            return FindAdjacentUnsampled(adjacent);
-        }
-
-        private (Direction? smoothDir, Direction? roughDir) FindAdjacentUnsampled(TerrainType[] adjacent)
+        private (Direction? smoothDir, Direction? roughDir) FindAdjacentUnsampled(AdjacentTerrain adjacent)
         {
             Direction? adjacentSmooth = null;
             Direction? adjacentRough = null;
-            for (Int32 i = 0; i < adjacent.Length; i++)
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                Int32 roundRobin = (i + _roundRobin) % Direction.DirectionCount;
+                Direction roundRobin = Direction.Create((i + _roundRobin) % Direction.DirectionCount);
                 switch (adjacent[roundRobin])
                 {
                     case TerrainType.Smooth:
-                        adjacentSmooth = (Direction)roundRobin;
+                        adjacentSmooth = roundRobin;
                         break;
                     case TerrainType.Rough:
-                        adjacentRough = (Direction)roundRobin;
+                        adjacentRough = roundRobin;
                         break;
                 }
             }
@@ -258,7 +235,21 @@ namespace RoverSim.Ais
             return (adjacentSmooth, adjacentRough);
         }
 
-        private Boolean IsDeadEnd(IRover rover, Direction direction) => _deadEnds.Contains(rover.Position + direction);
+        private AdjacentTerrain GetAdjacent(IRoverStatusAccessor rover)
+        {
+            var adjacent = rover.Adjacent;
+            var position = rover.Position;
+            return new AdjacentTerrain
+            (
+                IsDeadEnd(position, Direction.Up) ? TerrainType.Impassable : adjacent.Up,
+                IsDeadEnd(position, Direction.Right) ? TerrainType.Impassable : adjacent.Right,
+                IsDeadEnd(position, Direction.Down) ? TerrainType.Impassable : adjacent.Down,
+                IsDeadEnd(position, Direction.Left) ? TerrainType.Impassable : adjacent.Left,
+                IsDeadEnd(position, Direction.None) ? TerrainType.Impassable : adjacent.Occupied
+            );
+        }
+
+        private Boolean IsDeadEnd(Position position, Direction direction) => _deadEnds.Contains(position + direction);
 
         private void AddDeadEnd(Position position)
         {

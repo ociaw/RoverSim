@@ -25,99 +25,94 @@ namespace RoverSim.ScratchAis
 
         public Int32 Identifier { get; }
 
-        public void Simulate(ScratchRover rover)
+        public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {
             while (true)
             {
-                if (Step(rover))
-                    break;
-            }
-        }
-
-        public Boolean Step(ScratchRover rover)
-        {
-            Direction SmoothSquare = Direction.None;
-            SenseAdjacentSquares(rover);
-            for (Int32 i = 0; i < 5; i++)
-            {
-                if (adjacentSquares[i] == TerrainType.Smooth)
-                {
-                    SmoothSquare = (Direction)i;
-                    break;
-                }
-            }
-
-            if (rover.Power < 30 || (SmoothSquare == Direction.None && adjacentSquares[4] == TerrainType.Smooth))
-            {
-                if (rover.Power / rover.MovesLeft < 51)
-                {
-                    rover.CollectPower();
-                }
-            }
-
-            if (rover.MovesLeft < 3)
-            {
-                if (rover.MovesLeft == 2)
-                {
-                    rover.ProcessSamples();
-                }
-                rover.Transmit();
-            }
-            if (rover.Power < 41)
-            {
-                if (rover.Power > 10)
-                {
-                    rover.CollectPower();
-                }
-                if (rover.Power < 41)
-                {
-                    rover.Transmit();
-                }
-            }
-            if (adjacentSquares[4] == TerrainType.Smooth || adjacentSquares[4] == TerrainType.Rough)
-            {
-                rover.CollectSample();
-                if (rover.SamplesCollected >= 3)
-                {
-                    rover.ProcessSamples();
-                }
-            }
-            if (SmoothSquare != Direction.None)
-            {
-                moveDir = SmoothSquare;
-            }
-            else
-            {
-                moveDir = Direction.None;
+                Direction SmoothSquare = Direction.None;
+                SenseAdjacentSquares(rover);
                 for (Int32 i = 0; i < 5; i++)
                 {
-                    if (adjacentSquares[i] == TerrainType.Rough)
+                    if (adjacentSquares[i] == TerrainType.Smooth)
                     {
-                        moveDir = (Direction)i;
-                        destination = Direction.None;
+                        SmoothSquare = (Direction)i;
                         break;
                     }
                 }
-                if (moveDir == Direction.None)
+
+                if (rover.Power < 30 || (SmoothSquare == Direction.None && adjacentSquares[4] == TerrainType.Smooth))
                 {
-                    if (destination == Direction.None)
+                    if (rover.Power / rover.MovesLeft < 51)
                     {
-                        SetDestination();
-                    }
-                    if (adjacentSquares[(Int32)destination] != TerrainType.Impassable)
-                    {
-                        moveDir = destination;
-                    }
-                    else
-                    {
-                        FindOpenSquare();
+                        yield return RoverAction.CollectPower;
                     }
                 }
-            }
-            CheckStuck();
-            Move(rover);
 
-            return rover.MovesLeft == 0 || rover.Power == 0;
+                if (rover.MovesLeft < 3)
+                {
+                    if (rover.MovesLeft == 2)
+                    {
+                        yield return RoverAction.ProcessSamples;
+                    }
+                    yield return RoverAction.Transmit;
+                }
+                if (rover.Power < 41)
+                {
+                    if (rover.Power > 10)
+                    {
+                        yield return RoverAction.CollectPower;
+                    }
+                    if (rover.Power < 41)
+                    {
+                        yield return RoverAction.Transmit;
+                    }
+                }
+                if (adjacentSquares[4] == TerrainType.Smooth || adjacentSquares[4] == TerrainType.Rough)
+                {
+                    yield return RoverAction.CollectSample;
+                    if (rover.SamplesCollected >= 3)
+                    {
+                        yield return RoverAction.ProcessSamples;
+                    }
+                }
+                if (SmoothSquare != Direction.None)
+                {
+                    moveDir = SmoothSquare;
+                }
+                else
+                {
+                    moveDir = Direction.None;
+                    for (Int32 i = 0; i < 5; i++)
+                    {
+                        if (adjacentSquares[i] == TerrainType.Rough)
+                        {
+                            moveDir = (Direction)i;
+                            destination = Direction.None;
+                            break;
+                        }
+                    }
+                    if (moveDir == Direction.None)
+                    {
+                        if (destination == Direction.None)
+                        {
+                            SetDestination();
+                        }
+                        if (adjacentSquares[(Int32)destination] != TerrainType.Impassable)
+                        {
+                            moveDir = destination;
+                        }
+                        else
+                        {
+                            FindOpenSquare();
+                        }
+                    }
+                }
+                CheckStuck();
+                yield return Move();
+
+                if (rover.MovesLeft == 0 || rover.Power == 0)
+                    yield break;
+            }
         }
 
         private void SenseAdjacentSquares(ScratchRover rover)
@@ -177,7 +172,7 @@ namespace RoverSim.ScratchAis
                 PosXNext -= 1;
         }
 
-        private void Move(ScratchRover rover)
+        private RoverAction Move()
         {
             if (PreviousX.Count > 4)
                 PreviousX.RemoveAt(PreviousX.Count - 1);
@@ -193,7 +188,7 @@ namespace RoverSim.ScratchAis
                 PosY += 1; // Reversed for scratch
             else
                 PosX -= 1;
-            rover.Move(moveDir);
+            return new RoverAction(moveDir);
         }
 
         private void FindOpenSquare()

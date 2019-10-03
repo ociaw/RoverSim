@@ -22,8 +22,7 @@ namespace RoverSim.WinFormsClient
             {
                 var levelRand = new Random(levelSeed);
                 var levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
-                var roverFactory = new DefaultRoverFactory();
-                var simulator = new Simulator(levelGeneratorFactory, roverFactory, aiFactory);
+                var simulator = new Simulator(levelGeneratorFactory, aiFactory);
 
                 using (Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv")))
                 {

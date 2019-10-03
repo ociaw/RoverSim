@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public sealed class Rover : IRover
+    public sealed class Rover
     {
         private Int32 _moves;
         private Int32 _power;
@@ -14,6 +14,8 @@ namespace RoverSim
             Position = parameters.InitialPosition;
             MovesLeft = parameters.InitialMovesLeft;
             Power = parameters.InitialPower;
+            Adjacent = GetAdjacentTerrain(parameters.InitialPosition);
+            Accessor = new StatusAccessor(this);
         }
 
         private MutableLevel Level { get; }
@@ -42,88 +44,144 @@ namespace RoverSim
 
         public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
 
-        public TerrainType SenseSquare(Direction direction)
-            => Level.GetTerrain(Position + direction);
+        public AdjacentTerrain Adjacent { get; private set; }
 
-        public Boolean Move(Direction direction)
+        public IRoverStatusAccessor Accessor { get; }
+
+        /// <summary>
+        /// Attempts to perform the given action.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns>Whether or not the rover was halted *before* the action was taken.</returns>
+        public Boolean Perform(in RoverAction action, out Update update)
         {
-            ThrowIfHalted();
-
-            CoordinatePair newCoords = Position + direction;
-            TerrainType newTerrain = Level.GetTerrain(newCoords);
-            if (newTerrain == TerrainType.Impassable || newCoords.IsNegative)
+            if (IsHalted)
+            {
+                update = Update.NoChange;
                 return false;
+            }
 
-            Position = new Position(newCoords);
-            MovesLeft -= 1;
-            Power -= Parameters.GetMovementPowerCost(newTerrain);
-            if (newTerrain != TerrainType.Smooth)
-                NoBacktrack = 1;
-            else
-                NoBacktrack += 1;
+            update = action.Instruction switch
+            {
+                Instruction.CollectPower => CollectPower(),
+                Instruction.CollectSample => CollectSample(),
+                Instruction.ProcessSamples => ProcessSamples(),
+                Instruction.Transmit => Transmit(),
+                Instruction.Move => Move(action.Direction),
+                _ => throw new Exception("This is impossible.")
+            };
 
+            Apply(update);
             return true;
         }
 
-        public Int32 Transmit()
+        private void Apply(in Update update)
         {
-            ThrowIfHalted();
-
-            Int32 processedCount = SamplesProcessed;
-            
-            MovesLeft -= 1;
-            Power -= Parameters.TransmitCost;
-            SamplesTransmitted += processedCount;
-            SamplesProcessed = 0;
-
-            return processedCount;
+            MovesLeft += update.MoveDelta;
+            Power += update.PowerDelta;
+            Position = new Position(Position + update.PositionDelta);
+            SamplesCollected += update.HopperDelta;
+            SamplesProcessed += update.PendingTransmissionDelta;
+            SamplesTransmitted += update.TransmittedDelta;
+            NoBacktrack += update.NoBacktrackDelta;
+            Adjacent = update.Terrain ?? Adjacent;
         }
 
-        public Int32 CollectPower()
+        private Update Move(in Direction direction)
         {
-            if (MovesLeft == 0)
-                throw new OutOfMovesException();
+            CoordinatePair newCoords = Position + direction;
+            TerrainType newTerrain = Level.GetTerrain(newCoords);
+            if (newTerrain == TerrainType.Impassable || newCoords.IsNegative)
+                return Update.NoChange;
 
-            Int32 gatheredPower = PotentialLight;
-            
-            MovesLeft -= 1;
-            Power += gatheredPower;
-            NoBacktrack = 1;
-            return gatheredPower;
+            return new Update(
+                moveDelta: -1,
+                powerDelta: -Parameters.GetMovementPowerCost(newTerrain),
+                positionDelta: direction.Delta,
+                noBacktrackDelta: newTerrain != TerrainType.Smooth ? 1 - NoBacktrack : 1,
+                terrain: GetAdjacentTerrain(Position + direction)
+            );
         }
 
-        public (Boolean isSuccess, TerrainType newTerrain) CollectSample()
+        private Update Transmit()
         {
-            ThrowIfHalted();
-            
-            MovesLeft -= 1;
-            Power -= Parameters.SampleCost;
-            TerrainType terrain = Level.GetTerrain(Position);
-            if (terrain != TerrainType.Smooth && terrain != TerrainType.Rough || SamplesCollected >= Parameters.HopperSize)
-                return (false, terrain);
-
-            SamplesCollected += 1;
-            return (true, Level.SampleSquare(Position));
+            return new Update(
+                moveDelta: -1,
+                powerDelta: -Parameters.TransmitCost,
+                pendingTransmissinDelta: -SamplesProcessed,
+                transmittedDelta: SamplesProcessed
+            );
         }
 
-        public Int32 ProcessSamples()
+        private Update CollectPower()
         {
-            ThrowIfHalted();
-            
-            MovesLeft -= 1;
-            Power -= Parameters.ProcessCost;
-            var processingCount = SamplesCollected > Parameters.HopperSize ? Parameters.HopperSize : SamplesCollected;
-            SamplesProcessed += processingCount;
-            SamplesCollected -= processingCount;
-            return processingCount;
+            return new Update(
+                moveDelta: -1,
+                powerDelta: PotentialLight,
+                noBacktrackDelta: 1 - NoBacktrack
+            );
         }
 
-        private void ThrowIfHalted()
+        private Update CollectSample()
         {
-            if (MovesLeft == 0)
-                throw new OutOfMovesException();
-            if (Power == 0)
-                throw new OutOfPowerException();
+            if (!Adjacent.Occupied.IsSampleable() || SamplesCollected >= Parameters.HopperSize)
+                return new Update(moveDelta: -1, powerDelta: Parameters.SampleCost);
+
+            TerrainType newTerrain = Level.SampleSquare(Position);
+            return new Update(
+                moveDelta: -1,
+                powerDelta: -1,
+                hopperDelta: 1,
+                terrain: new AdjacentTerrain(Adjacent.Up, Adjacent.Right, Adjacent.Down, Adjacent.Left, newTerrain)
+            );
+        }
+
+        private Update ProcessSamples()
+        {
+            Int32 processingCount = SamplesCollected > Parameters.HopperSize ? Parameters.HopperSize : SamplesCollected;
+            return new Update
+            (
+                moveDelta: -1,
+                powerDelta: -Parameters.ProcessCost,
+                hopperDelta: -processingCount,
+                pendingTransmissinDelta: processingCount
+            );
+        }
+
+        private AdjacentTerrain GetAdjacentTerrain(in CoordinatePair position) =>
+            new AdjacentTerrain
+            (
+                Level.GetTerrain(position + Direction.Up),
+                Level.GetTerrain(position + Direction.Right),
+                Level.GetTerrain(position + Direction.Down),
+                Level.GetTerrain(position + Direction.Left),
+                Level.GetTerrain(position)
+            );
+
+
+        private sealed class StatusAccessor : IRoverStatusAccessor
+        {
+            private readonly Rover _rover;
+
+            public StatusAccessor(Rover rover) => _rover = rover ?? throw new ArgumentNullException(nameof(rover));
+
+            public Position Position => _rover.Position;
+
+            public Int32 MovesLeft => _rover.MovesLeft;
+
+            public Int32 Power => _rover.Power;
+
+            public Int32 SamplesCollected => _rover.SamplesCollected;
+
+            public Int32 SamplesProcessed => _rover.SamplesProcessed;
+
+            public Int32 SamplesTransmitted => _rover.SamplesTransmitted;
+
+            public Int32 NoBacktrack => _rover.NoBacktrack;
+
+            public Boolean IsHalted => _rover.IsHalted;
+
+            public AdjacentTerrain Adjacent => _rover.Adjacent;
         }
     }
 }

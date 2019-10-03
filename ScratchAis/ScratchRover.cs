@@ -4,12 +4,12 @@ namespace RoverSim.ScratchAis
 {
     public sealed class ScratchRover
     {
-        public ScratchRover(IRover rover)
+        public ScratchRover(IRoverStatusAccessor rover)
         {
             Rover = rover ?? throw new ArgumentNullException(nameof(rover));
         }
 
-        private IRover Rover { get; }
+        private IRoverStatusAccessor Rover { get; }
 
         public Int32 MovesLeft => Rover.MovesLeft;
 
@@ -23,43 +23,13 @@ namespace RoverSim.ScratchAis
 
         public Int32 NoBacktrack => Rover.NoBacktrack;
 
-        public TerrainType Sense { private set; get; } = TerrainType.Smooth;
+        public TerrainType Sense { get; private set; } = TerrainType.Smooth;
 
         public Boolean IsHalted => Rover.IsHalted;
 
-        public Boolean CollectPower()
-        {
-            Rover.CollectPower();
-            return Rover.IsHalted;
-        }
-
-        public Boolean CollectSample()
-        {
-            Rover.CollectSample();
-            return Rover.IsHalted;
-        }
-
-        public Boolean Move(Direction direction)
-        {
-            Rover.Move(direction);
-            return Rover.IsHalted;
-        }
-
-        public Boolean ProcessSamples()
-        {
-            Rover.ProcessSamples();
-            return Rover.IsHalted;
-        }
-
         public void SenseSquare(Direction direction)
         {
-            Sense = Rover.SenseSquare(direction);
-        }
-
-        public Boolean Transmit()
-        {
-            Rover.Transmit();
-            return Rover.IsHalted;
+            Sense = Rover.Adjacent[direction];
         }
     }
 }

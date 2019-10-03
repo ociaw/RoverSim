@@ -17,89 +17,82 @@ namespace RoverSim.ScratchAis
             _random = random ?? throw new ArgumentNullException(nameof(random));
         }
 
-        public void Simulate(ScratchRover rover)
+        public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {
             while (true)
             {
-                if (Step(rover))
-                    break;
-            }
-        }
-
-        public Boolean Step(ScratchRover rover)
-        {
-            if (rover == null)
-                throw new ArgumentNullException(nameof(rover));
-
-            Direction smoothSquare = Direction.None;
-            SenseAdjacentSquares(rover);
-            for (Int32 i = 0; i < Direction.DirectionCount; i++)
-            {
-                if (adjacentSquares[i] == TerrainType.Smooth)
+                Direction smoothSquare = Direction.None;
+                SenseAdjacentSquares(rover);
+                for (Int32 i = 0; i < Direction.DirectionCount; i++)
                 {
-                    smoothSquare = (Direction)i;
-                    break;
+                    if (adjacentSquares[i] == TerrainType.Smooth)
+                    {
+                        smoothSquare = (Direction)i;
+                        break;
+                    }
                 }
-            }
 
-            if (rover.Power < 30 || (smoothSquare == Direction.None && adjacentSquares[4] == TerrainType.Smooth))
-            {
-                if (rover.Power < 51 * rover.MovesLeft)
+                if (rover.Power < 30 || (smoothSquare == Direction.None && adjacentSquares[4] == TerrainType.Smooth))
                 {
-                    rover.CollectPower();
+                    if (rover.Power < 51 * rover.MovesLeft)
+                    {
+                        yield return RoverAction.CollectPower;
+                    }
                 }
-            }
 
-            if (rover.MovesLeft < 3)
-            {
-                if (rover.MovesLeft == 2)
+                if (rover.MovesLeft < 3)
                 {
-                    rover.ProcessSamples();
-                    rover.Transmit();
-                    return true;
-                }
-                rover.Transmit();
-            }
-            if (rover.Power < 41)
-            {
-                if (rover.Power > 10)
-                {
-                    rover.CollectPower();
+                    if (rover.MovesLeft == 2)
+                    {
+                        yield return RoverAction.ProcessSamples;
+                        yield return RoverAction.Transmit;
+                        yield break;
+                    }
+                    yield return RoverAction.Transmit;
                 }
                 if (rover.Power < 41)
                 {
-                    rover.Transmit();
+                    if (rover.Power > 10)
+                    {
+                        yield return RoverAction.CollectPower;
+                    }
+                    if (rover.Power < 41)
+                    {
+                        yield return RoverAction.Transmit;
+                    }
                 }
-            }
-            if (adjacentSquares[4] == TerrainType.Smooth || adjacentSquares[4] == TerrainType.Rough)
-            {
-                rover.CollectSample();
-                if (rover.SamplesCollected >= 3)
+                if (adjacentSquares[4] == TerrainType.Smooth || adjacentSquares[4] == TerrainType.Rough)
                 {
-                    rover.ProcessSamples();
+                    yield return RoverAction.CollectSample;
+                    if (rover.SamplesCollected >= 3)
+                    {
+                        yield return RoverAction.ProcessSamples;
+                    }
+                }
+                if (adjacentSquares.Contains(TerrainType.Smooth))
+                {
+                    if (adjacentSquares[0] == TerrainType.Smooth)
+                        yield return new RoverAction(Direction.Up);
+                    else if (adjacentSquares[1] == TerrainType.Smooth)
+                        yield return new RoverAction(Direction.Right);
+                    else if (adjacentSquares[2] == TerrainType.Smooth)
+                        yield return new RoverAction(Direction.Down);
+                    else if (adjacentSquares[3] == TerrainType.Smooth)
+                        yield return new RoverAction(Direction.Left);
+                }
+                else
+                {
+                    Int32 num = _random.Next(0, 4);
+                    if (num == 0)
+                        yield return new RoverAction(Direction.Up);
+                    else if (num == 1)
+                        yield return new RoverAction(Direction.Right);
+                    else if (num == 2)
+                        yield return new RoverAction(Direction.Down);
+                    else if (num == 3)
+                        yield return new RoverAction(Direction.Left);
                 }
             }
-            if (adjacentSquares.Contains(TerrainType.Smooth))
-            {
-                if (adjacentSquares[0] == TerrainType.Smooth)
-                    rover.Move(Direction.Up);
-                else if (adjacentSquares[1] == TerrainType.Smooth)
-                    rover.Move(Direction.Right);
-                else if (adjacentSquares[2] == TerrainType.Smooth)
-                    rover.Move(Direction.Down);
-                else if (adjacentSquares[3] == TerrainType.Smooth)
-                    rover.Move(Direction.Left);
-            }
-            else
-            {
-                Int32 num = _random.Next(0, 4);
-                if (num == 0) rover.Move(Direction.Up);
-                else if (num == 1) rover.Move(Direction.Right);
-                else if (num == 2) rover.Move(Direction.Down);
-                else if (num == 3) rover.Move(Direction.Left);
-            }
-
-            return false;
         }
 
         private void SenseAdjacentSquares(ScratchRover rover)

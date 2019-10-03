@@ -1,71 +1,45 @@
-﻿@using System.Threading;
-@using RoverSim.Rendering;
+﻿@using RoverSim.Rendering;
 @page "/demo"
 
 <h1>Simulation Demo</h1>
 
 <div id=stats>
-    <div id=moves-left>Moves Left: @movesLeft</div>
-    <div id=power>Power: @power</div>
-    <div id=sample-transmitted-count>Transmitted: @sampleTransmittedCount</div>
+    <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
+    <div id=power>Power: @_stats.Power</div>
+    <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
 </div>
 
 <button @onclick=StartDemo>Start</button>
 
 @code {
-    private Int32 movesLeft = 0;
-    private Int32 power = 0;
-    private Int32 sampleTransmittedCount = 0;
-
-    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-    private void UpdateStats(StatsUpdate stats)
-    {
-        movesLeft = stats.MovesLeft;
-        power = stats.Power;
-        sampleTransmittedCount = stats.TransmitedCount;
-    }
+    private RoverStats _stats;
 
     private Task StartDemo()
     {
         SimulationParameters parameters = SimulationParameters.Default;
-
+        ILevelGeneratorFactory levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
+        ILevelGenerator levelGenerator = levelGeneratorFactory.Create();
         IAiFactory aiFactory = new Ais.FixedStateAiFactory();
+
         IAi ai = aiFactory.Create(1, parameters);
-
-        ILevelGenerator levelGenerator = new DefaultLevelGenerator(new Random());
-
         Level originalLevel = levelGenerator.Generate(parameters);
         MutableLevel workingLevel = originalLevel.AsMutable();
+        Rover rover = new Rover(workingLevel, parameters);
+        VisibleState state = VisibleState.GenerateBlank(parameters.BottomRight, parameters.InitialPosition);
+        _stats = RoverStats.Create(parameters);
 
-        var terrainProgress = new Progress<TerrainUpdate>();
-        var positionProgress = new Progress<PositionUpdate>();
-        var statsProgress = new Progress<StatsUpdate>(stats => UpdateStats(stats));
+        var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
 
-        IRover rover = new ReportingRover(
-            new Rover(workingLevel, parameters),
-            terrainProgress,
-            positionProgress,
-            statsProgress,
-            cancellationTokenSource.Token
-        );
-
-        Simulation sim = new Simulation(originalLevel, parameters, ai, rover);
-
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
-            try
+            while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
             {
-                sim.Simulate();
+                state.Apply(update);
+                _stats = _stats.Add(actionEnumerator.Current, update);
+                base.StateHasChanged();
+                await Task.Delay(50);
             }
-            catch (OperationCanceledException)
-            {
-                // Ignore this exception, since it'll only happen when we've already closed the form
-            }
-            catch (OutOfPowerOrMovesException)
-            {
-                // This is to be expected if an AI doesn't keep track of their power or moves
-            }
+            actionEnumerator.Dispose();
         });
     }
 }

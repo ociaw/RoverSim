@@ -10,16 +10,13 @@ namespace RoverSim
         private Int32 _simId = 0;
         private Int32 _taskCount = Environment.ProcessorCount;
 
-        public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IRoverFactory roverFactory, IAiFactory aiFactory)
+        public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IAiFactory aiFactory)
         {
             LevelGeneratorFactory = levelGeneratorFactory ?? throw new ArgumentNullException(nameof(levelGeneratorFactory));
-            RoverFactory = roverFactory ?? throw new ArgumentNullException(nameof(roverFactory));
             AiFactory = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
         }
 
         public ILevelGeneratorFactory LevelGeneratorFactory { get; }
-
-        public IRoverFactory RoverFactory { get; }
 
         public IAiFactory AiFactory { get; }
 
@@ -47,10 +44,10 @@ namespace RoverSim
             Int32 capacity = TaskCount * 4;
 
             var simCreatorOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
-            var simCreator = new TransformBlock<Level, (Simulation simulation, StatsRover statsRover)>(CreateSim, simCreatorOptions);
+            var simCreator = new TransformBlock<Level, Simulation>(CreateSim, simCreatorOptions);
 
             var performerOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = TaskCount };
-            var performer = new TransformBlock<(Simulation simulation, StatsRover statsRover), CompletedSimulation>
+            var performer = new TransformBlock<Simulation, CompletedSimulation>
             (
                 PerformSim,
                 performerOptions
@@ -89,28 +86,27 @@ namespace RoverSim
             });
         }
 
-        private (Simulation simulation, StatsRover statsRover) CreateSim(Level level)
+        private Simulation CreateSim(Level level)
         {
-            IRover rover = RoverFactory.Create(level.AsMutable(), Parameters);
-            StatsRover statsRover = new StatsRover(rover);
+            Rover rover = new Rover(level.AsMutable(), Parameters);
             IAi ai = AiFactory.Create(_simId, Parameters);
             _simId++;
-            Simulation simulation = new Simulation(level, Parameters, ai, statsRover);
-            return (simulation, statsRover);
+            Simulation simulation = new Simulation(level, Parameters, ai, rover);
+            return simulation;
         }
 
-        private static CompletedSimulation PerformSim((Simulation simulation, StatsRover statsRover) sim)
+        private static CompletedSimulation PerformSim(Simulation simulation)
         {
-            (Simulation simulation, StatsRover statsRover) = sim;
+            RoverStats stats;
             try
             {
-                simulation.Simulate();
+                stats = simulation.Simulate();
             }
             catch (Exception ex)
             {
-                return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, statsRover.GetStats(), ex);
+                return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, default, ex);
             }
-            return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, statsRover.GetStats(), null);
+            return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, stats, null);
         }
     }
 }

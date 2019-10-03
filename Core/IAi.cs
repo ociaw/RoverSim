@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RoverSim
 {
@@ -6,6 +7,6 @@ namespace RoverSim
     {
         Int32 Identifier { get; }
 
-        void Simulate(IRover rover);
+        IEnumerable<RoverAction> Simulate(IRoverStatusAccessor rover);
     }
 }

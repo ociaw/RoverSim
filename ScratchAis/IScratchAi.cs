@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace RoverSim.ScratchAis
 {
     public interface IScratchAi
     {
-        void Simulate(ScratchRover rover);
+        IEnumerable<RoverAction> Simulate(ScratchRover rover);
     }
 }

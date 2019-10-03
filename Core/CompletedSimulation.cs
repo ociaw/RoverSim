@@ -23,6 +23,6 @@ namespace RoverSim
 
         public Exception Exception { get; }
 
-        public Boolean HasError => Exception != null && !(Exception is OutOfPowerOrMovesException);
+        public Boolean HasError => Exception != null;
     }
 }

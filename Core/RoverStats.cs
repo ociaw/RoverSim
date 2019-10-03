@@ -17,17 +17,13 @@ namespace RoverSim
             Int32 powerCumulative,
 
             Int32 collectSampleCallCount,
-            Int32 smoothSampleCumulative,
-            Int32 roughSampleCumulative,
 
             Int32 processSamplesCallCount,
 
             Int32 transmitCallCount,
 
             Int32 moveCallCount,
-            Int32 moveCount,
-
-            Int32 senseCallCount
+            Int32 moveCount
         )
         {
             MovesLeft = movesLeft;
@@ -41,8 +37,6 @@ namespace RoverSim
             PowerCumulative = powerCumulative;
 
             CollectSampleCallCount = collectSampleCallCount;
-            SmoothSampleCumulative = smoothSampleCumulative;
-            RoughSampleCumulative = roughSampleCumulative;
 
             ProcessSamplesCallCount = processSamplesCallCount;
 
@@ -50,8 +44,6 @@ namespace RoverSim
 
             MoveCallCount = moveCallCount;
             MoveCount = moveCount;
-
-            SenseCallCount = senseCallCount;
         }
 
         public Int32 MovesLeft { get; }
@@ -69,8 +61,6 @@ namespace RoverSim
         public Int32 PowerCumulative { get; }
 
         public Int32 CollectSampleCallCount { get; }
-        public Int32 SmoothSampleCumulative { get; }
-        public Int32 RoughSampleCumulative { get; }
 
         public Int32 ProcessSamplesCallCount { get; }
 
@@ -79,6 +69,36 @@ namespace RoverSim
         public Int32 MoveCallCount { get; }
         public Int32 MoveCount { get; }
 
-        public Int32 SenseCallCount { get; }
+        public static RoverStats Create(SimulationParameters parameters) =>
+            new RoverStats(
+                parameters.InitialMovesLeft,
+                parameters.InitialPower,
+                0,
+                0,
+                0,
+                0,
+                parameters.InitialPower,
+                0,
+                0,
+                0,
+                0,
+                0
+            );
+
+        public RoverStats Add(in RoverAction action, in Update update) =>
+            new RoverStats(
+                MovesLeft + update.MoveDelta,
+                Power + update.PowerDelta,
+                SamplesCollected + update.HopperDelta,
+                SamplesProcessed + update.PendingTransmissionDelta,
+                SamplesTransmitted + update.TransmittedDelta,
+                CollectPowerCallCount + action.Instruction == Instruction.CollectPower ? 1 : 0,
+                PowerCumulative + update.PowerDelta > 0 ? update.PowerDelta : 0,
+                CollectSampleCallCount + action.Instruction == Instruction.CollectSample ? 1 : 0,
+                ProcessSamplesCallCount + action.Instruction == Instruction.ProcessSamples ? 1 : 0,
+                TransmitCallCount + action.Instruction == Instruction.Transmit ? 1 : 0,
+                MoveCallCount + action.Instruction == Instruction.Move ? 1 : 0,
+                MoveCount + (update.PositionDelta != default ? 1 : 0)
+            );
     }
 }

@@ -26,23 +26,22 @@ namespace RoverSim.Rendering
 
         public Position RoverPosition { get; private set; }
 
-        public void UpdateRoverPos(PositionUpdate update)
+        public void Apply(in Update update)
         {
-            if (!BottomRight.Contains(update.Previous))
-                throw new ArgumentOutOfRangeException(nameof(update), update.Previous, "Previous position must lie within bottom right position.");
-            if (!BottomRight.Contains(update.New))
-                throw new ArgumentOutOfRangeException(nameof(update), update.New, "New position must lie within bottom right position.");
+            RoverPosition = new Position(RoverPosition + update.PositionDelta);
+            if (!update.Terrain.HasValue)
+                return;
 
-            RoverPosition = update.New;
-        }
+            for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
+            {
+                Direction dir = (Direction)i;
+                CoordinatePair position = RoverPosition + dir;
+                if (position.IsNegative)
+                    continue; // Out of bounds
 
-        public void UpdateTerrain(TerrainUpdate update)
-        {
-            if (!BottomRight.Contains(update.Position))
-                return; // We can ignore out of bound updates, as these are not accessible anyway.
-
-            (Int32 x, Int32 y) = update.Position;
-            _terrain[x, y] = update.NewTerrain;
+                (Int32 x, Int32 y) = position;
+                _terrain[x, y] = update.Terrain.Value[dir];
+            }
         }
 
         public static VisibleState GenerateBlank(Position bottomRight, Position roverPos)

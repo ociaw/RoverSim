@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public interface IRover
+    public interface IRoverStatusAccessor
     {
         Position Position { get; }
 
@@ -20,16 +20,6 @@ namespace RoverSim
 
         Boolean IsHalted { get; }
 
-        TerrainType SenseSquare(Direction direction);
-
-        Boolean Move(Direction direction);
-
-        Int32 Transmit();
-
-        Int32 CollectPower();
-
-        (Boolean isSuccess, TerrainType newTerrain) CollectSample();
-
-        Int32 ProcessSamples();
+        AdjacentTerrain Adjacent { get; }
     }
 }

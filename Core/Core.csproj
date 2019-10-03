@@ -8,7 +8,7 @@
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <Authors>ociaw</Authors>
     <Company>ociaw</Company>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

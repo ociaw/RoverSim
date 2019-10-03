@@ -22,16 +22,9 @@ namespace RoverSim.Rendering
 
         public Position RoverPosition => _wrapped.RoverPosition;
 
-        public void UpdateRoverPos(PositionUpdate update)
+        public void Apply(in Update update)
         {
-            _wrapped.UpdateRoverPos(update);
-            this.RaisePropertyChanged();
-        }
-
-        public void UpdateTerrain(TerrainUpdate update)
-        {
-            _wrapped.UpdateTerrain(update);
-            this.RaisePropertyChanged();
+            _wrapped.Apply(update);
         }
     }
 }
