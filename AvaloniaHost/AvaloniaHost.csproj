@@ -4,6 +4,7 @@
     <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <AssemblyName>RoverSim.AvaloniaHost</AssemblyName>
     <RootNamespace>RoverSim.AvaloniaHost</RootNamespace>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.1|AnyCPU'">
     <DebugType>full</DebugType>

@@ -24,14 +24,13 @@ namespace RoverSim.WinFormsClient
                 var levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
                 var simulator = new Simulator(levelGeneratorFactory, aiFactory);
 
-                using (Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv")))
-                {
-                    await simulator.SimulateAsync(runCount, completer.Consume);
-                    aggregates[aiFactory] = completer.GetAggregates();
-                    worstSim = Completer.ChooseWorst(worstSim, completer.WorstSim);
-                    if (worstSim == completer.WorstSim)
-                        worstAi = aiFactory;
-                }
+                using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"));
+
+                await simulator.SimulateAsync(runCount, completer.Consume);
+                aggregates[aiFactory] = completer.GetAggregates();
+                worstSim = Completer.ChooseWorst(worstSim, completer.WorstSim);
+                if (worstSim == completer.WorstSim)
+                    worstAi = aiFactory;
             }
 
             return (aggregates, worstSim, worstAi);

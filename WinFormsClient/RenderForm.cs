@@ -136,23 +136,16 @@ namespace RoverSim.WinFormsClient
 
         private static Color GetColorForTerrain(TerrainType terrain)
         {
-            switch (terrain)
+            return terrain switch
             {
-                case TerrainType.Impassable:
-                    return Color.Black;
-                case TerrainType.Rough:
-                    return Color.Red;
-                case TerrainType.SampledRough:
-                    return Color.Brown;
-                case TerrainType.SampledSmooth:
-                    return Color.DarkGray;
-                case TerrainType.Smooth:
-                    return Color.LightGray;
-                case TerrainType.Unknown:
-                    return Color.LightGoldenrodYellow;
-                default:
-                    return Color.Blue;
-            }
+                TerrainType.Impassable => Color.Black,
+                TerrainType.Rough => Color.Red,
+                TerrainType.SampledRough => Color.Brown,
+                TerrainType.SampledSmooth => Color.DarkGray,
+                TerrainType.Smooth => Color.LightGray,
+                TerrainType.Unknown => Color.LightGoldenrodYellow,
+                _ => Color.Blue,
+            };
         }
 
         void IDisposable.Dispose() => _actionEnumerator.Dispose();

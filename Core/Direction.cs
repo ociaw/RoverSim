@@ -78,19 +78,14 @@ namespace RoverSim
 
         public override String ToString()
         {
-            switch (Value)
+            return Value switch
             {
-                case 0:
-                    return nameof(Up);
-                case 1:
-                    return nameof(Right);
-                case 2:
-                    return nameof(Down);
-                case 3:
-                    return nameof(Left);
-                default:
-                    return nameof(None);
-            }
+                0 => nameof(Up),
+                1 => nameof(Right),
+                2 => nameof(Down),
+                3 => nameof(Left),
+                _ => nameof(None),
+            };
         }
 
         public static Boolean operator ==(Direction left, Direction right) => left.Equals(right);
