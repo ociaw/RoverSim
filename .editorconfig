@@ -56,6 +56,15 @@ dotnet_naming_rule.constant_fields_should_be_pascal_case.style    = pascal_case_
 dotnet_naming_symbols.constant_fields.applicable_kinds            = field
 dotnet_naming_symbols.constant_fields.applicable_accessibilities  = *
 dotnet_naming_symbols.constant_fields.required_modifiers          = const
+
+###############################
+# FxCop Analyzers             #
+###############################
+dotnet_diagnostic.CA1303.severity = none # "Do not pass literals as localized parameters" - No, I am not localizing exception messages.
+dotnet_diagnostic.CA1814.severity = none # "Prefer jagged arrays over multidimensional" - There's no good reason to.
+dotnet_diagnostic.CA1043.severity = none # "Use integral or string argument for indexers" - Maybe a method would be better, but an indexer is fine for now.
+
+
 ###############################
 # C# Coding Conventions       #
 ###############################
@@ -121,3 +130,4 @@ csharp_preserve_single_line_blocks = true
 [*.vb]
 # Modifier preferences
 visual_basic_preferred_modifier_order = Partial,Default,Private,Protected,Public,Friend,NotOverridable,Overridable,MustOverride,Overloads,Overrides,MustInherit,NotInheritable,Static,Shared,Shadows,ReadOnly,WriteOnly,Dim,Const,WithEvents,Widening,Narrowing,Custom,Async:suggestion
+
