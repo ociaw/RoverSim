@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public readonly struct Direction : IEquatable<Direction>, IComparable<Direction>
+    public readonly struct Direction : IEquatable<Direction>
     {
         public const Int32 DirectionCount = 4;
 
@@ -69,8 +69,6 @@ namespace RoverSim
         public Direction RotateCCW() => new Direction((Value + 3) % DirectionCount);
 
         public Boolean Equals(Direction other) => Value.Equals(other.Value);
-
-        public Int32 CompareTo(Direction value) => Value.CompareTo(value.Value);
 
         public override Boolean Equals(Object obj) => obj is Direction direction && Equals(direction);
 
