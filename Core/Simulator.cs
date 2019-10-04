@@ -102,8 +102,11 @@ namespace RoverSim
             {
                 stats = simulation.Simulate();
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
+                // Catching this is fine, as we want to be able to report it later.
                 return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, default, ex);
             }
             return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, stats, null);
