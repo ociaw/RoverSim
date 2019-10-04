@@ -76,7 +76,7 @@ namespace RoverSim
                 list.Add(RunGenerator(generatorFactory.Create(), count, target));
             }
 
-            await Task.WhenAll(list);
+            await Task.WhenAll(list).ConfigureAwait(continueOnCapturedContext: false);
             target.Complete();
         }
 
@@ -85,7 +85,7 @@ namespace RoverSim
             return Task.Run(async () =>
             {
                 for (Int32 i = 0; i < count; i++)
-                    await target.SendAsync(generator.Generate(Parameters));
+                    await target.SendAsync(generator.Generate(Parameters)).ConfigureAwait(continueOnCapturedContext: false);
             });
         }
 
