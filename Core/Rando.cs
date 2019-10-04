@@ -5,7 +5,7 @@ namespace RoverSim
 {
     public static class Rando
     {
-        private readonly static RandomNumberGenerator rng = new RNGCryptoServiceProvider();
+        private static readonly RandomNumberGenerator rng = new RNGCryptoServiceProvider();
 
         public static Int32 Next(Int32 minValue, Int32 upperExclusiveBound)
         {
