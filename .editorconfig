@@ -63,14 +63,14 @@ dotnet_naming_symbols.constant_fields.required_modifiers          = const
 dotnet_diagnostic.CA1303.severity = none # "Do not pass literals as localized parameters" - No, I am not localizing exception messages.
 dotnet_diagnostic.CA1814.severity = none # "Prefer jagged arrays over multidimensional" - There's no good reason to.
 dotnet_diagnostic.CA1043.severity = none # "Use integral or string argument for indexers" - Maybe a method would be better, but an indexer is fine for now.
-
+dotnet_diagnostic.CA2225.severity = none # "Operator overloads have named alternates" - Usability from another language is currently not a concern.
 
 ###############################
 # C# Coding Conventions       #
 ###############################
 [*.cs]
 # var preferences
-csharp_style_var_for_built_in_types = true:silent
+csharp_style_var_for_built_in_types = false:silent
 csharp_style_var_when_type_is_apparent = true:silent
 csharp_style_var_elsewhere = true:silent
 # Expression-bodied members
