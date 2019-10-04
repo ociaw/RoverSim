@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public readonly struct RoverStats
+    public readonly struct RoverStats : IEquatable<RoverStats>
     {
         public RoverStats
         (
@@ -100,5 +100,36 @@ namespace RoverSim
                 MoveCallCount + action.Instruction == Instruction.Move ? 1 : 0,
                 MoveCount + (update.PositionDelta != default ? 1 : 0)
             );
+
+        public Boolean Equals(RoverStats other) =>
+            MovesLeft == other.MovesLeft &&
+            Power == other.Power &&
+
+            SamplesCollected == other.SamplesCollected &&
+            SamplesProcessed == other.SamplesProcessed &&
+            SamplesTransmitted == other.SamplesTransmitted &&
+
+            CollectPowerCallCount == other.CollectPowerCallCount &&
+            PowerCumulative == other.PowerCumulative &&
+
+            CollectSampleCallCount == other.CollectSampleCallCount &&
+
+            ProcessSamplesCallCount == other.ProcessSamplesCallCount &&
+
+            TransmitCallCount == other.TransmitCallCount &&
+
+            MoveCallCount == other.MoveCallCount &&
+            MoveCount == other.MoveCount;
+
+        public override Boolean Equals(Object obj) => obj is RoverStats stats && Equals(stats);
+
+        public override Int32 GetHashCode() => HashCode.Combine(
+            HashCode.Combine(MovesLeft, Power, SamplesCollected, SamplesProcessed, SamplesTransmitted, CollectPowerCallCount, PowerCumulative),
+            HashCode.Combine(CollectSampleCallCount, ProcessSamplesCallCount, TransmitCallCount, MoveCallCount, MoveCount)
+            );
+
+        public static Boolean operator ==(RoverStats left, RoverStats right) => left.Equals(right);
+
+        public static Boolean operator !=(RoverStats left, RoverStats right) => !(left == right);
     }
 }

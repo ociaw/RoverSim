@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public readonly struct Update
+    public readonly struct Update : IEquatable<Update>
     {
         public Update(Int32 moveDelta = 0, Int32 powerDelta = 0, CoordinatePair positionDelta = default, Int32 hopperDelta = 0, Int32 pendingTransmissinDelta = 0, Int32 transmittedDelta = 0, Int32 noBacktrackDelta = 0, AdjacentTerrain? terrain = null)
         {
@@ -50,5 +50,23 @@ namespace RoverSim
                 !Terrain.HasValue ? "" : "Terrain"
             );
         }
+
+        public Boolean Equals(Update other) =>
+            MoveDelta == other.MoveDelta &&
+            PowerDelta == other.PowerDelta &&
+            PositionDelta == other.PositionDelta &&
+            HopperDelta == other.HopperDelta &&
+            PendingTransmissionDelta == other.PendingTransmissionDelta &&
+            TransmittedDelta == other.TransmittedDelta &&
+            NoBacktrackDelta == other.NoBacktrackDelta &&
+            Terrain == other.Terrain;
+
+        public override Boolean Equals(Object obj) => obj is Update update && Equals(update);
+
+        public override Int32 GetHashCode() => HashCode.Combine(MoveDelta, PowerDelta, PositionDelta, HopperDelta, PendingTransmissionDelta, TransmittedDelta, NoBacktrackDelta, Terrain);
+
+        public static Boolean operator ==(Update left, Update right) => left.Equals(right);
+
+        public static Boolean operator !=(Update left, Update right) => !(left == right);
     }
 }

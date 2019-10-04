@@ -2,7 +2,7 @@
 
 namespace RoverSim
 {
-    public readonly struct RoverAction
+    public readonly struct RoverAction : IEquatable<RoverAction>
     {
         public RoverAction(Direction direction)
         {
@@ -30,14 +30,14 @@ namespace RoverSim
 
         public override String ToString() => Instruction.ToString() + (Instruction == Instruction.Move ? " " + Direction.ToString() : "");
 
-        public override Int32 GetHashCode() => (Int32)Instruction << 4 | (Int32)Direction;
+        public Boolean Equals(RoverAction other) => Instruction == other.Instruction && Direction == other.Direction;
 
-        public override Boolean Equals(Object obj)
-        {
-            if (!(obj is RoverAction action))
-                return false;
+        public override Boolean Equals(Object obj) => obj is RoverAction action && Equals(action);
 
-            return Instruction == action.Instruction && Direction == action.Direction;
-        }
+        public override Int32 GetHashCode() => HashCode.Combine(Instruction, Direction);
+
+        public static Boolean operator ==(RoverAction left, RoverAction right) => left.Equals(right);
+
+        public static Boolean operator !=(RoverAction left, RoverAction right) => !(left == right);
     }
 }
