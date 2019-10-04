@@ -26,11 +26,15 @@ namespace RoverSim.Rendering
 
         public Position RoverPosition { get; private set; }
 
-        public void Apply(in Update update)
+        /// <summary>
+        /// Applies an update to this object.
+        /// </summary>
+        /// <returns>Whether or not the state was modified.</returns>
+        public Boolean Apply(in Update update)
         {
             RoverPosition = new Position(RoverPosition + update.PositionDelta);
             if (!update.Terrain.HasValue)
-                return;
+                return update.PositionDelta == default;
 
             for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
             {
@@ -42,6 +46,8 @@ namespace RoverSim.Rendering
                 (Int32 x, Int32 y) = position;
                 _terrain[x, y] = update.Terrain.Value[dir];
             }
+
+            return true;
         }
 
         public static VisibleState GenerateBlank(SimulationParameters parameters)

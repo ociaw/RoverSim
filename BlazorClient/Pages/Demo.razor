@@ -1,4 +1,7 @@
-﻿@using RoverSim.Rendering;
+﻿@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas;
+@using Blazor.Extensions.Canvas.Canvas2D;
+@using RoverSim.Rendering;
 @page "/demo"
 
 <h1>Simulation Demo</h1>
@@ -9,14 +12,33 @@
     <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
 </div>
 
+<BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
+
 <button @onclick=StartDemo>Start</button>
 
 @code {
+    private readonly String[] _fillStyles = new String[]
+    {
+        "black",
+        "red",
+        "lightgrey",
+        "brown",
+        "darkgrey",
+        "lightgoldenrodyellow"
+    };
+
     private RoverStats _stats;
+
+    private Boolean _needsCanvasUpdate;
+    private VisibleState _visibleState;
+    private Canvas2DContext _context;
+    protected BECanvasComponent _canvasReference;
 
     private Task StartDemo()
     {
         SimulationParameters parameters = SimulationParameters.Default;
+        _visibleState = VisibleState.GenerateBlank(parameters);
+
         ILevelGeneratorFactory levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
         ILevelGenerator levelGenerator = levelGeneratorFactory.Create();
         IAiFactory aiFactory = new Ais.FixedStateAiFactory();
@@ -25,7 +47,6 @@
         Level originalLevel = levelGenerator.Generate(parameters);
         MutableLevel workingLevel = originalLevel.AsMutable();
         Rover rover = new Rover(workingLevel, parameters);
-        VisibleState state = VisibleState.GenerateBlank(parameters.BottomRight, parameters.InitialPosition);
         _stats = RoverStats.Create(parameters);
 
         var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
@@ -34,12 +55,74 @@
         {
             while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
             {
-                state.Apply(update);
+                _needsCanvasUpdate = _visibleState.Apply(update);
                 _stats = _stats.Add(actionEnumerator.Current, update);
                 base.StateHasChanged();
-                await Task.Delay(50);
+                Int32 delay = actionEnumerator.Current.Instruction switch
+                {
+                    Instruction.Move => 75,
+                    Instruction.CollectSample => 50,
+                    _ => 10
+                };
+                await Task.Delay(delay);
             }
             actionEnumerator.Dispose();
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _context ??= await _canvasReference.CreateCanvas2DAsync();
+        if (!_needsCanvasUpdate)
+            return;
+
+        _needsCanvasUpdate = false;
+        await FullRender();
+    }
+
+    private async Task FullRender()
+    {
+        if (_visibleState == null)
+            return;
+
+        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
+        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
+
+        await _context.BeginBatchAsync();
+        for (Int32 i = 0; i < _visibleState.Width; i++)
+        {
+            for (Int32 j = 0; j < _visibleState.Height; j++)
+            {
+                TerrainType terrain = _visibleState[i, j];
+                if (terrain < 0 || (Int32)terrain > _fillStyles.Length)
+                    terrain = TerrainType.Unknown;
+
+                String style = _fillStyles[(Int32)terrain];
+                Double topLeftX = tileWidth * i;
+                Double topLeftY = tileHeight * j;
+
+                await _context.SetFillStyleAsync(style);
+                await _context.FillRectAsync(topLeftX, topLeftY, tileWidth, tileHeight);
+            }
+        }
+        await RenderRover();
+        await _context.EndBatchAsync();
+    }
+
+    private async Task RenderRover()
+    {
+        if (_visibleState == null)
+            return;
+
+        const Double roverScale = .64;
+        const Double roverPadding = (1 - roverScale) / 2;
+        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
+        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
+
+        Double topLeftX = tileWidth * (_visibleState.RoverPosition.X + roverPadding);
+        Double topLeftY = tileHeight * (_visibleState.RoverPosition.Y + roverPadding);
+
+        await _context.SetFillStyleAsync("lightgreen");
+        await _context.FillRectAsync(topLeftX, topLeftY, tileWidth * roverScale, tileHeight * roverScale);
     }
 }
