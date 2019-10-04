@@ -4,14 +4,14 @@ namespace RoverSim
 {
     public sealed class MutableLevel
     {
-        public Position BottomRight { get; }
+        private readonly TerrainType[,] _terrain;
 
-        public TerrainType[,] Terrain { get; }
+        public Position BottomRight { get; }
 
         internal MutableLevel(Position bottomRight, TerrainType[,] terrain)
         {
             BottomRight = bottomRight;
-            Terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
+            _terrain = terrain ?? throw new ArgumentNullException(nameof(terrain));
         }
 
         public TerrainType GetTerrain(CoordinatePair coordinates)
@@ -19,7 +19,7 @@ namespace RoverSim
             if (coordinates.IsNegative || !BottomRight.Coordinates.Contains(coordinates))
                 return TerrainType.Impassable;
             else
-                return Terrain[coordinates.X, coordinates.Y];
+                return _terrain[coordinates.X, coordinates.Y];
         }
 
         public TerrainType SampleSquare(Position position)
@@ -28,12 +28,12 @@ namespace RoverSim
                 throw new ArgumentOutOfRangeException(nameof(position), position, "Must be contained within this level.");
 
             (Int32 x, Int32 y) = position;
-            if (Terrain[x, y] == TerrainType.Rough)
-                Terrain[x, y] = TerrainType.SampledRough;
-            else if (Terrain[x, y] == TerrainType.Smooth)
-                Terrain[x, y] = TerrainType.SampledSmooth;
+            if (_terrain[x, y] == TerrainType.Rough)
+                _terrain[x, y] = TerrainType.SampledRough;
+            else if (_terrain[x, y] == TerrainType.Smooth)
+                _terrain[x, y] = TerrainType.SampledSmooth;
 
-            return Terrain[x, y];
+            return _terrain[x, y];
         }
     }
 }
