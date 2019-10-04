@@ -20,6 +20,9 @@ namespace RoverSim
 
         public Level Generate(SimulationParameters parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             Level level;
             do
             {

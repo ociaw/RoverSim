@@ -13,6 +13,9 @@ namespace RoverSim
 
         public Level Generate(SimulationParameters parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             TerrainType[,] terrain;
             // Generate the terrain and ensure that the starting square isn't completely blocked in
             terrain = Generate(parameters, Random);

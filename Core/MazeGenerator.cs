@@ -14,6 +14,9 @@ namespace RoverSim
 
         public Level Generate(SimulationParameters parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             Int32 width = parameters.BottomRight.X + 1;
             Int32 height = parameters.BottomRight.Y + 1;
 

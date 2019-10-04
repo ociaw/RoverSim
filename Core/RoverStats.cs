@@ -69,8 +69,12 @@ namespace RoverSim
         public Int32 MoveCallCount { get; }
         public Int32 MoveCount { get; }
 
-        public static RoverStats Create(SimulationParameters parameters) =>
-            new RoverStats(
+        public static RoverStats Create(SimulationParameters parameters)
+        {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            return new RoverStats(
                 parameters.InitialMovesLeft,
                 parameters.InitialPower,
                 0,
@@ -84,6 +88,7 @@ namespace RoverSim
                 0,
                 0
             );
+        }
 
         public RoverStats Add(in RoverAction action, in Update update) =>
             new RoverStats(

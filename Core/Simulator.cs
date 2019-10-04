@@ -41,6 +41,9 @@ namespace RoverSim
 
         public Task SimulateAsync(Int32 runCount, ActionBlock<CompletedSimulation> completer)
         {
+            if (completer == null)
+                throw new ArgumentNullException(nameof(completer));
+
             Int32 capacity = TaskCount * 4;
 
             var simCreatorOptions = new ExecutionDataflowBlockOptions { BoundedCapacity = capacity, MaxDegreeOfParallelism = 1 };
