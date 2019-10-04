@@ -134,7 +134,7 @@ namespace RoverSim.Ais
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
                 Int32 modified = _roundRobin + addend + (shouldAdd ? i : Direction.DirectionCount - i);
-                Direction dir = Direction.Create(modified % Direction.DirectionCount);
+                Direction dir = Direction.FromInt32(modified % Direction.DirectionCount);
                 if (adjacent[dir] != TerrainType.Impassable)
                     return dir;
             }
@@ -220,7 +220,7 @@ namespace RoverSim.Ais
             Direction? adjacentRough = null;
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                Direction roundRobin = Direction.Create((i + _roundRobin) % Direction.DirectionCount);
+                Direction roundRobin = Direction.FromInt32((i + _roundRobin) % Direction.DirectionCount);
                 switch (adjacent[roundRobin])
                 {
                     case TerrainType.Smooth:

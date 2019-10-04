@@ -1,6 +1,6 @@
 ﻿namespace RoverSim
 {
-    public enum TerrainType : byte
+    public enum TerrainType : int
     {
         Impassable = 0,
         Rough = 1,

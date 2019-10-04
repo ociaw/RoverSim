@@ -30,7 +30,7 @@ namespace RoverSim
             2 => Down,
             3 => Left,
             4 => Occupied,
-            _ => throw new Exception("This is not possible.")
+            _ => throw new ArgumentException("This cannot happen. Invalid direction value: " + direction.Value, nameof(direction))
         };
 
         public static Int32 Count => 5;

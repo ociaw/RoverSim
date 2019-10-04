@@ -54,7 +54,7 @@ namespace RoverSim
 
         public static Direction None => new Direction(4);
 
-        public static Direction Create(Int32 value)
+        public static Direction FromInt32(Int32 value)
         {
             if (value < 0 || value > DirectionCount)
                 throw new ArgumentOutOfRangeException(nameof(value), $"Must be between 0 and {DirectionCount}.");
@@ -94,6 +94,6 @@ namespace RoverSim
 
         public static implicit operator Int32(Direction direction) => direction.Value;
 
-        public static explicit operator Direction(Int32 value) => Create(value);
+        public static explicit operator Direction(Int32 value) => FromInt32(value);
     }
 }
