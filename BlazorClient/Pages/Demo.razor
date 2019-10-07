@@ -29,7 +29,7 @@
 
     private RoverStats _stats;
 
-    private Boolean _needsCanvasUpdate;
+    private Update? _lastUpdate;
     private VisibleState _visibleState;
     private Canvas2DContext _context;
     protected BECanvasComponent _canvasReference;
@@ -39,8 +39,9 @@
         SimulationParameters parameters = SimulationParameters.Default;
         _visibleState = VisibleState.GenerateBlank(parameters);
 
-        ILevelGeneratorFactory levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
-        ILevelGenerator levelGenerator = levelGeneratorFactory.Create();
+        Int32 levelSeed = 123;
+
+        ILevelGenerator levelGenerator = new DefaultLevelGenerator(new Random(levelSeed));
         IAiFactory aiFactory = new Ais.FixedStateAiFactory();
 
         IAi ai = aiFactory.Create(1, parameters);
@@ -55,16 +56,18 @@
         {
             while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
             {
-                _needsCanvasUpdate = _visibleState.Apply(update);
+                if (_visibleState.Apply(update))
+                    _lastUpdate = update;
                 _stats = _stats.Add(actionEnumerator.Current, update);
                 base.StateHasChanged();
                 Int32 delay = actionEnumerator.Current.Instruction switch
                 {
                     Instruction.Move => 75,
                     Instruction.CollectSample => 50,
-                    _ => 10
+                    _ => 0
                 };
-                await Task.Delay(delay);
+                if (delay != 0)
+                    await Task.Delay(delay);
             }
             actionEnumerator.Dispose();
         });
@@ -73,47 +76,41 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _context ??= await _canvasReference.CreateCanvas2DAsync();
-        if (!_needsCanvasUpdate)
+        if (!_lastUpdate.HasValue || _visibleState == null)
             return;
 
-        _needsCanvasUpdate = false;
-        await FullRender();
+        await RenderUpdate(_lastUpdate.Value);
+        _lastUpdate = null;
     }
 
-    private async Task FullRender()
+    private async Task RenderUpdate(Update update)
     {
-        if (_visibleState == null)
-            return;
-
         Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
         Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
 
         await _context.BeginBatchAsync();
-        for (Int32 i = 0; i < _visibleState.Width; i++)
+        for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
         {
-            for (Int32 j = 0; j < _visibleState.Height; j++)
-            {
-                TerrainType terrain = _visibleState[i, j];
-                if (terrain < 0 || (Int32)terrain > _fillStyles.Length)
-                    terrain = TerrainType.Unknown;
+            Direction direction = Direction.FromInt32(i);
+            CoordinatePair coords = _visibleState.RoverPosition + direction;
+            if (coords.IsNegative)
+                continue;
 
-                String style = _fillStyles[(Int32)terrain];
-                Double topLeftX = tileWidth * i;
-                Double topLeftY = tileHeight * j;
+            TerrainType terrain = _visibleState[coords.X, coords.Y];
 
-                await _context.SetFillStyleAsync(style);
-                await _context.FillRectAsync(topLeftX, topLeftY, tileWidth, tileHeight);
-            }
+            String style = _fillStyles[(Int32)terrain];
+            Double topLeftX = tileWidth * coords.X;
+            Double topLeftY = tileHeight * coords.Y;
+            await _context.SetFillStyleAsync(style);
+            await _context.FillRectAsync(topLeftX, topLeftY, tileWidth, tileHeight);
         }
+
         await RenderRover();
         await _context.EndBatchAsync();
     }
 
     private async Task RenderRover()
     {
-        if (_visibleState == null)
-            return;
-
         const Double roverScale = .64;
         const Double roverPadding = (1 - roverScale) / 2;
         Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
