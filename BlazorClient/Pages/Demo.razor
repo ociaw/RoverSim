@@ -3,18 +3,17 @@
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using RoverSim.Rendering;
 @page "/demo"
-
-<h1>Simulation Demo</h1>
-
 <div id=stats>
     <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
     <div id=power>Power: @_stats.Power</div>
     <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
 </div>
-
-<BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
-
-<button @onclick=StartDemo>Start</button>
+<div id=render>
+    <BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
+</div>
+<div id=controls>
+    <div class="button-link encouraging"><button @onclick=StartDemo>Start</button></div>
+</div>
 
 @code {
     private readonly String[] _fillStyles = new String[]

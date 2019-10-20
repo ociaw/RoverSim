@@ -1,0 +1,97 @@
+*
+{
+  box-sizing: inherit;
+}
+
+html, body
+{
+  height: 100%;
+  overflow: hidden;
+}
+
+body
+{
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  text-align: center;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+app
+{
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+#render
+{
+  flex: 1;
+  /* A bit of a hack, but it works... */
+  max-height: calc(100% - 1rem - 1.5rem - 2px);
+  background-color: lightgoldenrodyellow;
+}
+
+canvas
+{
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#stats
+{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#stats > div
+{
+  margin: 0 .1em;
+}
+
+/* Button Links */
+.button-link
+{
+  display: inline-block;
+  margin: 2px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background-color: #06A;
+  font-size: 1.25rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+.button-link a, .button-link button
+{
+  display: inline-block;
+  padding: calc(.25rem - 1px) calc(.5rem - 1px);
+  font-family: Arial, sans-serif;
+  font-size: inherit;
+  color: white;
+  background-color: transparent;
+  cursor: inherit;
+}
+
+.button-link[disabled]
+{
+  border-color: currentColor;
+  cursor: default;
+  background-color: transparent;
+  color: rgba(127, 127, 127, .25);
+}
+
+.button-link[disabled] a, .button-link[disabled] button
+{
+  color: inherit;
+}
+
+.encouraging
+{
+  background-color: #206820;
+}
