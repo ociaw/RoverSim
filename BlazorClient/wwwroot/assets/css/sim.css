@@ -31,7 +31,7 @@ app
 {
   flex: 1;
   /* A bit of a hack, but it works... */
-  max-height: calc(100% - 1rem - 1.5rem - 2px);
+  max-height: calc(100% - 1rem - 2.5rem);
   background-color: lightgoldenrodyellow;
 }
 
