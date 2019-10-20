@@ -12,7 +12,7 @@
     <BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
 </div>
 <div id=controls>
-    <div class="button-link encouraging"><button @onclick=StartDemo>Start</button></div>
+    <div disabled=@_isDemoRunning class="button-link encouraging"><button disabled=@_isDemoRunning @onclick=StartDemo>Start</button></div>
 </div>
 
 @code {
@@ -24,12 +24,14 @@
         "brown",
         "darkgrey",
         "lightgoldenrodyellow"
-    };
+            };
 
     private RoverStats _stats;
+    private Boolean _isDemoRunning;
 
     private Update? _lastUpdate;
     private VisibleState _visibleState;
+    private Boolean _needsClear;
     private Canvas2DContext _context;
     protected BECanvasComponent _canvasReference;
 
@@ -37,6 +39,7 @@
     {
         SimulationParameters parameters = SimulationParameters.Default;
         _visibleState = VisibleState.GenerateBlank(parameters);
+        _isDemoRunning = true;
 
         Int32 levelSeed = 123;
 
@@ -53,6 +56,7 @@
 
         return Task.Run(async () =>
         {
+            _needsClear = true;
             while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
             {
                 if (_visibleState.Apply(update))
@@ -68,6 +72,8 @@
                 if (delay != 0)
                     await Task.Delay(delay);
             }
+
+            _isDemoRunning = false;
             actionEnumerator.Dispose();
         });
     }
@@ -75,11 +81,23 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _context ??= await _canvasReference.CreateCanvas2DAsync();
+        if (_needsClear)
+        {
+            await Clear();
+            _needsClear = false;
+        }
+
         if (!_lastUpdate.HasValue || _visibleState == null)
             return;
 
         await RenderUpdate(_lastUpdate.Value);
         _lastUpdate = null;
+    }
+
+    private async Task Clear()
+    {
+        await _context.SetFillStyleAsync(_fillStyles[5]);
+        await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
     }
 
     private async Task RenderUpdate(Update update)

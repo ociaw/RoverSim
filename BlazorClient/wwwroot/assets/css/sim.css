@@ -74,6 +74,7 @@ canvas
   font-family: Arial, sans-serif;
   font-size: inherit;
   color: white;
+  border-color: transparent;
   background-color: transparent;
   cursor: inherit;
 }
