@@ -31,14 +31,10 @@
 
     protected override void OnInitialized()
     {
-        ais = AiProvider.GetAis().ToList();
-        selectedAiFactoryName = ais.FirstOrDefault()?.Name;
     }
 
     private void UpdateAi()
     {
-        if (selectedAiFactoryName != null)
-            currentAi = AiProvider[selectedAiFactoryName].Create(1, SimulationParameters.Default);
     }
 
     IAi currentAi = null;

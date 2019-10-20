@@ -1,7 +1,10 @@
-﻿@using Blazor.Extensions;
+﻿@using Microsoft.AspNetCore.WebUtilities
+@using Blazor.Extensions;
 @using Blazor.Extensions.Canvas;
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using RoverSim.Rendering;
+
+@inject NavigationManager navigationManager
 @page "/demo"
 <div id=stats>
     <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
@@ -24,7 +27,9 @@
         "brown",
         "darkgrey",
         "lightgoldenrodyellow"
-            };
+        };
+
+    private ParsedQuery _parsedQuery;
 
     private RoverStats _stats;
     private Boolean _isDemoRunning;
@@ -35,18 +40,22 @@
     private Canvas2DContext _context;
     protected BECanvasComponent _canvasReference;
 
+    protected override void OnInitialized()
+    {
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        var parsedQuery = ParsedQuery.FromDictionary(query);
+        _parsedQuery = parsedQuery;
+    }
+
     private Task StartDemo()
     {
-        SimulationParameters parameters = SimulationParameters.Default;
+        SimulationParameters parameters = _parsedQuery.Parameters;
         _visibleState = VisibleState.GenerateBlank(parameters);
         _isDemoRunning = true;
 
-        Int32 levelSeed = 123;
-
-        ILevelGenerator levelGenerator = new DefaultLevelGenerator(new Random(levelSeed));
-        IAiFactory aiFactory = new Ais.FixedStateAiFactory();
-
-        IAi ai = aiFactory.Create(1, parameters);
+        ILevelGenerator levelGenerator = _parsedQuery.CreateGenerator();
+        IAi ai = _parsedQuery.CreateAi();
         Level originalLevel = levelGenerator.Generate(parameters);
         MutableLevel workingLevel = originalLevel.AsMutable();
         Rover rover = new Rover(workingLevel, parameters);
