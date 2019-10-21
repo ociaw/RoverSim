@@ -4,4 +4,5 @@ obj/
 
 *.suo
 *.psess
+*.user
 packages/
