@@ -36,8 +36,7 @@ canvas
 #render
 {
   flex: 1;
-  /* A bit of a hack, but it works... */
-  max-height: calc(100% - 1rem - 2.5rem);
+  min-height: 0;
   background-color: lightgoldenrodyellow;
 }
 
