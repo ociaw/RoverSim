@@ -97,12 +97,12 @@ namespace RoverSim
                 SamplesCollected + update.HopperDelta,
                 SamplesProcessed + update.PendingTransmissionDelta,
                 SamplesTransmitted + update.TransmittedDelta,
-                CollectPowerCallCount + action.Instruction == Instruction.CollectPower ? 1 : 0,
-                PowerCumulative + update.PowerDelta > 0 ? update.PowerDelta : 0,
-                CollectSampleCallCount + action.Instruction == Instruction.CollectSample ? 1 : 0,
-                ProcessSamplesCallCount + action.Instruction == Instruction.ProcessSamples ? 1 : 0,
-                TransmitCallCount + action.Instruction == Instruction.Transmit ? 1 : 0,
-                MoveCallCount + action.Instruction == Instruction.Move ? 1 : 0,
+                CollectPowerCallCount + (action.Instruction == Instruction.CollectPower ? 1 : 0),
+                PowerCumulative + (update.PowerDelta > 0 ? update.PowerDelta : 0),
+                CollectSampleCallCount + (action.Instruction == Instruction.CollectSample ? 1 : 0),
+                ProcessSamplesCallCount + (action.Instruction == Instruction.ProcessSamples ? 1 : 0),
+                TransmitCallCount + (action.Instruction == Instruction.Transmit ? 1 : 0),
+                MoveCallCount + (action.Instruction == Instruction.Move ? 1 : 0),
                 MoveCount + (update.PositionDelta != default ? 1 : 0)
             );
 
