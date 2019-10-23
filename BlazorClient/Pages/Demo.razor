@@ -6,15 +6,23 @@
 
 @inject NavigationManager navigationManager
 @page "/demo"
-<div id=stats>
-    <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
-    <div id=power>Power: @_stats.Power</div>
-    <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
-</div>
 <div id=render>
     <BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
 </div>
 <div id=controls>
+    <div id=stats>
+        <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
+        <div id=power>Power: @_stats.Power</div>
+        <div id=hopper-count>Hopper Count: @_stats.SamplesCollected</div>
+        <div id=pending-count>Processed Count: @_stats.SamplesProcessed</div>
+        <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
+        <div id=moves>Actual Moves: @_stats.MoveCount</div>
+        <div id=move-calls>Move Calls: @_stats.MoveCallCount</div>
+        <div id=power-calls>Power Calls: @_stats.CollectPowerCallCount</div>
+        <div id=sample-calls>Sample Calls: @_stats.CollectSampleCallCount</div>
+        <div id=process-calls>Process Calls: @_stats.ProcessSamplesCallCount</div>
+        <div id=transmit-calls>Transmit Calls: @_stats.TransmitCallCount</div>
+    </div>
     <div disabled=@_isDemoRunning class="button-link encouraging"><button disabled=@_isDemoRunning @onclick=StartDemo>Start</button></div>
 </div>
 
@@ -46,6 +54,7 @@
         var query = QueryHelpers.ParseQuery(uri.Query);
         var parsedQuery = ParsedQuery.FromDictionary(query);
         _parsedQuery = parsedQuery;
+        _visibleState = VisibleState.GenerateBlank(parsedQuery.Parameters);
     }
 
     private Task StartDemo()

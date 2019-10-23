@@ -24,7 +24,8 @@ app
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-height: 100%;
+  max-height: calc(100% - 4px);
+  margin: 2px;
 }
 
 canvas
@@ -37,7 +38,6 @@ canvas
 {
   flex: 1;
   min-height: 0;
-  background-color: lightgoldenrodyellow;
 }
 
 #render > canvas
@@ -45,17 +45,30 @@ canvas
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+  border: 1px solid black;
+  background-color: lightgoldenrodyellow;
+}
+
+#controls
+{
+  display: flex;
+  margin: 0 auto;
+  max-width: 1000px;
+  width: 100%;
 }
 
 #stats
 {
   display: flex;
-  justify-content: space-evenly;
+  flex: 1;
+  flex-wrap: wrap;
+  text-align: left;
 }
 
 #stats > div
 {
   margin: 0 .1em;
+  flex-basis: 9em;
 }
 
 /* Button Links */
@@ -76,6 +89,7 @@ canvas
 .button-link a, .button-link button
 {
   display: inline-block;
+  height: 100%;
   padding: calc(.25rem - 1px) calc(.5rem - 1px);
   font-family: Arial, sans-serif;
   font-size: inherit;
