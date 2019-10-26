@@ -15,26 +15,28 @@ namespace Benchmarking
 
         private OpenCheckingGenerator _superCheckedGenerator;
 
+        [Params]
+        public Int32 Seed = 42;
+
         [GlobalSetup]
         public void Setup()
         {
-            const Int32 seed = 42;
-            _mazeGenerator = new MazeGenerator(new Random(seed));
-            _defaultGenerator = new DefaultLevelGenerator(new Random(seed));
-            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(new Random(seed)), 5);
-            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(new Random(seed)), 15);
+            _mazeGenerator = new MazeGenerator();
+            _defaultGenerator = new DefaultLevelGenerator();
+            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 5);
+            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 15);
         }
 
         [Benchmark]
-        public Level Maze() => _mazeGenerator.Generate(SimulationParameters.Default);
+        public Level Maze() => _mazeGenerator.Generate(SimulationParameters.Default, Seed);
 
         [Benchmark]
-        public Level Default() => _defaultGenerator.Generate(SimulationParameters.Default);
+        public Level Default() => _defaultGenerator.Generate(SimulationParameters.Default, Seed);
 
         [Benchmark]
-        public Level CheckedDefault() => _checkedGenerator.Generate(SimulationParameters.Default);
+        public Level CheckedDefault() => _checkedGenerator.Generate(SimulationParameters.Default, Seed);
 
         [Benchmark]
-        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(SimulationParameters.Default);
+        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(SimulationParameters.Default, Seed);
     }
 }

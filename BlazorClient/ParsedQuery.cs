@@ -7,7 +7,7 @@ namespace RoverSim.BlazorClient
     public sealed class ParsedQuery
     {
         private readonly AiProvider _aiProvider = new AiProvider();
-        private readonly GeneratorProvider _generatorProvider = new GeneratorProvider();
+        private readonly LevelProvider _levelProvider = new LevelProvider();
         private readonly Dictionary<String, StringValues> _query;
 
         private ParsedQuery(SimulationParameters parameters, Dictionary<String, StringValues> query)
@@ -20,7 +20,7 @@ namespace RoverSim.BlazorClient
 
         public IAi CreateAi() => _aiProvider.CreateAi(_query, Parameters);
 
-        public ILevelGenerator CreateGenerator() => _generatorProvider.CreateGenerator(_query, Parameters);
+        public Level CreateLevel() => _levelProvider.CreateLevel(_query, Parameters);
 
         public static ParsedQuery FromDictionary(Dictionary<String, StringValues> query)
         {

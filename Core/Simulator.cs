@@ -9,6 +9,7 @@ namespace RoverSim
     {
         private Int32 _simId = 0;
         private Int32 _taskCount = Environment.ProcessorCount;
+        private Int32 _levelSeed = 0;
 
         public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IAiFactory aiFactory)
         {
@@ -85,7 +86,14 @@ namespace RoverSim
             return Task.Run(async () =>
             {
                 for (Int32 i = 0; i < count; i++)
-                    await target.SendAsync(generator.Generate(Parameters)).ConfigureAwait(continueOnCapturedContext: false);
+                {
+                    Int32 seed = System.Threading.Interlocked.Increment(ref _levelSeed);
+                    Level level = generator.Generate(Parameters, seed);
+                    if (level != null)
+                        await target.SendAsync(level).ConfigureAwait(continueOnCapturedContext: false);
+                    else
+                        i--; // This seed wasn't able to generate a level, so we'll have to try again.
+                }
             });
         }
 

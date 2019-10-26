@@ -4,14 +4,14 @@ using Microsoft.Extensions.Primitives;
 
 namespace RoverSim.BlazorClient
 {
-    public sealed class GeneratorProvider
+    public sealed class LevelProvider
     {
         private readonly Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator>> _functions;
 
         private static readonly String FallbackKey = "Default";
         private static readonly Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator> FallbackGenerator = CreateDefault;
 
-        public GeneratorProvider()
+        public LevelProvider()
         {
             // Add new AIs here
             _functions = new Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator>>(StringComparer.OrdinalIgnoreCase)
@@ -21,7 +21,7 @@ namespace RoverSim.BlazorClient
             };
         }
 
-        public ILevelGenerator CreateGenerator(Dictionary<String, StringValues> query, SimulationParameters parameters)
+        public Level CreateLevel(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -29,29 +29,24 @@ namespace RoverSim.BlazorClient
                 throw new ArgumentNullException(nameof(parameters));
 
             String aiKey = query.GetFirstValue("level-key", FallbackKey);
+            Int32 seed = query.GetFirstNonNegative("level-seed", 123);
 
             if (!_functions.TryGetValue(aiKey, out var func))
                 func = FallbackGenerator;
 
-            return func(query, parameters);
+            var generator = func(query, parameters);
+
+            Level level;
+            do
+            {
+                level = generator.Generate(parameters, seed);
+            }
+            while (level == null);
+            return level;
         }
 
-        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters)
-        {
-            Int32 seed = query.GetFirstNonNegative("level-seed", 123);
-            var random = new Random(seed);
-            var generator = new DefaultLevelGenerator(random);
+        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters) => new DefaultLevelGenerator();
 
-            return generator;
-        }
-
-        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query, SimulationParameters parameters)
-        {
-            Int32 seed = query.GetFirstNonNegative("level-seed", 123);
-            var random = new Random(seed);
-            var generator = new MazeGenerator(random);
-
-            return generator;
-        }
+        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query, SimulationParameters parameters) => new MazeGenerator();
     }
 }

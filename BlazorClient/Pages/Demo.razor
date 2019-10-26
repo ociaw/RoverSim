@@ -63,9 +63,8 @@
         _visibleState = VisibleState.GenerateBlank(parameters);
         _isDemoRunning = true;
 
-        ILevelGenerator levelGenerator = _parsedQuery.CreateGenerator();
         IAi ai = _parsedQuery.CreateAi();
-        Level originalLevel = levelGenerator.Generate(parameters);
+        Level originalLevel = _parsedQuery.CreateLevel();
         MutableLevel workingLevel = originalLevel.AsMutable();
         Rover rover = new Rover(workingLevel, parameters);
         _stats = RoverStats.Create(parameters);
