@@ -4,20 +4,20 @@ namespace RoverSim
 {
     public sealed class CompletedSimulation
     {
-        public CompletedSimulation(Level originalLevel, SimulationParameters parameters, Int32 aiIdentifier, RoverStats stats, Exception exception)
+        public CompletedSimulation(Int32 levelSeed, ILevelGenerator levelGenerator, SimulationParameters parameters, RoverStats stats, Exception exception)
         {
-            OriginalLevel = originalLevel ?? throw new ArgumentNullException(nameof(originalLevel));
+            LevelSeed = levelSeed;
+            LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-            AiIdentifier = aiIdentifier;
             Stats = stats;
             Exception = exception;
         }
 
-        public Level OriginalLevel { get; }
+        public Int32 LevelSeed { get; }
+
+        public ILevelGenerator LevelGenerator { get; }
 
         public SimulationParameters Parameters { get; }
-
-        public Int32 AiIdentifier { get; }
 
         public RoverStats Stats { get; }
 

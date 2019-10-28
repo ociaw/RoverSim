@@ -45,35 +45,33 @@ namespace RoverSim.BlazorClient
         {
             Int32 memory = query.GetFirstNonNegative("ai-memory", 5);
 
-            return new FixedStateAi(1, SimulationParameters.Default, memory);
+            return new FixedStateAi(SimulationParameters.Default, memory);
         }
 
         private static IAi CreateRandom(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
             Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
-            var aiFactory = new RandomAiFactory();
-            return aiFactory.Create(aiSeed, parameters);
+            var aiFactory = new RandomAiFactory() { Seed = aiSeed };
+            return aiFactory.Create(parameters);
         }
 
         private static IAi CreateIntelligentRandom(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
             Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
-            var aiFactory = new IntelligentRandomAiFactory();
-            return aiFactory.Create(aiSeed, parameters);
+            var aiFactory = new IntelligentRandomAiFactory() { Seed = aiSeed };
+            return aiFactory.Create(parameters);
         }
 
         private static IAi CreateMarkI(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
-            Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
             var aiFactory = new MarkIFactory();
-            return aiFactory.Create(aiSeed, parameters);
+            return aiFactory.Create(parameters);
         }
 
         private static IAi CreateMarkII(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
-            Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
             var aiFactory = new MarkIIFactory();
-            return aiFactory.Create(aiSeed, parameters);
+            return aiFactory.Create(parameters);
         }
     }
 }

@@ -30,8 +30,8 @@ namespace RoverSim.AvaloniaHost
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(LevelSeed);
-                var levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
-                var simulator = new Simulator(levelGeneratorFactory, aiFactory);
+                var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 6);
+                var simulator = new Simulator(levelGenerator, aiFactory);
 
                 results[aiFactory] = new List<CompletedSimulation>(runCount);
                 tasks.Add(simulator.SimulateAsync(runCount, sim => results[aiFactory].Add(sim)));

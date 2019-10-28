@@ -12,7 +12,7 @@ namespace RoverSim.WinFormsClient
     {
         public String OutputDirectory { get; } = Directory.GetCurrentDirectory();
 
-        internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, Int32 runCount)
+        internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount)
         {
             var aggregates = new Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)>();
             CompletedSimulation worstSim = null;
@@ -20,9 +20,7 @@ namespace RoverSim.WinFormsClient
             Int32 levelSeed = Rando.Next(Int32.MinValue, Int32.MaxValue);
             foreach (var aiFactory in aiFactories)
             {
-                var levelRand = new Random(levelSeed);
-                var levelGeneratorFactory = new OpenCheckingGeneratorFactory(new DefaultLevelGeneratorFactory(), 6);
-                var simulator = new Simulator(levelGeneratorFactory, aiFactory);
+                var simulator = new Simulator(levelGenerator, aiFactory);
 
                 using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"));
 

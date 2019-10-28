@@ -6,6 +6,6 @@ namespace RoverSim.ScratchAis
     {
         public String Name => "Mark II";
 
-        public IAi Create(Int32 identifier, SimulationParameters parameters) => new ScratchAiWrapper(identifier, new MarkII());
+        public IAi Create(SimulationParameters parameters) => new ScratchAiWrapper(new MarkII());
     }
 }

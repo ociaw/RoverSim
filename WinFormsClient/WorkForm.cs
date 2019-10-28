@@ -11,6 +11,7 @@ namespace RoverSim.WinFormsClient
         private Boolean running = false;
         private CompletedSimulation _renderSim;
         private IAiFactory _renderAiFactory;
+        private ILevelGenerator _renderLevelGenerator;
 
         private readonly IEnumerable<IAiFactory> aiFactories;
 
@@ -38,14 +39,16 @@ namespace RoverSim.WinFormsClient
             WorkManager manager = new WorkManager();
             
             List<IAiFactory> selectedAis = aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
+            ILevelGenerator selectedLevelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 6);
             TimeUsed.Text = "Working...";
             var stopwatch = Stopwatch.StartNew();
-            (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, runCount);
+            (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, selectedLevelGenerator, runCount);
             stopwatch.Stop();
             TimeUsed.Text = stopwatch.Elapsed.TotalSeconds.ToString();
 
             _renderSim = worstSim;
             _renderAiFactory = worstAi;
+            _renderLevelGenerator = selectedLevelGenerator;
             if (_renderSim != null && _renderSim.HasError)
                 MessageBox.Show("ERROR");
 
@@ -70,7 +73,7 @@ namespace RoverSim.WinFormsClient
                 return;
 
 #pragma warning disable IDE0067 // Dispose objects before losing scope
-            RenderForm form = new RenderForm(_renderSim, _renderAiFactory);
+            RenderForm form = new RenderForm(_renderSim, _renderAiFactory, _renderLevelGenerator);
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             form.Show();
         }

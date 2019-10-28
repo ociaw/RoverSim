@@ -6,6 +6,6 @@ namespace RoverSim.Ais
     {
         public String Name => "Fixed State AI";
 
-        public IAi Create(Int32 identifier, SimulationParameters parameters) => new FixedStateAi(identifier, parameters, 5);
+        public IAi Create(SimulationParameters parameters) => new FixedStateAi(parameters, 5);
     }
 }

@@ -18,21 +18,20 @@ namespace RoverSim.Ais
 
         private readonly Queue<CoordinatePair> _deadEnds;
 
-        public FixedStateAi(Int32 identifier, SimulationParameters parameters, Int32 deadEndMemory)
+        public FixedStateAi(SimulationParameters parameters, Int32 deadEndMemory)
         {
-            Identifier = identifier;
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             DeadEndMemory = deadEndMemory >= 0 ? deadEndMemory : throw new ArgumentOutOfRangeException(nameof(deadEndMemory), deadEndMemory, "Must be non-negative.");
             _deadEnds = new Queue<CoordinatePair>(deadEndMemory);
         }
-
-        public Int32 Identifier { get; }
 
         public SimulationParameters Parameters { get; }
 
         public Int32 LowPowerThreshold => Parameters.MoveSmoothCost * 2 + Parameters.SampleCost;
 
         public Int32 DeadEndMemory { get; }
+
+        public IAi CloneFresh() => new FixedStateAi(Parameters, DeadEndMemory);
 
         public IEnumerable<RoverAction> Simulate(IRoverStatusAccessor rover)
         {

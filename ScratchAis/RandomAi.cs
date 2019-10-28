@@ -8,12 +8,16 @@ namespace RoverSim.ScratchAis
     /// </summary>
     public sealed class RandomAi : IScratchAi
     {
+        private readonly Int32 _seed;
         private readonly Random _random;
 
-        public RandomAi(Random random)
+        public RandomAi(Int32 seed)
         {
-            _random = random ?? throw new ArgumentNullException(nameof(random));
+            _seed = seed;
+            _random = new Random(_seed);
         }
+
+        public IScratchAi CloneFresh() => new RandomAi(_seed);
 
         public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {

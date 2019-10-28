@@ -7,17 +7,16 @@ namespace RoverSim
 {
     public sealed class Simulator
     {
-        private Int32 _simId = 0;
         private Int32 _taskCount = Environment.ProcessorCount;
         private Int32 _levelSeed = 0;
 
-        public Simulator(ILevelGeneratorFactory levelGeneratorFactory, IAiFactory aiFactory)
+        public Simulator(ILevelGenerator levelGenerator, IAiFactory aiFactory)
         {
-            LevelGeneratorFactory = levelGeneratorFactory ?? throw new ArgumentNullException(nameof(levelGeneratorFactory));
+            LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             AiFactory = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
         }
 
-        public ILevelGeneratorFactory LevelGeneratorFactory { get; }
+        public ILevelGenerator LevelGenerator { get; }
 
         public IAiFactory AiFactory { get; }
 
@@ -61,12 +60,12 @@ namespace RoverSim
             performer.LinkTo(completer, new DataflowLinkOptions { PropagateCompletion = true });
 
             Int32 genCount = TaskCount / 2;
-            var genTask = StartGenerators(LevelGeneratorFactory, genCount, runCount, simCreator);
+            var genTask = StartGenerator(LevelGenerator, genCount, runCount, simCreator);
 
             return Task.WhenAll(genTask, simCreator.Completion, performer.Completion, completer.Completion);
         }
 
-        private async Task StartGenerators(ILevelGeneratorFactory generatorFactory, Int32 generatorCount, Int32 levelCount, ITargetBlock<Level> target)
+        private async Task StartGenerator(ILevelGenerator generator, Int32 generatorCount, Int32 levelCount, ITargetBlock<Level> target)
         {
             Int32 levelsPerGenerator = levelCount / generatorCount;
             Int32 extraLevels = levelCount % generatorCount;
@@ -74,7 +73,7 @@ namespace RoverSim
             for (Int32 i = 0; i < generatorCount; i++)
             {
                 Int32 count = levelsPerGenerator + (i < extraLevels ? 1 : 0);
-                list.Add(RunGenerator(generatorFactory.Create(), count, target));
+                list.Add(RunGenerator(generator, count, target));
             }
 
             await Task.WhenAll(list).ConfigureAwait(continueOnCapturedContext: false);
@@ -100,13 +99,12 @@ namespace RoverSim
         private Simulation CreateSim(Level level)
         {
             Rover rover = new Rover(level.AsMutable(), Parameters);
-            IAi ai = AiFactory.Create(_simId, Parameters);
-            _simId++;
+            IAi ai = AiFactory.Create(Parameters);
             Simulation simulation = new Simulation(level, Parameters, ai, rover);
             return simulation;
         }
 
-        private static CompletedSimulation PerformSim(Simulation simulation)
+        private CompletedSimulation PerformSim(Simulation simulation)
         {
             RoverStats stats;
             try
@@ -118,9 +116,9 @@ namespace RoverSim
 #pragma warning restore CA1031 // Do not catch general exception types
             {
                 // Catching this is fine, as we want to be able to report it later.
-                return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, default, ex);
+                return new CompletedSimulation(simulation.OriginalLevel.Seed, LevelGenerator, simulation.Parameters, default, ex);
             }
-            return new CompletedSimulation(simulation.OriginalLevel, simulation.Parameters, simulation.Ai.Identifier, stats, null);
+            return new CompletedSimulation(simulation.OriginalLevel.Seed, LevelGenerator, simulation.Parameters, stats, null);
         }
     }
 }

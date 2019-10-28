@@ -18,12 +18,7 @@ namespace RoverSim.ScratchAis
 
         private readonly List<TerrainType> adjacentSquares = new List<TerrainType>(5);
 
-        public MarkI(Int32 identifier)
-        {
-            Identifier = identifier;
-        }
-
-        public Int32 Identifier { get; }
+        public IScratchAi CloneFresh() => new MarkI();
 
         public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {

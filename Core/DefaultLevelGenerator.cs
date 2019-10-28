@@ -12,7 +12,7 @@ namespace RoverSim
             Random rng = new Random(rngSeed);
             // Generate the terrain and ensure that the starting square isn't completely blocked in
             TerrainType[,] terrain = Generate(parameters, rng);
-            return new Level(terrain);
+            return new Level(rngSeed, terrain);
         }
 
         private static TerrainType[,] Generate(SimulationParameters parameters, Random random)

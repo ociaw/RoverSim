@@ -19,16 +19,19 @@ namespace RoverSim.WinFormsClient
 
         private VisibleState _state;
 
-        public RenderForm(CompletedSimulation demoResult, IAiFactory demoAi)
+        public RenderForm(CompletedSimulation demoResult, IAiFactory demoAi, ILevelGenerator levelGenerator)
         {
             DemoResult = demoResult ?? throw new ArgumentNullException(nameof(demoResult));
             DemoAi = demoAi ?? throw new ArgumentNullException(nameof(demoAi));
+            LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             InitializeComponent();
         }
 
         public CompletedSimulation DemoResult { get; }
 
         public IAiFactory DemoAi { get; }
+
+        public ILevelGenerator LevelGenerator { get; }
 
         private void GlControl1_Load(object sender, EventArgs e)
         {
@@ -49,8 +52,8 @@ namespace RoverSim.WinFormsClient
 
         private void BeginRender_Click(object sender, EventArgs e)
         {
-            IAi ai = DemoAi.Create(DemoResult.AiIdentifier, DemoResult.Parameters);
-            Level originalLevel = DemoResult.OriginalLevel;
+            IAi ai = DemoAi.Create(DemoResult.Parameters);
+            Level originalLevel = LevelGenerator.Generate(DemoResult.Parameters, DemoResult.LevelSeed);
             MutableLevel workingLevel = originalLevel.AsMutable();
 
             _rover = new Rover(workingLevel, DemoResult.Parameters);

@@ -40,6 +40,8 @@ namespace RoverSim.ScratchAis
             }
         }
 
+        public IScratchAi CloneFresh() => new MarkII();
+
         public IEnumerable<RoverAction> Simulate(ScratchRover rover)
         {
             while (true)

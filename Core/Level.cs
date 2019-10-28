@@ -4,6 +4,8 @@ namespace RoverSim
 {
     public sealed class Level
     {
+        public Int32 Seed { get; }
+
         public Position BottomRight { get; }
 
         public Int32 Width => BottomRight.X + 1;
@@ -23,13 +25,14 @@ namespace RoverSim
             }
         }
 
-        public Level(TerrainType[,] terrain)
+        public Level(Int32 seed, TerrainType[,] terrain)
         {
             if (terrain == null)
                 throw new ArgumentNullException(nameof(terrain));
             if (terrain.Length < 1)
                 throw new ArgumentOutOfRangeException(nameof(terrain), "Must have at least one element.");
 
+            Seed = seed;
             BottomRight = new Position(terrain.GetLength(0) - 1, terrain.GetLength(1) - 1);
             Terrain = CloneArray(terrain);
         }

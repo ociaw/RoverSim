@@ -5,15 +5,14 @@ namespace RoverSim.ScratchAis
 {
     internal sealed class ScratchAiWrapper : IAi
     {
-        public ScratchAiWrapper(Int32 identifier, IScratchAi scratchAi)
+        public ScratchAiWrapper(IScratchAi scratchAi)
         {
             Ai = scratchAi ?? throw new ArgumentNullException(nameof(scratchAi));
-            Identifier = identifier;
         }
 
         private IScratchAi Ai { get; }
 
-        public Int32 Identifier { get; }
+        public IAi CloneFresh() => new ScratchAiWrapper(Ai.CloneFresh());
 
         public void Simulate(IRoverStatusAccessor rover)
         {

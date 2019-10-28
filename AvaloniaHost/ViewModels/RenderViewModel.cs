@@ -13,10 +13,11 @@ namespace RoverSim.AvaloniaHost.ViewModels
         {
             Ai = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
             Simulation = simulation ?? throw new ArgumentNullException(nameof(simulation));
+
             Start = ReactiveCommand.CreateFromObservable(() =>
             {
-                IAi ai = Ai.Create(Simulation.AiIdentifier, Simulation.Parameters);
-                Level originalLevel = Simulation.OriginalLevel;
+                IAi ai = Ai.Create(Simulation.Parameters);
+                Level originalLevel = Simulation.LevelGenerator.Generate(Simulation.Parameters, Simulation.LevelSeed);
                 MutableLevel workingLevel = originalLevel.AsMutable();
                 Rover rover = new Rover(workingLevel, Simulation.Parameters);
 

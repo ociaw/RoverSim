@@ -6,8 +6,8 @@ namespace RoverSim.ScratchAis
     {
         public String Name => "Random";
 
-        public Int32 Seed { get; }
+        public Int32 Seed { get; set; }
 
-        public IAi Create(Int32 identifier, SimulationParameters parameters) => new ScratchAiWrapper(identifier, new RandomAi(new Random(Seed + identifier)));
+        public IAi Create(SimulationParameters parameters) => new ScratchAiWrapper(new RandomAi(Seed));
     }
 }
