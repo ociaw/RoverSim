@@ -5,19 +5,20 @@ namespace RoverSim
 {
     public sealed class MazeGenerator : ILevelGenerator
     {
-        public Level Generate(SimulationParameters parameters, Int32 rngSeed)
-        {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+        public MazeGenerator(SimulationParameters parameters) => Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
 
+        public SimulationParameters Parameters { get; }
+
+        public Level Generate(Int32 rngSeed)
+        {
             Random rng = new Random(rngSeed);
 
-            Int32 width = parameters.BottomRight.X + 1;
-            Int32 height = parameters.BottomRight.Y + 1;
+            Int32 width = Parameters.BottomRight.X + 1;
+            Int32 height = Parameters.BottomRight.Y + 1;
 
             TerrainType[,] terrain = new TerrainType[width, height];
 
-            Position start = parameters.InitialPosition;
+            Position start = Parameters.InitialPosition;
             Stack<CoordinatePair> stack = new Stack<CoordinatePair>();
             HashSet<CoordinatePair> visited = new HashSet<CoordinatePair>();
             stack.Push(start);
@@ -37,7 +38,7 @@ namespace RoverSim
                     var passage = current + direction;
                     var neighbor = passage + direction;
                     var boundaryCheck = neighbor + direction;
-                    if (!parameters.BottomRight.Contains(boundaryCheck) || visited.Contains(neighbor))
+                    if (!Parameters.BottomRight.Contains(boundaryCheck) || visited.Contains(neighbor))
                         continue;
 
                     anyNewNeighbors = true;
@@ -55,7 +56,7 @@ namespace RoverSim
                         Direction direction = (Direction)rng.Next(Direction.DirectionCount);
                         var passage = current + direction;
                         var boundaryCheck = passage + direction;
-                        if (parameters.BottomRight.Contains(boundaryCheck) && terrain[passage.X, passage.Y] == TerrainType.Impassable)
+                        if (Parameters.BottomRight.Contains(boundaryCheck) && terrain[passage.X, passage.Y] == TerrainType.Impassable)
                             terrain[passage.X, passage.Y] = TerrainType.Rough;
                     }
 

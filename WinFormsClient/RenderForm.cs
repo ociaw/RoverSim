@@ -53,7 +53,7 @@ namespace RoverSim.WinFormsClient
         private void BeginRender_Click(object sender, EventArgs e)
         {
             IAi ai = DemoAi.Create(DemoResult.Parameters);
-            Level originalLevel = LevelGenerator.Generate(DemoResult.Parameters, DemoResult.LevelSeed);
+            Level originalLevel = LevelGenerator.Generate(DemoResult.LevelSeed);
             MutableLevel workingLevel = originalLevel.AsMutable();
 
             _rover = new Rover(workingLevel, DemoResult.Parameters);

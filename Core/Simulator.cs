@@ -20,7 +20,7 @@ namespace RoverSim
 
         public IAiFactory AiFactory { get; }
 
-        public SimulationParameters Parameters { get; } = SimulationParameters.Default;
+        public SimulationParameters Parameters => LevelGenerator.Parameters;
 
         public String AiName => AiFactory.Name;
 
@@ -87,7 +87,7 @@ namespace RoverSim
                 for (Int32 i = 0; i < count; i++)
                 {
                     Int32 seed = System.Threading.Interlocked.Increment(ref _levelSeed);
-                    Level level = generator.Generate(Parameters, seed);
+                    Level level = generator.Generate(seed);
                     if (level != null)
                         await target.SendAsync(level).ConfigureAwait(continueOnCapturedContext: false);
                     else

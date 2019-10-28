@@ -25,12 +25,13 @@ namespace RoverSim.AvaloniaHost
 
         internal async Task SimulateAsync(IReadOnlyList<IAiFactory> aiFactories, Int32 runCount)
         {
+            SimulationParameters parameters = SimulationParameters.Default;
             var tasks = new List<Task>(aiFactories.Count);
             var results = new Dictionary<IAiFactory, List<CompletedSimulation>>(aiFactories.Count);
             foreach (var aiFactory in aiFactories)
             {
                 var levelRand = new Random(LevelSeed);
-                var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 6);
+                var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 6);
                 var simulator = new Simulator(levelGenerator, aiFactory);
 
                 results[aiFactory] = new List<CompletedSimulation>(runCount);

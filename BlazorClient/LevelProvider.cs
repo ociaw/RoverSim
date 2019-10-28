@@ -39,14 +39,14 @@ namespace RoverSim.BlazorClient
             Level level;
             do
             {
-                level = generator.Generate(parameters, seed);
+                level = generator.Generate(seed);
             }
             while (level == null);
             return level;
         }
 
-        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters) => new DefaultLevelGenerator();
+        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters) => new DefaultLevelGenerator(parameters);
 
-        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query, SimulationParameters parameters) => new MazeGenerator();
+        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query, SimulationParameters parameters) => new MazeGenerator(parameters);
     }
 }

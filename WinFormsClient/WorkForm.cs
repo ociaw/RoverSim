@@ -37,9 +37,9 @@ namespace RoverSim.WinFormsClient
             if (!Int32.TryParse(RunCount.Text, out Int32 runCount)) return;
 
             WorkManager manager = new WorkManager();
-            
+            SimulationParameters parameters = SimulationParameters.Default;
             List<IAiFactory> selectedAis = aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
-            ILevelGenerator selectedLevelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 6);
+            ILevelGenerator selectedLevelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 6);
             TimeUsed.Text = "Working...";
             var stopwatch = Stopwatch.StartNew();
             (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, selectedLevelGenerator, runCount);

@@ -21,22 +21,23 @@ namespace Benchmarking
         [GlobalSetup]
         public void Setup()
         {
-            _mazeGenerator = new MazeGenerator();
-            _defaultGenerator = new DefaultLevelGenerator();
-            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 5);
-            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 15);
+            var parameters = SimulationParameters.Default;
+            _mazeGenerator = new MazeGenerator(parameters);
+            _defaultGenerator = new DefaultLevelGenerator(parameters);
+            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 5);
+            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 15);
         }
 
         [Benchmark]
-        public Level Maze() => _mazeGenerator.Generate(SimulationParameters.Default, Seed);
+        public Level Maze() => _mazeGenerator.Generate(Seed);
 
         [Benchmark]
-        public Level Default() => _defaultGenerator.Generate(SimulationParameters.Default, Seed);
+        public Level Default() => _defaultGenerator.Generate(Seed);
 
         [Benchmark]
-        public Level CheckedDefault() => _checkedGenerator.Generate(SimulationParameters.Default, Seed);
+        public Level CheckedDefault() => _checkedGenerator.Generate(Seed);
 
         [Benchmark]
-        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(SimulationParameters.Default, Seed);
+        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(Seed);
     }
 }
