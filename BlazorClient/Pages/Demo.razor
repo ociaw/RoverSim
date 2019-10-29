@@ -64,9 +64,8 @@
         _isDemoRunning = true;
 
         IAi ai = _parsedQuery.CreateAi();
-        Level originalLevel = _parsedQuery.CreateLevel();
-        MutableLevel workingLevel = originalLevel.AsMutable();
-        Rover rover = new Rover(workingLevel, parameters);
+        Level level = _parsedQuery.CreateLevel();
+        Rover rover = new Rover(level, parameters);
         _stats = RoverStats.Create(parameters);
 
         var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
