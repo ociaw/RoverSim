@@ -50,12 +50,11 @@ namespace RoverSim.WinFormsClient
         private void BeginRender_Click(object sender, EventArgs e)
         {
             IAi ai = DemoAi.Create(DemoResult.Parameters);
-            Level originalLevel = DemoResult.ProtoLevel.Generate();
-            MutableLevel workingLevel = originalLevel.AsMutable();
+            Level level = DemoResult.ProtoLevel.Generate();
 
-            _rover = new Rover(workingLevel, DemoResult.Parameters);
+            _rover = new Rover(level, DemoResult.Parameters);
             _stats = RoverStats.Create(DemoResult.Parameters);
-            _state = VisibleState.GenerateBlank(originalLevel.BottomRight, _rover.Position);
+            _state = VisibleState.GenerateBlank(level.BottomRight, _rover.Position);
             _actionEnumerator = ai.Simulate(_rover.Accessor).GetEnumerator();
             beginRender.Enabled = false;
             UpdateTimer.Start();

@@ -4,6 +4,17 @@ namespace RoverSim
 {
     public sealed class Level
     {
+        public Level(TerrainType[,] terrain, ProtoLevel protoLevel)
+        {
+            if (terrain == null)
+                throw new ArgumentNullException(nameof(terrain));
+            if (terrain.Length < 1)
+                throw new ArgumentOutOfRangeException(nameof(terrain), "Must have at least one element.");
+
+            Terrain = terrain;
+            ProtoLevel = protoLevel ?? throw new ArgumentNullException(nameof(protoLevel));
+        }
+
         private TerrainType[,] Terrain { get; }
 
         public ProtoLevel ProtoLevel { get; }
@@ -25,27 +36,26 @@ namespace RoverSim
             }
         }
 
-        public Level(TerrainType[,] terrain, ProtoLevel protoLevel)
+        public TerrainType GetTerrain(CoordinatePair coordinates)
         {
-            if (terrain == null)
-                throw new ArgumentNullException(nameof(terrain));
-            if (terrain.Length < 1)
-                throw new ArgumentOutOfRangeException(nameof(terrain), "Must have at least one element.");
-
-            ProtoLevel = protoLevel;
-            Terrain = CloneArray(terrain);
+            if (coordinates.IsNegative || !BottomRight.Coordinates.Contains(coordinates))
+                return TerrainType.Impassable;
+            else
+                return Terrain[coordinates.X, coordinates.Y];
         }
 
-        public MutableLevel AsMutable() => new MutableLevel(BottomRight, CloneArray(Terrain));
-
-        private static TerrainType[,] CloneArray(TerrainType[,] original)
+        public TerrainType SampleSquare(Position position)
         {
-            Int32 width = original.GetLength(0);
-            Int32 height = original.GetLength(1);
+            if (!BottomRight.Contains(position))
+                throw new ArgumentOutOfRangeException(nameof(position), position, "Must be contained within this level.");
 
-            TerrainType[,] newTerrain = new TerrainType[width, height];
-            Array.Copy(original, newTerrain, width * height);
-            return newTerrain;
+            (Int32 x, Int32 y) = position;
+            if (Terrain[x, y] == TerrainType.Rough)
+                Terrain[x, y] = TerrainType.SampledRough;
+            else if (Terrain[x, y] == TerrainType.Smooth)
+                Terrain[x, y] = TerrainType.SampledSmooth;
+
+            return Terrain[x, y];
         }
     }
 }

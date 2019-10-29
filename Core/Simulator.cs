@@ -98,7 +98,7 @@ namespace RoverSim
 
         private Simulation CreateSim(Level level)
         {
-            Rover rover = new Rover(level.AsMutable(), Parameters);
+            Rover rover = new Rover(level, Parameters);
             IAi ai = AiFactory.Create(Parameters);
             Simulation simulation = new Simulation(level, Parameters, ai, rover);
             return simulation;

@@ -17,9 +17,8 @@ namespace RoverSim.AvaloniaHost.ViewModels
             Start = ReactiveCommand.CreateFromObservable(() =>
             {
                 IAi ai = Ai.Create(Simulation.Parameters);
-                Level originalLevel = Simulation.ProtoLevel.Generate();
-                MutableLevel workingLevel = originalLevel.AsMutable();
-                Rover rover = new Rover(workingLevel, Simulation.Parameters);
+                Level level = Simulation.ProtoLevel.Generate();
+                Rover rover = new Rover(level, Simulation.Parameters);
 
                 return Observable.Create<(RoverAction action, Update update)>(obs =>
                 {

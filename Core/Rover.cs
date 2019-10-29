@@ -7,7 +7,7 @@ namespace RoverSim
         private Int32 _moves;
         private Int32 _power;
 
-        public Rover(MutableLevel level, SimulationParameters parameters)
+        public Rover(Level level, SimulationParameters parameters)
         {
             Level = level ?? throw new ArgumentNullException(nameof(level));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -18,7 +18,7 @@ namespace RoverSim
             Accessor = new StatusAccessor(this);
         }
 
-        private MutableLevel Level { get; }
+        private Level Level { get; }
 
         public SimulationParameters Parameters { get; }
 
