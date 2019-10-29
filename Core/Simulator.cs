@@ -116,9 +116,9 @@ namespace RoverSim
 #pragma warning restore CA1031 // Do not catch general exception types
             {
                 // Catching this is fine, as we want to be able to report it later.
-                return new CompletedSimulation(simulation.OriginalLevel.Seed, LevelGenerator, simulation.Parameters, default, ex);
+                return new CompletedSimulation(simulation.OriginalLevel.ProtoLevel, default, ex);
             }
-            return new CompletedSimulation(simulation.OriginalLevel.Seed, LevelGenerator, simulation.Parameters, stats, null);
+            return new CompletedSimulation(simulation.OriginalLevel.ProtoLevel, stats, null);
         }
     }
 }

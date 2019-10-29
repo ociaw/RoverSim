@@ -11,7 +11,6 @@ namespace RoverSim.WinFormsClient
         private Boolean running = false;
         private CompletedSimulation _renderSim;
         private IAiFactory _renderAiFactory;
-        private ILevelGenerator _renderLevelGenerator;
 
         private readonly IEnumerable<IAiFactory> aiFactories;
 
@@ -48,7 +47,6 @@ namespace RoverSim.WinFormsClient
 
             _renderSim = worstSim;
             _renderAiFactory = worstAi;
-            _renderLevelGenerator = selectedLevelGenerator;
             if (_renderSim != null && _renderSim.HasError)
                 MessageBox.Show("ERROR");
 
@@ -73,7 +71,7 @@ namespace RoverSim.WinFormsClient
                 return;
 
 #pragma warning disable IDE0067 // Dispose objects before losing scope
-            RenderForm form = new RenderForm(_renderSim, _renderAiFactory, _renderLevelGenerator);
+            RenderForm form = new RenderForm(_renderSim, _renderAiFactory);
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             form.Show();
         }

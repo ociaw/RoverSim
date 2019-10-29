@@ -64,7 +64,7 @@ namespace RoverSim
                 }
             }
 
-            return new Level(rngSeed, terrain);
+            return new Level(terrain, new ProtoLevel(this, rngSeed));
         }
     }
 }
