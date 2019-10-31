@@ -57,6 +57,11 @@ canvas
   width: 100%;
 }
 
+#controls > .button-link
+{
+  margin-top: auto;
+}
+
 #stats
 {
   display: flex;
@@ -75,44 +80,66 @@ canvas
 .button-link
 {
   display: inline-block;
-  margin: 2px;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  background-color: #06A;
+  margin: .2rem;
+  font-family: Arial, sans-serif;
   font-size: 1.25rem;
+  color: white;
+  background-color: #06A;
+  border-color: transparent;
+  cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: pointer;
+  outline-width: 0;
+  outline-style: solid;
+  outline-color: transparent;
 }
-.button-link a, .button-link button
+
+.button-link a, .button-link a:visited, .button-link button
 {
   display: inline-block;
+  width: 100%;
   height: 100%;
   padding: calc(.25rem - 1px) calc(.5rem - 1px);
-  font-family: Arial, sans-serif;
+  border: 1px solid;
+  font-family: inherit;
   font-size: inherit;
-  color: white;
-  border-color: transparent;
+  text-decoration: none;
+  color: inherit;
   background-color: transparent;
+  border-color: inherit;
   cursor: inherit;
+  outline-offset: -2px;
+  outline-width: 1px;
+  outline-style: inherit;
+  outline-color: inherit;
 }
 
 .button-link[disabled]
 {
+  color: rgba(127, 127, 127, .25);
+  background-color: transparent;
   border-color: currentColor;
   cursor: default;
-  background-color: transparent;
-  color: rgba(127, 127, 127, .25);
 }
 
-.button-link[disabled] a, .button-link[disabled] button
+.button-link:not([disabled]):hover
 {
-  color: inherit;
+  outline-color: #AAA;
 }
 
-.encouraging
+.button-link:not([disabled]) > *:focus
 {
-  background-color: #206820;
+  outline-color: currentColor;
+}
+
+.button-link.progressing:not([disabled])
+{
+  background-color: #075707;
+}
+
+.button-link.regressing:not([disabled])
+{
+  background-color: #6c1b1b;
 }
