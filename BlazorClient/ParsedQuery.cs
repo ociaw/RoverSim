@@ -20,7 +20,7 @@ namespace RoverSim.BlazorClient
 
         public IAi CreateAi() => _aiProvider.CreateAi(_query, Parameters);
 
-        public Level CreateLevel() => _levelProvider.CreateLevel(_query, Parameters);
+        public ProtoLevel CreateLevel() => _levelProvider.CreateLevel(_query, Parameters);
 
         public static ParsedQuery FromDictionary(Dictionary<String, StringValues> query)
         {

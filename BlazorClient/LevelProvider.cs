@@ -21,7 +21,7 @@ namespace RoverSim.BlazorClient
             };
         }
 
-        public Level CreateLevel(Dictionary<String, StringValues> query, SimulationParameters parameters)
+        public ProtoLevel CreateLevel(Dictionary<String, StringValues> query, SimulationParameters parameters)
         {
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
@@ -35,14 +35,7 @@ namespace RoverSim.BlazorClient
                 func = FallbackGenerator;
 
             var generator = func(query, parameters);
-
-            Level level;
-            do
-            {
-                level = generator.Generate(seed);
-            }
-            while (level == null);
-            return level;
+            return new ProtoLevel(generator, seed);
         }
 
         private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters) => new DefaultLevelGenerator(parameters);

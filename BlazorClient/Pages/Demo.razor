@@ -1,158 +1,24 @@
 ﻿@using Microsoft.AspNetCore.WebUtilities
-@using Blazor.Extensions;
-@using Blazor.Extensions.Canvas;
-@using Blazor.Extensions.Canvas.Canvas2D;
-@using RoverSim.Rendering;
 
 @inject NavigationManager navigationManager
 @page "/demo"
-<div id=render>
-    <BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
-</div>
-<div id=controls>
-    <div id=stats>
-        <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
-        <div id=power>Power: @_stats.Power</div>
-        <div id=hopper-count>Hopper Count: @_stats.SamplesCollected</div>
-        <div id=pending-count>Processed Count: @_stats.SamplesProcessed</div>
-        <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
-        <div id=moves>Actual Moves: @_stats.MoveCount</div>
-        <div id=move-calls>Move Calls: @_stats.MoveCallCount</div>
-        <div id=power-calls>Power Calls: @_stats.CollectPowerCallCount</div>
-        <div id=sample-calls>Sample Calls: @_stats.CollectSampleCallCount</div>
-        <div id=process-calls>Process Calls: @_stats.ProcessSamplesCallCount</div>
-        <div id=transmit-calls>Transmit Calls: @_stats.TransmitCallCount</div>
-    </div>
-    <div disabled=@_isDemoRunning class="button-link progressing"><button disabled=@_isDemoRunning @onclick=StartDemo>Start</button></div>
-</div>
+
+<Renderer Ai="@_ai" Parameters="@_parameters" ProtoLevel="@_protoLevel" />
 
 @code {
-    private readonly String[] _fillStyles = new String[]
-    {
-        "black",
-        "red",
-        "lightgrey",
-        "brown",
-        "darkgrey",
-        "lightgoldenrodyellow"
-        };
-
     private ParsedQuery _parsedQuery;
-
-    private RoverStats _stats;
-    private Boolean _isDemoRunning;
-
-    private Update? _lastUpdate;
-    private VisibleState _visibleState;
-    private Boolean _needsClear;
-    private Canvas2DContext _context;
-    protected BECanvasComponent _canvasReference;
+    private SimulationParameters _parameters;
+    private IAi _ai;
+    private ProtoLevel _protoLevel;
 
     protected override void OnInitialized()
     {
         var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
         var query = QueryHelpers.ParseQuery(uri.Query);
         var parsedQuery = ParsedQuery.FromDictionary(query);
-        _parsedQuery = parsedQuery;
-        _visibleState = VisibleState.GenerateBlank(parsedQuery.Parameters);
-    }
 
-    private Task StartDemo()
-    {
-        SimulationParameters parameters = _parsedQuery.Parameters;
-        _visibleState = VisibleState.GenerateBlank(parameters);
-        _isDemoRunning = true;
-
-        IAi ai = _parsedQuery.CreateAi();
-        Level level = _parsedQuery.CreateLevel();
-        Rover rover = new Rover(level, parameters);
-        _stats = RoverStats.Create(parameters);
-
-        var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
-
-        return Task.Run(async () =>
-        {
-            _needsClear = true;
-            while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
-            {
-                if (_visibleState.Apply(update))
-                    _lastUpdate = update;
-                _stats = _stats.Add(actionEnumerator.Current, update);
-                base.StateHasChanged();
-                Int32 delay = actionEnumerator.Current.Instruction switch
-                {
-                    Instruction.Move => 75,
-                    Instruction.CollectSample => 50,
-                    _ => 0
-                };
-                if (delay != 0)
-                    await Task.Delay(delay);
-            }
-
-            _isDemoRunning = false;
-            actionEnumerator.Dispose();
-        });
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        _context ??= await _canvasReference.CreateCanvas2DAsync();
-        if (_needsClear)
-        {
-            await Clear();
-            _needsClear = false;
-        }
-
-        if (!_lastUpdate.HasValue || _visibleState == null)
-            return;
-
-        await RenderUpdate(_lastUpdate.Value);
-        _lastUpdate = null;
-    }
-
-    private async Task Clear()
-    {
-        await _context.SetFillStyleAsync(_fillStyles[5]);
-        await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
-    }
-
-    private async Task RenderUpdate(Update update)
-    {
-        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
-        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
-
-        await _context.BeginBatchAsync();
-        for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
-        {
-            Direction direction = Direction.FromInt32(i);
-            CoordinatePair coords = _visibleState.RoverPosition + direction;
-            if (coords.IsNegative)
-                continue;
-
-            TerrainType terrain = _visibleState[coords.X, coords.Y];
-
-            String style = _fillStyles[(Int32)terrain];
-            Double topLeftX = tileWidth * coords.X;
-            Double topLeftY = tileHeight * coords.Y;
-            await _context.SetFillStyleAsync(style);
-            await _context.FillRectAsync(topLeftX, topLeftY, tileWidth, tileHeight);
-        }
-
-        await RenderRover();
-        await _context.EndBatchAsync();
-    }
-
-    private async Task RenderRover()
-    {
-        const Double roverScale = .64;
-        const Double roverPadding = (1 - roverScale) / 2;
-        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
-        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
-
-        Double topLeftX = tileWidth * (_visibleState.RoverPosition.X + roverPadding);
-        Double topLeftY = tileHeight * (_visibleState.RoverPosition.Y + roverPadding);
-
-        await _context.SetFillStyleAsync("lightgreen");
-        await _context.FillRectAsync(topLeftX, topLeftY, tileWidth * roverScale, tileHeight * roverScale);
+        _parameters = parsedQuery.Parameters;
+        _ai = parsedQuery.CreateAi();
+        _protoLevel = parsedQuery.CreateLevel();
     }
 }
