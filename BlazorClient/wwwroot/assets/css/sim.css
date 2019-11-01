@@ -38,6 +38,7 @@ canvas
 {
   flex: 1;
   min-height: 0;
+  max-height: 100%;
 }
 
 #render > canvas
