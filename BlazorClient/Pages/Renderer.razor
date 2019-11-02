@@ -4,7 +4,7 @@
 @using RoverSim.Rendering;
 
 <div id=render>
-    <BECanvas Width="@(_visibleState?.Width * 100 ?? 0)" Height="@(_visibleState?.Height * 100 ?? 0)" @ref="_canvasReference"></BECanvas>
+    <BECanvas Width="@_canvasWidth" Height="@_canvasHeight" @ref="_canvasReference"></BECanvas>
 </div>
 <div id=controls>
     <div id=stats>
@@ -24,6 +24,10 @@
 </div>
 
 @code {
+    // Target 4k UHD resolution at the largest
+    private const Int32 MaxCanvasWidth = 0xF00;
+    private const Int32 MaxCanvasHeight = 0xF00;
+
     private readonly String[] _fillStyles = new String[]
     {
         "black",
@@ -36,6 +40,9 @@
 
     private RoverStats _stats;
     private Boolean _isDemoRunning = true;
+
+    private Int32 _canvasWidth;
+    private Int32 _canvasHeight;
 
     private Update? _lastUpdate;
     private VisibleState _visibleState;
@@ -59,6 +66,18 @@
 
         _visibleState = VisibleState.GenerateBlank(Parameters);
         _isDemoRunning = false;
+        SetDimensions();
+    }
+
+    private void SetDimensions()
+    {
+        Int32 widthFactor = MaxCanvasWidth / _visibleState.Width;
+        Int32 heightFactor = MaxCanvasHeight / _visibleState.Height;
+        Int32 finalFactor = Math.Max(Math.Min(widthFactor, heightFactor), 1);
+        _canvasWidth = _visibleState.Width * finalFactor;
+        _canvasHeight = _visibleState.Height * finalFactor;
+        Console.WriteLine(widthFactor + " " + heightFactor);
+        Console.WriteLine(_canvasWidth + " " + _canvasHeight);
     }
 
     private Task StartDemo()
@@ -77,7 +96,7 @@
 
         Rover rover = new Rover(level, parameters);
         _stats = RoverStats.Create(parameters);
-        
+
 
         IAi ai = Ai.CloneFresh();
         var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
