@@ -190,7 +190,7 @@
         Double topLeftX = _tileSize * _visibleState.RoverPosition.X + roverPadding;
         Double topLeftY = _tileSize * _visibleState.RoverPosition.Y + roverPadding;
 
-        await _context.SetFillStyleAsync("lightgreen");
+        await _context.SetFillStyleAsync("#70CE70");
         await _context.FillRectAsync(topLeftX, topLeftY, _roverSize, _roverSize);
     }
 }
