@@ -24,7 +24,7 @@
 </div>
 
 @code {
-    // Target 4k UHD resolution at the largest
+        // Target 4k UHD resolution at the largest
     private const Int32 MaxCanvasWidth = 0xF00;
     private const Int32 MaxCanvasHeight = 0xF00;
 
@@ -43,10 +43,12 @@
 
     private Int32 _canvasWidth;
     private Int32 _canvasHeight;
+    private Int32 _tileSize;
+    private Double _roverSize;
 
-    private Update? _lastUpdate;
+    private Queue<Update?> _updates = new Queue<Update?>(2);
     private VisibleState _visibleState;
-    private Boolean _needsClear;
+    private Boolean _rendering;
     private Canvas2DContext _context;
     protected BECanvasComponent _canvasReference;
 
@@ -71,13 +73,15 @@
 
     private void SetDimensions()
     {
+        const Double roverScale = .64;
         Int32 widthFactor = MaxCanvasWidth / _visibleState.Width;
         Int32 heightFactor = MaxCanvasHeight / _visibleState.Height;
-        Int32 finalFactor = Math.Max(Math.Min(widthFactor, heightFactor), 1);
-        _canvasWidth = _visibleState.Width * finalFactor;
-        _canvasHeight = _visibleState.Height * finalFactor;
-        Console.WriteLine(widthFactor + " " + heightFactor);
-        Console.WriteLine(_canvasWidth + " " + _canvasHeight);
+        Int32 tileSize = Math.Max(Math.Min(widthFactor, heightFactor), 1);
+
+        _canvasWidth = _visibleState.Width * tileSize;
+        _canvasHeight = _visibleState.Height * tileSize;
+        _tileSize = tileSize;
+        _roverSize = tileSize * roverScale;
     }
 
     private Task StartDemo()
@@ -103,11 +107,15 @@
 
         return Task.Run(async () =>
         {
-            _needsClear = true;
+            // We use null to indicate that the level has been reset.
+            _updates.Enqueue(null);
+            _updates.Enqueue(new Update(terrain: rover.Adjacent));
+            base.StateHasChanged();
+            await Task.Delay(100);
+
             while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
             {
-                if (_visibleState.Apply(update))
-                    _lastUpdate = update;
+                _updates.Enqueue(update);
                 _stats = _stats.Add(actionEnumerator.Current, update);
                 base.StateHasChanged();
                 Int32 delay = actionEnumerator.Current.Instruction switch
@@ -116,6 +124,7 @@
                     Instruction.CollectSample => 50,
                     _ => 0
                 };
+                Console.WriteLine("Delaying " + delay + "ms");
                 if (delay != 0)
                     await Task.Delay(delay);
             }
@@ -128,17 +137,21 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _context ??= await _canvasReference.CreateCanvas2DAsync();
-        if (_needsClear)
-        {
-            await Clear();
-            _needsClear = false;
-        }
 
-        if (!_lastUpdate.HasValue || _visibleState == null)
+        if (_visibleState == null || _updates.Count == 0 || _rendering)
             return;
 
-        await RenderUpdate(_lastUpdate.Value);
-        _lastUpdate = null;
+        // Since Blazor is single threaded, we don't need to worry about concurrent modification
+        _rendering = true;
+        while (_updates.Count > 0)
+        {
+            Update? update = _updates.Dequeue();
+            if (!update.HasValue)
+                await Clear();
+            else if (_visibleState.Apply(update.Value))
+                await RenderUpdate();
+        }
+        _rendering = false;
     }
 
     private async Task Clear()
@@ -147,11 +160,8 @@
         await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
     }
 
-    private async Task RenderUpdate(Update update)
+    private async Task RenderUpdate()
     {
-        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
-        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
-
         await _context.BeginBatchAsync();
         for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
         {
@@ -163,10 +173,10 @@
             TerrainType terrain = _visibleState[coords.X, coords.Y];
 
             String style = _fillStyles[(Int32)terrain];
-            Double topLeftX = tileWidth * coords.X;
-            Double topLeftY = tileHeight * coords.Y;
+            Int32 topLeftX = _tileSize * coords.X;
+            Int32 topLeftY = _tileSize * coords.Y;
             await _context.SetFillStyleAsync(style);
-            await _context.FillRectAsync(topLeftX, topLeftY, tileWidth, tileHeight);
+            await _context.FillRectAsync(topLeftX, topLeftY, _tileSize, _tileSize);
         }
 
         await RenderRover();
@@ -175,15 +185,12 @@
 
     private async Task RenderRover()
     {
-        const Double roverScale = .64;
-        const Double roverPadding = (1 - roverScale) / 2;
-        Double tileWidth = _canvasReference.Width / (Double)_visibleState.Width;
-        Double tileHeight = _canvasReference.Height / (Double)_visibleState.Height;
+        Double roverPadding = (_tileSize - _roverSize) / 2;
 
-        Double topLeftX = tileWidth * (_visibleState.RoverPosition.X + roverPadding);
-        Double topLeftY = tileHeight * (_visibleState.RoverPosition.Y + roverPadding);
+        Double topLeftX = _tileSize * _visibleState.RoverPosition.X + roverPadding;
+        Double topLeftY = _tileSize * _visibleState.RoverPosition.Y + roverPadding;
 
         await _context.SetFillStyleAsync("lightgreen");
-        await _context.FillRectAsync(topLeftX, topLeftY, tileWidth * roverScale, tileHeight * roverScale);
+        await _context.FillRectAsync(topLeftX, topLeftY, _roverSize, _roverSize);
     }
 }
