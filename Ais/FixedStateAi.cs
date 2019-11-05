@@ -16,6 +16,8 @@ namespace RoverSim.Ais
 
         private Boolean _gatheringPower = true;
 
+        private Direction _gatherPowerDir = Direction.None;
+
         private readonly Queue<CoordinatePair> _deadEnds;
 
         public FixedStateAi(SimulationParameters parameters, Int32 deadEndMemory)
@@ -39,7 +41,7 @@ namespace RoverSim.Ais
             {
                 var adjacent = GetAdjacent(rover);
                 TerrainType occupied = adjacent[Direction.None];
-                (Direction? adjacentSmoothDir, Direction? adjacentRoughDir) = FindAdjacentUnsampled(adjacent);
+                (Direction? adjacentSmoothDir, Direction? adjacentRoughDir, Int32 smoothCount) = FindAdjacentUnsampled(adjacent);
 
                 if (rover.MovesLeft <= 5)
                 {
@@ -57,7 +59,7 @@ namespace RoverSim.Ais
                 }
 
                 // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
-                if (occupied.IsSampleable() && (!_gatheringPower || (adjacentSmoothDir == null && occupied == TerrainType.Smooth)))
+                if (occupied.IsSampleable() && (!_gatheringPower || (adjacentSmoothDir == null && occupied == TerrainType.Smooth) || _gatherPowerDir != Direction.None))
                 {
                     yield return RoverAction.CollectSample;
                     if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
@@ -69,10 +71,12 @@ namespace RoverSim.Ais
                     _gatheringPower = false;
 
                 (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
-                if (isDeadEnd)
+                if (isDeadEnd && rover.Adjacent.Occupied != TerrainType.Smooth)
                     AddDeadEnd(rover.Position);
 
-                if (adjacentSmoothDir.HasValue)
+                if (_gatherPowerDir != Direction.None)
+                    _destination = _gatherPowerDir;
+                else if (adjacentSmoothDir.HasValue)
                     _destination = adjacentSmoothDir.Value; // Prioritize smooth squares
                 else if (hasExcessPower && !_gatheringPower && adjacentRoughDir.HasValue)
                     _destination = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
@@ -105,6 +109,11 @@ namespace RoverSim.Ais
                 {
                     _avoidanceDestination = Direction.None;
                 }
+
+                if (_gatheringPower && rover.Adjacent.Occupied == TerrainType.Smooth && smoothCount > 1)
+                    _gatherPowerDir = nextMove.Opposite();
+                else
+                    _gatherPowerDir = Direction.None;
 
                 yield return new RoverAction(nextMove);
                 _roundRobin++;
@@ -165,7 +174,7 @@ namespace RoverSim.Ais
 
             Boolean smoothOccupied = adjacent[Direction.None] == TerrainType.Smooth;
             Boolean roughOccupied = adjacent[Direction.None] == TerrainType.Rough;
-            (Direction? smoothDir, Direction? roughDir) = FindAdjacentUnsampled(adjacent);
+            (Direction? smoothDir, Direction? roughDir, _) = FindAdjacentUnsampled(adjacent);
             if (rover.MovesLeft == 5 && rover.Power > Parameters.SampleCost + Parameters.MoveRoughCost + Parameters.SampleCost + Parameters.ProcessCost)
             {
                 if (smoothOccupied || roughOccupied)
@@ -213,10 +222,11 @@ namespace RoverSim.Ais
             yield break;
         }
 
-        private (Direction? smoothDir, Direction? roughDir) FindAdjacentUnsampled(AdjacentTerrain adjacent)
+        private (Direction? smoothDir, Direction? roughDir, Int32 smoothCount) FindAdjacentUnsampled(AdjacentTerrain adjacent)
         {
             Direction? adjacentSmooth = null;
             Direction? adjacentRough = null;
+            Int32 smoothCount = 0;
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
                 Direction roundRobin = Direction.FromInt32((i + _roundRobin) % Direction.DirectionCount);
@@ -224,6 +234,7 @@ namespace RoverSim.Ais
                 {
                     case TerrainType.Smooth:
                         adjacentSmooth = roundRobin;
+                        smoothCount++;
                         break;
                     case TerrainType.Rough:
                         adjacentRough = roundRobin;
@@ -231,7 +242,7 @@ namespace RoverSim.Ais
                 }
             }
 
-            return (adjacentSmooth, adjacentRough);
+            return (adjacentSmooth, adjacentRough, smoothCount);
         }
 
         private AdjacentTerrain GetAdjacent(IRoverStatusAccessor rover)
