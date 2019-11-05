@@ -252,6 +252,9 @@ namespace RoverSim.Ais
 
         private void AddDeadEnd(Position position)
         {
+            if (DeadEndMemory == 0)
+                return;
+
             if (_deadEnds.Count == DeadEndMemory)
                 _deadEnds.Dequeue();
 
