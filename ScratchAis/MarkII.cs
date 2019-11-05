@@ -9,8 +9,6 @@ namespace RoverSim.ScratchAis
         private const Int32 Height = 23;
 
         private readonly List<TerrainType> _mappedTerrain = new List<TerrainType>(Width * Height);
-        private readonly Int32[] _weightedTerrain = new Int32[Width * Height];
-        private Int32[] _reducedWeightMap = new Int32[(Width / 3) * (Height / 3)];
         private readonly List<TerrainType> _adjacentSquares = new List<TerrainType>(5);
         private readonly Int32[] _potentialPower = new Int32[4];
         private Boolean _lowPower = false;
@@ -18,19 +16,12 @@ namespace RoverSim.ScratchAis
         private Int32 _posX = 16;
         private Int32 _posY = 11;
 
-        Int32 destinationX = 0;
-        Int32 destinationY = 0;
-        Int32 destinationDist = 0;
-
         Double roughTerrainDistMultiplier = 1.0;
-
-        private Int32 squareWeight = 0;
 
         private Boolean _mapDirty = true;
         private List<Direction> path = new List<Direction>();
 
         private Direction _moveDir;
-        private Int32 searchAdjusted;
 
         public MarkII()
         {
@@ -52,8 +43,6 @@ namespace RoverSim.ScratchAis
                 {
                     do
                     {
-                        AnalyzeTerrain(_posX, _posY);
-
                         roughTerrainDistMultiplier = 70.0 * rover.MovesLeft / rover.Power; // Optimization target
                         if (roughTerrainDistMultiplier > 3)
                             roughTerrainDistMultiplier = 3; // Optimization target
@@ -264,188 +253,6 @@ namespace RoverSim.ScratchAis
                     _potentialPower[1] = (rover.NoBacktrack + 1) * (rover.NoBacktrack + 1) * (rover.NoBacktrack + 1);
                     break;
                 }
-            }
-        }
-
-        private void AnalyzeTerrain(Int32 x, Int32 y)
-        {
-            Int32 bestSmoothX = 9999;
-            Int32 bestSmoothY = 9999;
-            Int32 bestSmoothAdjusted = 19998;
-            Int32 bestRoughX = 9999;
-            Int32 bestRoughY = 9999;
-            Int32 bestRoughAdjusted = 19998;
-            Int32 bestUnknownX = 9999;
-            Int32 bestUnknownY = 9999;
-            Int32 bestUnknownAdjusted = 19998;
-            _reducedWeightMap = new Int32[Width / 3 * (Height / 3)];
-
-            for (Int32 i = 0; i < Width * Height; i++)
-            {
-                WeightSquare(i);
-                Int32 searchX = i % Width;
-                Int32 searchY = i / Width;
-                Int32 searchDistance = Math.Abs(y - searchY) + Math.Abs(x - searchX);
-                searchAdjusted = searchDistance - _weightedTerrain[i] / 1;
-                if (searchX != _posX || searchY != _posY)
-                {
-                    if (_mappedTerrain[i] == TerrainType.Smooth)
-                    {
-                        if (searchAdjusted < bestSmoothAdjusted)
-                        {
-                            bestSmoothY = searchY;
-                            bestSmoothX = searchX;
-                            bestSmoothAdjusted = searchAdjusted;
-                        }
-                    }
-                    else if (_mappedTerrain[i] == TerrainType.Rough)
-                    {
-                        if (searchAdjusted < bestRoughAdjusted)
-                        {
-                            bestRoughY = searchY;
-                            bestRoughX = searchX;
-                            bestRoughAdjusted = searchAdjusted;
-                        }
-                    }
-                    else if (_mappedTerrain[i] == TerrainType.Unknown)
-                    {
-                        if (searchAdjusted < bestUnknownAdjusted)
-                        {
-                            bestUnknownY = searchY;
-                            bestUnknownX = searchX;
-                            bestUnknownAdjusted = searchAdjusted;
-                        }
-                    }
-                }
-            }
-
-            if (bestSmoothAdjusted > bestUnknownAdjusted)
-            {
-                destinationX = bestUnknownX;
-                destinationY = bestUnknownY;
-                destinationDist = bestUnknownAdjusted;
-            }
-            else
-            {
-                destinationX = bestSmoothX;
-                destinationY = bestSmoothY;
-                destinationDist = bestSmoothAdjusted;
-            }
-            if (destinationDist > bestRoughAdjusted * roughTerrainDistMultiplier)
-            {
-                destinationX = bestRoughX;
-                destinationY = bestRoughY;
-                destinationDist = bestRoughAdjusted;
-            }
-            if (destinationX >= Width || destinationY >= Height)
-            {
-
-            }
-        }
-
-        private void WeightSquare(Int32 index)
-        {
-            squareWeight = 0;
-            // Look up
-            if (index >= Width)
-            {
-                if (_mappedTerrain[index - Width] == TerrainType.Smooth) // Reversed for Scratch
-                {
-                    squareWeight += 10;
-                }
-                else if (_mappedTerrain[index - Width] == TerrainType.Unknown)
-                {
-                    squareWeight += 6; // An unknown square has a 6/10 chance of being smooth
-                }
-                else if (_mappedTerrain[index - Width] == TerrainType.Impassable)
-                {
-                    squareWeight -= 5; // Impassable squares are quite undesireable
-                }
-            }
-
-            // Look right
-            if ((index + 1) % Width != 0)
-            {
-                if (_mappedTerrain[index + 1] == TerrainType.Smooth)
-                {
-                    squareWeight += 10;
-                }
-                else if (_mappedTerrain[index + 1] == TerrainType.Unknown)
-                {
-                    squareWeight += 6; // An unknown square has a 6/10 chance of being smooth
-                }
-                else if (_mappedTerrain[index + 1] == TerrainType.Impassable)
-                {
-                    squareWeight -= 5; // Impassable squares are quite undesireable
-                }
-            }
-
-            // Look down
-            if (index < Height * Width - Width)
-            {
-                if (_mappedTerrain[index + Width] == TerrainType.Smooth)
-                {
-                    squareWeight += 10;
-                }
-                else if (_mappedTerrain[index + Width] == TerrainType.Unknown)
-                {
-                    squareWeight += 6; // An unknown square has a 6/10 chance of being smooth
-                }
-                else if (_mappedTerrain[index + Width] == TerrainType.Impassable)
-                {
-                    squareWeight -= 5; // Impassable squares are quite undesireable
-                }
-            }
-
-            // Look left
-            if (index % Width != 0)
-            {
-                if (_mappedTerrain[index - 1] == TerrainType.Smooth)
-                {
-                    squareWeight += 10;
-                }
-                else if (_mappedTerrain[index - 1] == TerrainType.Unknown)
-                {
-                    squareWeight += 6; // An unknown square has a 6/10 chance of being smooth
-                }
-                else if (_mappedTerrain[index - 1] == TerrainType.Impassable)
-                {
-                    squareWeight -= 5; // Impassable squares are quite undesireable
-                }
-            }
-
-            // Look self
-            if (_mappedTerrain[index] == TerrainType.Smooth)
-            {
-                squareWeight += 10;
-            }
-            else if (_mappedTerrain[index] == TerrainType.Unknown)
-            {
-                squareWeight += 6; // An unknown square has a 6/10 chance of being smooth
-            }
-            else if (_mappedTerrain[index] == TerrainType.Impassable)
-            {
-                squareWeight -= 5; // Impassable squares are quite undesireable
-            }
-            _weightedTerrain[index] = squareWeight;
-
-            if (index >= Width && (index + 1) % Width != 0 && index < Height * Width - Width && index % Width != 0)
-            {
-                Int32 j = ((index % Width) - 1) / 3;
-                Int32 k = ((index / Width) - 1) / 3;
-                if (_mappedTerrain[index] == TerrainType.Smooth)
-                {
-                    _reducedWeightMap[(Width / 3) * k + j] += 10;
-                }
-                else if (_mappedTerrain[index] == TerrainType.Unknown)
-                {
-                    _reducedWeightMap[(Width / 3) * k + j] += 6; // An unknown square has a 6/10 chance of being smooth
-                }
-                else if (_mappedTerrain[index] == TerrainType.Impassable)
-                {
-                    _reducedWeightMap[(Width / 3) * k + j] -= 5; // Impassable squares are quite undesireable
-                }
-
             }
         }
     }
