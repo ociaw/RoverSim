@@ -60,7 +60,7 @@
             this.RunCount.Name = "RunCount";
             this.RunCount.Size = new System.Drawing.Size(75, 20);
             this.RunCount.TabIndex = 1;
-            this.RunCount.Text = "4";
+            this.RunCount.Text = "100000";
             // 
             // AiList
             // 

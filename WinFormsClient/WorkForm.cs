@@ -24,6 +24,8 @@ namespace RoverSim.WinFormsClient
             {
                 AiList.Items.Add(ai.Name, ai.Name, 0);
             }
+
+            AiList.SelectedIndices.Add(AiList.Items.Count - 1);
         }
 
         private async void SimulateButton_Click(object sender, EventArgs e)
