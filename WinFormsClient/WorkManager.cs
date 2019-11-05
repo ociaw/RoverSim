@@ -71,6 +71,12 @@ namespace RoverSim.WinFormsClient
                 csv.WriteField("Samples Collected");
                 csv.WriteField("Samples Processed");
                 csv.WriteField("Samples Transmitted");
+                csv.WriteField("Move Count");
+                csv.WriteField("Move Calls");
+                csv.WriteField("Power Calls");
+                csv.WriteField("Sample Calls");
+                csv.WriteField("Process Calls");
+                csv.WriteField("Transmit Calls");
                 csv.NextRecord();
                 return new Completer(csv);
             }
@@ -93,6 +99,12 @@ namespace RoverSim.WinFormsClient
                 _csv.WriteField(stats.SamplesCollected.ToString());
                 _csv.WriteField(stats.SamplesProcessed.ToString());
                 _csv.WriteField(stats.SamplesTransmitted.ToString());
+                _csv.WriteField(stats.MoveCount.ToString());
+                _csv.WriteField(stats.MoveCallCount.ToString());
+                _csv.WriteField(stats.CollectPowerCallCount.ToString());
+                _csv.WriteField(stats.CollectSampleCallCount.ToString());
+                _csv.WriteField(stats.ProcessSamplesCallCount.ToString());
+                _csv.WriteField(stats.TransmitCallCount.ToString());
                 _csv.NextRecord();
 
                 // Update stats
