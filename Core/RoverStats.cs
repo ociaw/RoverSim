@@ -90,10 +90,14 @@ namespace RoverSim
             );
         }
 
-        public RoverStats Add(in RoverAction action, in Update update) =>
-            new RoverStats(
-                MovesLeft + update.MoveDelta,
-                Power + update.PowerDelta,
+        public RoverStats Add(in RoverAction action, in Update update)
+        {
+            // Moves and power cannot go below 0
+            Int32 moves = MovesLeft + update.MoveDelta;
+            Int32 power = Power + update.PowerDelta;
+            return new RoverStats(
+                moves > 0 ? moves : 0,
+                power > 0 ? power : 0,
                 SamplesCollected + update.HopperDelta,
                 SamplesProcessed + update.PendingTransmissionDelta,
                 SamplesTransmitted + update.TransmittedDelta,
@@ -105,6 +109,7 @@ namespace RoverSim
                 MoveCallCount + (action.Instruction == Instruction.Move ? 1 : 0),
                 MoveCount + (update.PositionDelta != default ? 1 : 0)
             );
+        }
 
         public Boolean Equals(RoverStats other) =>
             MovesLeft == other.MovesLeft &&
