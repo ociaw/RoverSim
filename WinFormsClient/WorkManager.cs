@@ -12,7 +12,7 @@ namespace RoverSim.WinFormsClient
     {
         public String OutputDirectory { get; } = Directory.GetCurrentDirectory();
 
-        internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount)
+        internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount, IProgress<Int32> progress)
         {
             var aggregates = new Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)>();
             CompletedSimulation worstSim = null;
@@ -21,7 +21,7 @@ namespace RoverSim.WinFormsClient
             {
                 var simulator = new Simulator(levelGenerator, aiFactory);
 
-                using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"));
+                using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"), progress);
 
                 await simulator.SimulateAsync(runCount, completer.Consume);
                 aggregates[aiFactory] = completer.GetAggregates();
@@ -46,6 +46,7 @@ namespace RoverSim.WinFormsClient
         private sealed class Completer : IDisposable
         {
             private readonly CsvWriter _csv;
+            private readonly IProgress<Int32> _progress;
             private Int64 _moves = 0;
             private Int64 _power = 0;
 
@@ -54,14 +55,15 @@ namespace RoverSim.WinFormsClient
             private Double _meanSamples = 0;
             private Double _mean2Samples = 0;
 
-            private Completer(CsvWriter csvWriter)
+            private Completer(CsvWriter csvWriter, IProgress<Int32> progress)
             {
                 _csv = csvWriter ?? throw new ArgumentNullException(nameof(csvWriter));
+                _progress = progress;
             }
 
             public CompletedSimulation WorstSim { get; private set; }
 
-            public static Completer Create(String path)
+            public static Completer Create(String path, IProgress<Int32> progress)
             {
                 TextWriter writer = new StreamWriter(path);
                 CsvWriter csv = new CsvWriter(writer);
@@ -78,7 +80,7 @@ namespace RoverSim.WinFormsClient
                 csv.WriteField("Transmit Calls");
                 csv.WriteField("Level Seed");
                 csv.NextRecord();
-                return new Completer(csv);
+                return new Completer(csv, progress);
             }
 
             public (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev) GetAggregates()
@@ -120,6 +122,7 @@ namespace RoverSim.WinFormsClient
 
                 // Update Worst Sim
                 WorstSim = ChooseWorst(WorstSim, sim);
+                _progress.Report(1);
             }
 
             public void Dispose() => _csv.Dispose();

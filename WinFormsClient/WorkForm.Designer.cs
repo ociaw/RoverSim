@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.Button OpenRenderer;
             this.RunCount = new System.Windows.Forms.TextBox();
             this.AiList = new System.Windows.Forms.ListView();
@@ -40,6 +41,9 @@
             this.SampleStdDev = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TimeUsed = new System.Windows.Forms.TextBox();
             this.TimeUsedLabel = new System.Windows.Forms.Label();
+            this.CompletedLabel = new System.Windows.Forms.Label();
+            this.Completed = new System.Windows.Forms.TextBox();
+            this.Timer = new System.Windows.Forms.Timer(this.components);
             OpenRenderer = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Results)).BeginInit();
             this.SuspendLayout();
@@ -154,15 +158,39 @@
             this.TimeUsedLabel.AutoSize = true;
             this.TimeUsedLabel.Location = new System.Drawing.Point(366, 12);
             this.TimeUsedLabel.Name = "TimeUsedLabel";
-            this.TimeUsedLabel.Size = new System.Drawing.Size(82, 13);
+            this.TimeUsedLabel.Size = new System.Drawing.Size(74, 13);
             this.TimeUsedLabel.TabIndex = 7;
-            this.TimeUsedLabel.Text = "Time (seconds):";
+            this.TimeUsedLabel.Text = "Elapsed (sec):";
+            // 
+            // CompletedLabel
+            // 
+            this.CompletedLabel.AutoSize = true;
+            this.CompletedLabel.Location = new System.Drawing.Point(366, 56);
+            this.CompletedLabel.Name = "CompletedLabel";
+            this.CompletedLabel.Size = new System.Drawing.Size(60, 13);
+            this.CompletedLabel.TabIndex = 9;
+            this.CompletedLabel.Text = "Completed:";
+            // 
+            // Completed
+            // 
+            this.Completed.Location = new System.Drawing.Point(369, 72);
+            this.Completed.Name = "Completed";
+            this.Completed.ReadOnly = true;
+            this.Completed.Size = new System.Drawing.Size(75, 20);
+            this.Completed.TabIndex = 8;
+            // 
+            // Timer
+            // 
+            this.Timer.Interval = 500;
+            this.Timer.Tick += new System.EventHandler(this.Timer_Tick);
             // 
             // WorkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 356);
+            this.Controls.Add(this.CompletedLabel);
+            this.Controls.Add(this.Completed);
             this.Controls.Add(this.TimeUsedLabel);
             this.Controls.Add(this.TimeUsed);
             this.Controls.Add(OpenRenderer);
@@ -191,6 +219,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn SampleStdDev;
         private System.Windows.Forms.ListView AiList;
         private System.Windows.Forms.Label TimeUsedLabel;
+        private System.Windows.Forms.Label CompletedLabel;
+        private System.Windows.Forms.TextBox Completed;
+        private System.Windows.Forms.Timer Timer;
     }
 }
 

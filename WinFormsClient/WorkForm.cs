@@ -11,6 +11,8 @@ namespace RoverSim.WinFormsClient
         private Boolean running = false;
         private CompletedSimulation _renderSim;
         private IAiFactory _renderAiFactory;
+        private Int32 _completedCount;
+        private Stopwatch _stopwatch = new Stopwatch();
 
         private readonly IEnumerable<IAiFactory> aiFactories;
 
@@ -41,11 +43,19 @@ namespace RoverSim.WinFormsClient
             SimulationParameters parameters = SimulationParameters.Default;
             List<IAiFactory> selectedAis = aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
             ILevelGenerator selectedLevelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 6);
-            TimeUsed.Text = "Working...";
-            var stopwatch = Stopwatch.StartNew();
-            (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, selectedLevelGenerator, runCount);
-            stopwatch.Stop();
-            TimeUsed.Text = stopwatch.Elapsed.TotalSeconds.ToString();
+
+            var progress = new Progress<Int32>(UpdateProgress);
+            _completedCount = 0;
+            _stopwatch.Reset();
+            UpdateStatus();
+
+            Timer.Start();
+            _stopwatch.Start();
+            (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, selectedLevelGenerator, runCount, progress);
+            _stopwatch.Stop();
+            Timer.Stop();
+
+            UpdateStatus();
 
             _renderSim = worstSim;
             _renderAiFactory = worstAi;
@@ -67,6 +77,14 @@ namespace RoverSim.WinFormsClient
             running = false;
         }
 
+        private void UpdateProgress(Int32 completionCount) => _completedCount += completionCount;
+
+        private void UpdateStatus()
+        {
+            TimeUsed.Text = _stopwatch.Elapsed.TotalSeconds.ToString();
+            Completed.Text = _completedCount.ToString();
+        }
+
         private void OpenRender_Click(object sender, EventArgs e)
         {
             if (_renderSim == null)
@@ -77,5 +95,7 @@ namespace RoverSim.WinFormsClient
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             form.Show();
         }
+
+        private void Timer_Tick(Object sender, EventArgs e) => UpdateStatus();
     }
 }
