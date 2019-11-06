@@ -52,10 +52,15 @@ namespace RoverSim.Ais
 
                 if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && occupied == TerrainType.Smooth))
                 {
-                    if (!HasExcessPower(rover))
+                    if (rover.Power < CalculateExcessPowerThershold(rover) / 2)
                         yield return RoverAction.CollectPower;
                     if (rover.Power < LowPowerThreshold)
                         yield return RoverAction.Transmit;
+                }
+                else if (_gatheringPower && HasExcessPower(rover, rover.NoBacktrack * rover.NoBacktrack * rover.NoBacktrack))
+                {
+                    yield return RoverAction.CollectPower;
+                    _gatheringPower = false;
                 }
 
                 // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
@@ -164,8 +169,28 @@ namespace RoverSim.Ais
             }
             return (impassableCount >= 3, direction);
         }
-        
-        private Boolean HasExcessPower(IRoverStatusAccessor rover) => rover.Power >= (7) * rover.MovesLeft + 1;
+
+        private Boolean HasExcessPower(IRoverStatusAccessor rover) => HasExcessPower(rover, 0);
+
+        private Boolean HasExcessPower(IRoverStatusAccessor rover, Int32 potentialPower)
+        {
+            Int32 targetPower = CalculateExcessPowerThershold(rover);
+            return rover.Power + potentialPower >= targetPower;
+        }
+
+        private Int32 CalculateExcessPowerThershold(IRoverStatusAccessor rover)
+        {
+            const Int32 smoothRoughRatio = 10; // For the default generator, the ratio is 2:1
+            Double meanUnsampledMoveCost = (smoothRoughRatio * Parameters.MoveSmoothCost + Parameters.MoveRoughCost) / (smoothRoughRatio + 1.0);
+            Double processCostPerSample = (Double)Parameters.ProcessCost / Parameters.SamplesPerProcess;
+            Double meanSampleCost = meanUnsampledMoveCost + Parameters.SampleCost + processCostPerSample;
+
+            Double sampleToLogisticMoveRatio = 3.9; // For 2 every move/sample/process sequences, we estimate 1 moves will be purely logistics (move, power).
+            Double meanCost = (meanSampleCost * sampleToLogisticMoveRatio + Parameters.MoveSmoothCost) / (sampleToLogisticMoveRatio + 1);
+
+            Int32 targetPower = (Int32)((rover.MovesLeft - 1) * meanCost) + Parameters.TransmitCost;
+            return targetPower;
+        }
 
         private IEnumerable<RoverAction> DoLowMoves(IRoverStatusAccessor rover, AdjacentTerrain adjacent)
         {
