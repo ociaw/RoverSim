@@ -17,7 +17,6 @@ namespace RoverSim.WinFormsClient
             var aggregates = new Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)>();
             CompletedSimulation worstSim = null;
             IAiFactory worstAi = null;
-            Int32 levelSeed = Rando.Next(Int32.MinValue, Int32.MaxValue);
             foreach (var aiFactory in aiFactories)
             {
                 var simulator = new Simulator(levelGenerator, aiFactory);
