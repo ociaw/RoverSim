@@ -57,7 +57,7 @@ namespace RoverSim.Ais
                     if (rover.Power < LowPowerThreshold)
                         yield return RoverAction.Transmit;
                 }
-                else if (_gatheringPower && HasExcessPower(rover, rover.NoBacktrack * rover.NoBacktrack * rover.NoBacktrack))
+                else if (_gatheringPower && HasExcessPower(rover, rover.CollectablePower))
                 {
                     yield return RoverAction.CollectPower;
                     _gatheringPower = false;

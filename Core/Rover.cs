@@ -42,7 +42,7 @@ namespace RoverSim
         public Int32 NoBacktrack { get; private set; } = 1;
         public Int32 SamplesTransmitted { get; private set; }
 
-        public Int32 PotentialLight => NoBacktrack * NoBacktrack * NoBacktrack;
+        public Int32 CollectablePower => NoBacktrack * NoBacktrack * NoBacktrack;
 
         public AdjacentTerrain Adjacent { get; private set; }
 
@@ -117,7 +117,7 @@ namespace RoverSim
         {
             return new Update(
                 moveDelta: -1,
-                powerDelta: PotentialLight,
+                powerDelta: CollectablePower,
                 noBacktrackDelta: 1 - NoBacktrack
             );
         }
@@ -178,6 +178,8 @@ namespace RoverSim
             public Int32 SamplesTransmitted => _rover.SamplesTransmitted;
 
             public Int32 NoBacktrack => _rover.NoBacktrack;
+
+            public Int32 CollectablePower => _rover.CollectablePower;
 
             public Boolean IsHalted => _rover.IsHalted;
 

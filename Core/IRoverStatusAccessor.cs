@@ -18,6 +18,8 @@ namespace RoverSim
 
         Int32 NoBacktrack { get; }
 
+        Int32 CollectablePower { get; }
+
         Boolean IsHalted { get; }
 
         AdjacentTerrain Adjacent { get; }
