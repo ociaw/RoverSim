@@ -52,7 +52,7 @@ namespace RoverSim.Ais
 
                 if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && occupied == TerrainType.Smooth))
                 {
-                    if (rover.Power < CalculateExcessPowerThershold(rover) / 2)
+                    if (rover.Power < CalculateExcessPowerThershold(rover) / 2 && rover.NoBacktrack > 3)
                         yield return RoverAction.CollectPower;
                     if (rover.Power < LowPowerThreshold)
                         yield return RoverAction.Transmit;
@@ -218,6 +218,8 @@ namespace RoverSim.Ais
 
             if (rover.MovesLeft >= 4)
             {
+                if (rover.Power < Parameters.ProcessCost + Parameters.SampleCost + Parameters.ProcessCost)
+                    yield return RoverAction.CollectPower;
                 yield return RoverAction.CollectPower;
                 if (rover.Power > Parameters.ProcessCost)
                 {
