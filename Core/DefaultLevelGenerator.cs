@@ -4,16 +4,15 @@ namespace RoverSim
 {
     public sealed class DefaultLevelGenerator : ILevelGenerator
     {
-        public DefaultLevelGenerator(SimulationParameters parameters) => Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-
-        public SimulationParameters Parameters { get; }
-
-        public Level Generate(Int32 rngSeed)
+        public Level Generate(SimulationParameters parameters, Int32 rngSeed)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             Random rng = new Random(rngSeed);
             // Generate the terrain and ensure that the starting square isn't completely blocked in
-            TerrainType[,] terrain = Generate(Parameters, rng);
-            return new Level(terrain, new ProtoLevel(this, rngSeed));
+            TerrainType[,] terrain = Generate(parameters, rng);
+            return new Level(terrain, new ProtoLevel(parameters, this, rngSeed));
         }
 
         private static TerrainType[,] Generate(SimulationParameters parameters, Random random)

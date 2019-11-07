@@ -44,13 +44,15 @@
             this.CompletedLabel = new System.Windows.Forms.Label();
             this.Completed = new System.Windows.Forms.TextBox();
             this.Timer = new System.Windows.Forms.Timer(this.components);
+            this.RunCountLabel = new System.Windows.Forms.Label();
+            this.LevelGeneratorName = new System.Windows.Forms.ComboBox();
             OpenRenderer = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Results)).BeginInit();
             this.SuspendLayout();
             // 
             // OpenRenderer
             // 
-            OpenRenderer.Location = new System.Drawing.Point(201, 163);
+            OpenRenderer.Location = new System.Drawing.Point(369, 167);
             OpenRenderer.Name = "OpenRenderer";
             OpenRenderer.Size = new System.Drawing.Size(75, 23);
             OpenRenderer.TabIndex = 4;
@@ -60,7 +62,7 @@
             // 
             // RunCount
             // 
-            this.RunCount.Location = new System.Drawing.Point(12, 165);
+            this.RunCount.Location = new System.Drawing.Point(171, 169);
             this.RunCount.Name = "RunCount";
             this.RunCount.Size = new System.Drawing.Size(75, 20);
             this.RunCount.TabIndex = 1;
@@ -79,7 +81,7 @@
             // 
             // Simulate
             // 
-            this.Simulate.Location = new System.Drawing.Point(93, 163);
+            this.Simulate.Location = new System.Drawing.Point(252, 167);
             this.Simulate.Name = "Simulate";
             this.Simulate.Size = new System.Drawing.Size(101, 23);
             this.Simulate.TabIndex = 3;
@@ -184,11 +186,30 @@
             this.Timer.Interval = 500;
             this.Timer.Tick += new System.EventHandler(this.Timer_Tick);
             // 
+            // RunCountLabel
+            // 
+            this.RunCountLabel.AutoSize = true;
+            this.RunCountLabel.Location = new System.Drawing.Point(107, 172);
+            this.RunCountLabel.Name = "RunCountLabel";
+            this.RunCountLabel.Size = new System.Drawing.Size(58, 13);
+            this.RunCountLabel.TabIndex = 10;
+            this.RunCountLabel.Text = "Run Count";
+            // 
+            // LevelGeneratorName
+            // 
+            this.LevelGeneratorName.FormattingEnabled = true;
+            this.LevelGeneratorName.Location = new System.Drawing.Point(12, 169);
+            this.LevelGeneratorName.Name = "LevelGeneratorName";
+            this.LevelGeneratorName.Size = new System.Drawing.Size(89, 21);
+            this.LevelGeneratorName.TabIndex = 11;
+            // 
             // WorkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 356);
+            this.Controls.Add(this.LevelGeneratorName);
+            this.Controls.Add(this.RunCountLabel);
             this.Controls.Add(this.CompletedLabel);
             this.Controls.Add(this.Completed);
             this.Controls.Add(this.TimeUsedLabel);
@@ -222,6 +243,8 @@
         private System.Windows.Forms.Label CompletedLabel;
         private System.Windows.Forms.TextBox Completed;
         private System.Windows.Forms.Timer Timer;
+        private System.Windows.Forms.Label RunCountLabel;
+        private System.Windows.Forms.ComboBox LevelGeneratorName;
     }
 }
 

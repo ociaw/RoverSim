@@ -13,7 +13,7 @@ namespace RoverSim
 
         public ProtoLevel ProtoLevel { get; }
 
-        public SimulationParameters Parameters => ProtoLevel.LevelGenerator.Parameters;
+        public SimulationParameters Parameters => ProtoLevel.Parameters;
 
         public RoverStats Stats { get; }
 

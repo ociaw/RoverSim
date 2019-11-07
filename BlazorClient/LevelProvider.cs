@@ -6,15 +6,15 @@ namespace RoverSim.BlazorClient
 {
     public sealed class LevelProvider
     {
-        private readonly Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator>> _functions;
+        private readonly Dictionary<String, Func<Dictionary<String, StringValues>, ILevelGenerator>> _functions;
 
         private static readonly String FallbackKey = "Default";
-        private static readonly Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator> FallbackGenerator = CreateDefault;
+        private static readonly Func<Dictionary<String, StringValues>, ILevelGenerator> FallbackGenerator = CreateDefault;
 
         public LevelProvider()
         {
             // Add new AIs here
-            _functions = new Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, ILevelGenerator>>(StringComparer.OrdinalIgnoreCase)
+            _functions = new Dictionary<String, Func<Dictionary<String, StringValues>, ILevelGenerator>>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Default", CreateDefault },
                 { "Maze", CreateMaze }
@@ -34,12 +34,12 @@ namespace RoverSim.BlazorClient
             if (!_functions.TryGetValue(aiKey, out var func))
                 func = FallbackGenerator;
 
-            var generator = func(query, parameters);
-            return new ProtoLevel(generator, seed);
+            var generator = func(query);
+            return new ProtoLevel(parameters, generator, seed);
         }
 
-        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query, SimulationParameters parameters) => new DefaultLevelGenerator(parameters);
+        private static ILevelGenerator CreateDefault(Dictionary<String, StringValues> query) => new DefaultLevelGenerator();
 
-        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query, SimulationParameters parameters) => new MazeGenerator(parameters);
+        private static ILevelGenerator CreateMaze(Dictionary<String, StringValues> query) => new MazeGenerator();
     }
 }

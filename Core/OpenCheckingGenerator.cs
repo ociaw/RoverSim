@@ -18,12 +18,13 @@ namespace RoverSim
 
         public Int32 MinimumContiguousTiles { get; } = 6;
 
-        public SimulationParameters Parameters => _wrappedGenerator.Parameters;
-
-        public Level Generate(Int32 rngSeed)
+        public Level Generate(SimulationParameters parameters, Int32 rngSeed)
         {
-            Level level = _wrappedGenerator.Generate(rngSeed);
-            if (level == null || !MeetsMinimumCount(level, Parameters.InitialPosition))
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            Level level = _wrappedGenerator.Generate(parameters, rngSeed);
+            if (level == null || !MeetsMinimumCount(level, parameters.InitialPosition))
                 return null;
 
             return level;

@@ -12,22 +12,25 @@ namespace RoverSim.WinFormsClient
         private CompletedSimulation _renderSim;
         private IAiFactory _renderAiFactory;
         private Int32 _completedCount;
-        private Stopwatch _stopwatch = new Stopwatch();
 
-        private readonly IEnumerable<IAiFactory> aiFactories;
+        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly IReadOnlyList<IAiFactory> _aiFactories;
+        private readonly IReadOnlyDictionary<String, ILevelGenerator> _levelGenerators;
 
-        public WorkForm()
+        public WorkForm(IReadOnlyList<IAiFactory> aiFactories, IReadOnlyDictionary<String, ILevelGenerator> levelGenerators)
         {
+            _aiFactories = aiFactories ?? throw new ArgumentNullException(nameof(aiFactories));
+            _levelGenerators = levelGenerators ?? throw new ArgumentNullException(nameof(levelGenerators));
+
             InitializeComponent();
 
-            aiFactories = WorkManager.GetAIs();
-
             foreach (var ai in aiFactories)
-            {
                 AiList.Items.Add(ai.Name, ai.Name, 0);
-            }
-
             AiList.SelectedIndices.Add(AiList.Items.Count - 1);
+
+            foreach (var generator in _levelGenerators)
+                LevelGeneratorName.Items.Add(generator.Key.ToString());
+            LevelGeneratorName.SelectedIndex = 0;
         }
 
         private async void SimulateButton_Click(object sender, EventArgs e)
@@ -39,10 +42,10 @@ namespace RoverSim.WinFormsClient
             
             if (!Int32.TryParse(RunCount.Text, out Int32 runCount)) return;
 
-            WorkManager manager = new WorkManager();
             SimulationParameters parameters = SimulationParameters.Default;
-            List<IAiFactory> selectedAis = aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
-            ILevelGenerator selectedLevelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 6);
+            WorkManager manager = new WorkManager(parameters);
+            List<IAiFactory> selectedAis = _aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
+            ILevelGenerator selectedLevelGenerator = _levelGenerators[LevelGeneratorName.Text];
 
             var progress = new Progress<Int32>(UpdateProgress);
             _completedCount = 0;

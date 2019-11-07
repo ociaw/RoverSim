@@ -10,6 +10,13 @@ namespace RoverSim.WinFormsClient
 {
     internal class WorkManager
     {
+        public WorkManager(SimulationParameters parameters)
+        {
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        }
+
+        public SimulationParameters Parameters { get; }
+
         public String OutputDirectory { get; } = Directory.GetCurrentDirectory();
 
         internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount, IProgress<Int32> progress)
@@ -19,7 +26,7 @@ namespace RoverSim.WinFormsClient
             IAiFactory worstAi = null;
             foreach (var aiFactory in aiFactories)
             {
-                var simulator = new Simulator(levelGenerator, aiFactory);
+                var simulator = new Simulator(Parameters, levelGenerator, aiFactory);
 
                 using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"), progress);
 
@@ -32,16 +39,6 @@ namespace RoverSim.WinFormsClient
 
             return (aggregates, worstSim, worstAi);
         }
-        
-        public static IEnumerable<IAiFactory> GetAIs()
-            => new List<IAiFactory>
-            {
-                new RandomAiFactory(),
-                new IntelligentRandomAiFactory(),
-                new MarkIFactory(),
-                new MarkIIFactory(),
-                new FixedStateAiFactory(),
-            };
 
         private sealed class Completer : IDisposable
         {

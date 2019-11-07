@@ -10,8 +10,9 @@ namespace RoverSim
         private Int32 _taskCount = Environment.ProcessorCount;
         private Int32 _levelSeed = 0;
 
-        public Simulator(ILevelGenerator levelGenerator, IAiFactory aiFactory)
+        public Simulator(SimulationParameters parameters, ILevelGenerator levelGenerator, IAiFactory aiFactory)
         {
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             AiFactory = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
         }
@@ -20,7 +21,7 @@ namespace RoverSim
 
         public IAiFactory AiFactory { get; }
 
-        public SimulationParameters Parameters => LevelGenerator.Parameters;
+        public SimulationParameters Parameters { get; }
 
         public String AiName => AiFactory.Name;
 
@@ -87,7 +88,7 @@ namespace RoverSim
                 for (Int32 i = 0; i < count; i++)
                 {
                     Int32 seed = System.Threading.Interlocked.Increment(ref _levelSeed);
-                    Level level = generator.Generate(seed);
+                    Level level = generator.Generate(Parameters, seed);
                     if (level != null)
                         await target.SendAsync(level).ConfigureAwait(continueOnCapturedContext: false);
                     else

@@ -4,17 +4,20 @@ namespace RoverSim
 {
     public sealed class ProtoLevel : IEquatable<ProtoLevel>
     {
-        public ProtoLevel(ILevelGenerator levelGenerator, Int32 seed)
+        public ProtoLevel(SimulationParameters parameters, ILevelGenerator levelGenerator, Int32 seed)
         {
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             Seed = seed;
         }
+
+        public SimulationParameters Parameters { get; }
 
         public ILevelGenerator LevelGenerator { get; }
 
         public Int32 Seed { get; }
 
-        public Level Generate() => LevelGenerator.Generate(Seed);
+        public Level Generate() => LevelGenerator.Generate(Parameters, Seed);
 
         public Boolean Equals(ProtoLevel other)
         {

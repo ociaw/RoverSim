@@ -4,8 +4,6 @@ namespace RoverSim
 {
     public interface ILevelGenerator
     {
-        Level Generate(Int32 rngSeed);
-
-        SimulationParameters Parameters { get; }
+        Level Generate(SimulationParameters paramters, Int32 rngSeed);
     }
 }

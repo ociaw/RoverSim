@@ -19,7 +19,7 @@ namespace RoverSim
 
         public ProtoLevel ProtoLevel { get; }
 
-        public Position BottomRight => ProtoLevel.LevelGenerator.Parameters.BottomRight;
+        public Position BottomRight => ProtoLevel.Parameters.BottomRight;
 
         public Int32 Width => BottomRight.X + 1;
 

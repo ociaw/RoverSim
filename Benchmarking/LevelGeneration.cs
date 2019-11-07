@@ -18,26 +18,27 @@ namespace Benchmarking
         [Params]
         public Int32 Seed = 42;
 
+        public SimulationParameters Parameters { get; }  = SimulationParameters.Default;
+
         [GlobalSetup]
         public void Setup()
         {
-            var parameters = SimulationParameters.Default;
-            _mazeGenerator = new MazeGenerator(parameters);
-            _defaultGenerator = new DefaultLevelGenerator(parameters);
-            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 5);
-            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(parameters), 15);
+            _mazeGenerator = new MazeGenerator();
+            _defaultGenerator = new DefaultLevelGenerator();
+            _checkedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 5);
+            _superCheckedGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 15);
         }
 
         [Benchmark]
-        public Level Maze() => _mazeGenerator.Generate(Seed);
+        public Level Maze() => _mazeGenerator.Generate(Parameters, Seed);
 
         [Benchmark]
-        public Level Default() => _defaultGenerator.Generate(Seed);
+        public Level Default() => _defaultGenerator.Generate(Parameters, Seed);
 
         [Benchmark]
-        public Level CheckedDefault() => _checkedGenerator.Generate(Seed);
+        public Level CheckedDefault() => _checkedGenerator.Generate(Parameters, Seed);
 
         [Benchmark]
-        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(Seed);
+        public Level SuperCheckedDefault() => _superCheckedGenerator.Generate(Parameters, Seed);
     }
 }
