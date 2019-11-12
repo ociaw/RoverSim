@@ -18,6 +18,13 @@ namespace RoverSim
         public Int32 Y { get; }
 
         /// <summary>
+        /// Squared Euclidean Distance from the origin
+        /// </summary>
+        public Int32 Sed => X * X + Y * Y;
+
+        public Double Magnitude => Math.Sqrt(Sed);
+
+        /// <summary>
         /// Indicates whether or not either coordinate is negative.
         /// </summary>
         public Boolean IsNegative => X < 0 || Y < 0;

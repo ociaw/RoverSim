@@ -18,13 +18,13 @@ namespace RoverSim.Ais
 
         private Direction _gatherPowerDir = Direction.None;
 
-        private readonly Queue<CoordinatePair> _deadEnds;
+        private readonly List<CoordinatePair> _deadEnds;
 
         public FixedStateAi(SimulationParameters parameters, Int32 deadEndMemory)
         {
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             DeadEndMemory = deadEndMemory >= 0 ? deadEndMemory : throw new ArgumentOutOfRangeException(nameof(deadEndMemory), deadEndMemory, "Must be non-negative.");
-            _deadEnds = new Queue<CoordinatePair>(deadEndMemory);
+            _deadEnds = new List<CoordinatePair>(deadEndMemory);
         }
 
         public SimulationParameters Parameters { get; }
@@ -293,10 +293,13 @@ namespace RoverSim.Ais
             if (DeadEndMemory == 0)
                 return;
 
+            // We remove all deadends that are one tile away from the new deadend.
+            _deadEnds.RemoveAll(v => (v - position).Sed == 1);
+            
             if (_deadEnds.Count == DeadEndMemory)
-                _deadEnds.Dequeue();
+                _deadEnds.RemoveAt(0);
 
-            _deadEnds.Enqueue(position);
+            _deadEnds.Add(position);
         }
     }
 }
