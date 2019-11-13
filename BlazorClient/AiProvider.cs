@@ -8,15 +8,15 @@ namespace RoverSim.BlazorClient
 {
     public sealed class AiProvider
     {
-        private readonly Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, IAi>> _functions;
+        private readonly Dictionary<String, Func<Dictionary<String, StringValues>, IAiFactory>> _functions;
 
         private static readonly String FallbackKey = "FixedState";
-        private static readonly Func<Dictionary<String, StringValues>, SimulationParameters, IAi> FallbackAi = CreateFixedState;
+        private static readonly Func<Dictionary<String, StringValues>, IAiFactory> FallbackAiFactory = CreateFixedState;
 
         public AiProvider()
         {
             // Add new AIs here
-            _functions = new Dictionary<String, Func<Dictionary<String, StringValues>, SimulationParameters, IAi>>(StringComparer.OrdinalIgnoreCase)
+            _functions = new Dictionary<String, Func<Dictionary<String, StringValues>, IAiFactory>>(StringComparer.OrdinalIgnoreCase)
             {
                 { "FixedState", CreateFixedState },
                 { "Random", CreateRandom },
@@ -35,43 +35,32 @@ namespace RoverSim.BlazorClient
 
             String aiKey = query.GetFirstValue("ai-key", FallbackKey);
 
-            if (!_functions.TryGetValue(aiKey, out var func))
-                func = FallbackAi;
+            if (!_functions.TryGetValue(aiKey, out var factory))
+                factory = FallbackAiFactory;
 
-            return func(query, parameters);
+            return factory(query).Create(parameters);
         }
 
-        private static IAi CreateFixedState(Dictionary<String, StringValues> query, SimulationParameters parameters)
+        private static IAiFactory CreateFixedState(Dictionary<String, StringValues> query)
         {
             Int32 memory = query.GetFirstNonNegative("ai-memory", 5);
-
-            return new FixedStateAi(SimulationParameters.Default, memory);
+            return new FixedStateAiFactory(memory);
         }
 
-        private static IAi CreateRandom(Dictionary<String, StringValues> query, SimulationParameters parameters)
+        private static IAiFactory CreateRandom(Dictionary<String, StringValues> query)
         {
             Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
-            var aiFactory = new RandomAiFactory() { Seed = aiSeed };
-            return aiFactory.Create(parameters);
+            return new RandomAiFactory() { Seed = aiSeed };
         }
 
-        private static IAi CreateIntelligentRandom(Dictionary<String, StringValues> query, SimulationParameters parameters)
+        private static IAiFactory CreateIntelligentRandom(Dictionary<String, StringValues> query)
         {
             Int32 aiSeed = query.GetFirstValue("ai-seed", 1);
-            var aiFactory = new IntelligentRandomAiFactory() { Seed = aiSeed };
-            return aiFactory.Create(parameters);
+            return new IntelligentRandomAiFactory() { Seed = aiSeed };
         }
 
-        private static IAi CreateMarkI(Dictionary<String, StringValues> query, SimulationParameters parameters)
-        {
-            var aiFactory = new MarkIFactory();
-            return aiFactory.Create(parameters);
-        }
+        private static IAiFactory CreateMarkI(Dictionary<String, StringValues> query) => new MarkIFactory();
 
-        private static IAi CreateMarkII(Dictionary<String, StringValues> query, SimulationParameters parameters)
-        {
-            var aiFactory = new MarkIIFactory();
-            return aiFactory.Create(parameters);
-        }
+        private static IAiFactory CreateMarkII(Dictionary<String, StringValues> query) => new MarkIIFactory();
     }
 }
