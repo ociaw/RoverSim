@@ -17,6 +17,8 @@ namespace RoverSim.WinFormsClient
         private readonly IReadOnlyList<IAiFactory> _aiFactories;
         private readonly IReadOnlyDictionary<String, ILevelGenerator> _levelGenerators;
 
+        private WorkManager _workManager;
+
         public WorkForm(IReadOnlyList<IAiFactory> aiFactories, IReadOnlyDictionary<String, ILevelGenerator> levelGenerators)
         {
             _aiFactories = aiFactories ?? throw new ArgumentNullException(nameof(aiFactories));
@@ -42,8 +44,9 @@ namespace RoverSim.WinFormsClient
             
             if (!Int32.TryParse(RunCount.Text, out Int32 runCount)) return;
 
-            SimulationParameters parameters = SimulationParameters.Default;
-            WorkManager manager = new WorkManager(parameters);
+            if (_workManager == null)
+                _workManager = new WorkManager(SimulationParameters.Default);
+
             List<IAiFactory> selectedAis = _aiFactories.Where(t => AiList.SelectedItems.ContainsKey(t.Name)).ToList();
             ILevelGenerator selectedLevelGenerator = _levelGenerators[LevelGeneratorName.Text];
 
@@ -54,7 +57,7 @@ namespace RoverSim.WinFormsClient
 
             Timer.Start();
             _stopwatch.Start();
-            (var results, var worstSim, var worstAi) = await manager.Simulate(selectedAis, selectedLevelGenerator, runCount, progress);
+            (var results, var worstSim, var worstAi) = await _workManager.Simulate(selectedAis, selectedLevelGenerator, runCount, progress);
             _stopwatch.Stop();
             Timer.Stop();
 

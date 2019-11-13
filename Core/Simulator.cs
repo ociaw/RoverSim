@@ -8,13 +8,14 @@ namespace RoverSim
     public sealed class Simulator
     {
         private Int32 _taskCount = Environment.ProcessorCount;
-        private Int32 _levelSeed = 0;
+        private Int32 _levelSeed;
 
-        public Simulator(SimulationParameters parameters, ILevelGenerator levelGenerator, IAiFactory aiFactory)
+        public Simulator(SimulationParameters parameters, ILevelGenerator levelGenerator, IAiFactory aiFactory, Int32 initialLevelSeed)
         {
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             LevelGenerator = levelGenerator ?? throw new ArgumentNullException(nameof(levelGenerator));
             AiFactory = aiFactory ?? throw new ArgumentNullException(nameof(aiFactory));
+            _levelSeed = initialLevelSeed;
         }
 
         public ILevelGenerator LevelGenerator { get; }
@@ -23,7 +24,7 @@ namespace RoverSim
 
         public SimulationParameters Parameters { get; }
 
-        public String AiName => AiFactory.Name;
+        public Int32 NextLevelSeed => _levelSeed;
 
         public Int32 TaskCount
         {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CsvHelper;
-using RoverSim.Ais;
-using RoverSim.ScratchAis;
 
 namespace RoverSim.WinFormsClient
 {
@@ -19,18 +17,23 @@ namespace RoverSim.WinFormsClient
 
         public String OutputDirectory { get; } = Directory.GetCurrentDirectory();
 
+        public Int32 NextLevelSeed { get; set; } = 0;
+
         internal async Task<(Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)> aggregates, CompletedSimulation worstSim, IAiFactory worstAi)> Simulate(IList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount, IProgress<Int32> progress)
         {
             var aggregates = new Dictionary<IAiFactory, (Double meanMoves, Double meanPower, Double meanSamples, Double sampleStdDev)>();
+            Int32 initialLevelSeed = NextLevelSeed;
             CompletedSimulation worstSim = null;
             IAiFactory worstAi = null;
             foreach (var aiFactory in aiFactories)
             {
-                var simulator = new Simulator(Parameters, levelGenerator, aiFactory);
+                var simulator = new Simulator(Parameters, levelGenerator, aiFactory, initialLevelSeed);
 
                 using Completer completer = Completer.Create(Path.Combine(OutputDirectory, $"RoverSim-{aiFactory.Name}.csv"), progress);
 
                 await simulator.SimulateAsync(runCount, completer.Consume);
+                NextLevelSeed = simulator.NextLevelSeed;
+
                 aggregates[aiFactory] = completer.GetAggregates();
                 worstSim = Completer.ChooseWorst(worstSim, completer.WorstSim);
                 if (worstSim == completer.WorstSim)
