@@ -12,13 +12,19 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="50"/>
       <RowDefinition Height="*" />
+      <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="150" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
-    <ContentControl Content="{Binding SimulatorSettings}"></ContentControl>
-    <ContentControl Grid.Row="1" Content="{Binding AiList}"></ContentControl>
-    <ContentControl Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Content="{Binding SimulationList}" />
+    <Grid ColumnDefinitions="*, *" RowDefinitions="*, 2*">
+      <TextBlock TextAlignment="Center">Run Count</TextBlock>
+      <NumericUpDown Grid.Row="1" Increment="1" Minimum="1" Value="{Binding RunCount}"></NumericUpDown>
+      <Button Grid.Column="1" Grid.RowSpan="2" Command="{Binding Simulate}">Simulate</Button>
+    </Grid>
+    <ContentControl Grid.Row="1" Grid.Column="0" Content="{Binding LevelSettings}"></ContentControl>
+    <ContentControl Grid.Row="2" Content="{Binding AiList}"></ContentControl>
+    <ContentControl Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" Content="{Binding SimulationList}" />
   </Grid>
 </Window>

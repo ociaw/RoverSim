@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Logging.Serilog;
 using DynamicData;
@@ -29,11 +30,10 @@ namespace RoverSim.AvaloniaHost
         {
             var schedule = Avalonia.Threading.AvaloniaScheduler.Instance;
 
+            var levelSettings = new LevelSettingsViewModel(GetLevelGenerators());
             var ais = GetAvailableAis();
             var aiList = AiListViewModel.Create(ais);
             var workManager = new WorkManager();
-            
-            var simulatorSettings = new SimulatorSettingsViewModel(workManager, aiList.IsAnyAiSelected, aiList.SelectedAis, schedule);
 
             var renderCommand = ReactiveUI.ReactiveCommand.Create<SimulationRowViewModel>((simRow) =>
             {
@@ -49,7 +49,7 @@ namespace RoverSim.AvaloniaHost
 
             var window = new MainWindow
             {
-                DataContext = new MainWindowViewModel(aiList, simulatorSettings, simulationList),
+                DataContext = new MainWindowViewModel(levelSettings, aiList, simulationList, workManager, schedule),
                 Width = 600,
                 Height = 400
             };
@@ -67,5 +67,12 @@ namespace RoverSim.AvaloniaHost
                 new MarkIIFactory()
             };
         }
+
+        private static IReadOnlyDictionary<String, ILevelGenerator> GetLevelGenerators()
+            => new Dictionary<String, ILevelGenerator>
+            {
+                { "Default", new OpenCheckingGenerator(new DefaultLevelGenerator(), 6) },
+                { "Maze", new MazeGenerator() }
+            };
     }
 }

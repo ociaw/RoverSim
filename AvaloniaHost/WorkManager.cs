@@ -15,15 +15,15 @@ namespace RoverSim.AvaloniaHost
 
         public SourceList<SimulationRowViewModel> Simulations { get; } = new SourceList<SimulationRowViewModel>();
 
-        internal IObservable<Unit> Simulate(IReadOnlyList<IAiFactory> aiFactories, Int32 runCount)
+        internal IObservable<Unit> Simulate(IReadOnlyList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount)
         {
             return Observable.StartAsync(() =>
             {
-                return SimulateAsync(aiFactories, runCount);
+                return SimulateAsync(aiFactories, levelGenerator, runCount);
             });
         }
 
-        internal async Task SimulateAsync(IReadOnlyList<IAiFactory> aiFactories, Int32 runCount)
+        internal async Task SimulateAsync(IReadOnlyList<IAiFactory> aiFactories, ILevelGenerator levelGenerator, Int32 runCount)
         {
             SimulationParameters parameters = SimulationParameters.Default;
             Int32 initialLevelSeed = LevelSeed;
@@ -31,7 +31,6 @@ namespace RoverSim.AvaloniaHost
             var results = new Dictionary<IAiFactory, List<CompletedSimulation>>(aiFactories.Count);
             foreach (var aiFactory in aiFactories)
             {
-                var levelGenerator = new OpenCheckingGenerator(new DefaultLevelGenerator(), 6);
                 var simulator = new Simulator(parameters, levelGenerator, aiFactory, initialLevelSeed);
 
                 results[aiFactory] = new List<CompletedSimulation>(runCount);

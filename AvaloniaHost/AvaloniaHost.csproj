@@ -22,17 +22,17 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Remove="Views\AiListView.xaml" />
+    <AvaloniaResource Remove="Views\LevelSettingsView.xaml" />
     <AvaloniaResource Remove="Views\RenderView.xaml" />
     <AvaloniaResource Remove="Views\RenderWindow.xaml" />
     <AvaloniaResource Remove="Views\SimulationListView.xaml" />
-    <AvaloniaResource Remove="Views\SimulatorSettingsView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\AiListView.xaml" />
+    <None Remove="Views\LevelSettingsView.xaml" />
     <None Remove="Views\RenderView.xaml" />
     <None Remove="Views\RenderWindow.xaml" />
     <None Remove="Views\SimulationListView.xaml" />
-    <None Remove="Views\SimulatorSettingsView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.8.2" />
@@ -42,15 +42,13 @@
     <PackageReference Include="OneOf" Version="2.1.150" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\LevelSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\AiListView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\RenderView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\SimulatorSettingsView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
@@ -69,6 +67,9 @@
     <ProjectReference Include="..\ScratchAis\ScratchAis.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\LevelSettingsView.xaml.cs">
+      <DependentUpon>LevelSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\RenderView.xaml.cs">
       <DependentUpon>RenderView.xaml</DependentUpon>
     </Compile>

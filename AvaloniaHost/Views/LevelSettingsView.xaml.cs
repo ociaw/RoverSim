@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace RoverSim.AvaloniaHost.Views
 {
-    public class SimulatorSettingsView : UserControl
+    public class LevelSettingsView : UserControl
     {
-        public SimulatorSettingsView()
+        public LevelSettingsView()
         {
             this.InitializeComponent();
         }
