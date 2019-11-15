@@ -16,13 +16,29 @@ namespace RoverSim.AvaloniaHost.Controls
         public static readonly StyledProperty<IObservable<VisibleState>> VisibleStateProperty =
             AvaloniaProperty.Register<RenderControl, IObservable<VisibleState>>(nameof(VisibleState));
 
+        private static readonly Color[] _terrainColors = new Color[]
+        {
+            Colors.Black, // Impassable
+            Colors.Red, // Rough
+            Colors.LightGray, // Smooth
+            Colors.Brown, // Rough Sampled
+            Colors.DarkGray, // Smooth Sampled
+            Colors.LightGoldenrodYellow // Unknown
+        };
+
         static RenderControl()
         {
             AffectsRender<RenderControl>(StateProperty);
         }
 
+        private readonly Brush[] _terrainBrushes;
+
         public RenderControl()
         {
+            _terrainBrushes = new Brush[_terrainColors.Length];
+            for (Int32 i = 0; i < _terrainColors.Length; i++)
+                _terrainBrushes[i] = new SolidColorBrush(_terrainColors[i]);
+
             this
                 .WhenAnyObservable(m => m.VisibleState)
                 .Subscribe(state => State = state);
@@ -57,31 +73,21 @@ namespace RoverSim.AvaloniaHost.Controls
             if (State == null)
                 return;
 
-            Color[] terrainColors = new Color[]
-            {
-                Colors.Black, // Impassable
-                Colors.Red, // Rough
-                Colors.LightGray, // Smooth
-                Colors.Brown, // Rough Sampled
-                Colors.DarkGray, // Smooth Sampled
-                Colors.LightGoldenrodYellow // Unknown
-            };
+            Double widthFactor = Bounds.Size.Width / HorizontalTileCount;
+            Double heightFactor = Bounds.Size.Height / VerticalTileCount;
+            Double sideLength = Math.Max(Math.Min(widthFactor, heightFactor), 1);
 
-            Size tileSize = new Size(Bounds.Size.Width / HorizontalTileCount, Bounds.Size.Height / VerticalTileCount);
-
-            Brush[] terrainBrushes = new Brush[terrainColors.Length];
-            for (Int32 i = 0; i < terrainColors.Length; i++)
-                terrainBrushes[i] = new SolidColorBrush(terrainColors[i]);
+            Size tileSize = new Size(sideLength, sideLength);
 
             for (Int32 i = 0; i < HorizontalTileCount; i++)
             {
                 for (Int32 j = 0; j < VerticalTileCount; j++)
                 {
                     TerrainType terrain = State[i, j];
-                    if (terrain < 0 || (Int32)terrain > terrainBrushes.Length)
+                    if (terrain < 0 || (Int32)terrain > _terrainBrushes.Length)
                         terrain = TerrainType.Unknown;
 
-                    Brush brush = terrainBrushes[(Int32)terrain];
+                    Brush brush = _terrainBrushes[(Int32)terrain];
                     Point topLeft = new Point(tileSize.Width * i, tileSize.Height * j);
                     Rect rect = new Rect(topLeft, tileSize);
                     context.FillRectangle(brush, rect);
