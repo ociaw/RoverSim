@@ -57,28 +57,39 @@ namespace RoverSim.WinFormsClient
             _state = VisibleState.GenerateBlank(level.BottomRight, _rover.Position);
             _actionEnumerator = ai.Simulate(_rover.Accessor).GetEnumerator();
             beginRender.Enabled = false;
+
+            UpdateTimer.Interval = 100;
+            _state.Apply(new Update(terrain: _rover.Adjacent));
+            Render();
             UpdateTimer.Start();
         }
 
         private void UpdateTimer_Tick(Object sender, EventArgs e)
         {
-            if (!_actionEnumerator.MoveNext() || !_rover.Perform(_actionEnumerator.Current, out Update update))
+            Int32 delay;
+            do
             {
-                UpdateTimer.Stop();
-                beginRender.Enabled = true;
-                _actionEnumerator.Dispose();
-                return;
+                if (!_actionEnumerator.MoveNext() || !_rover.Perform(_actionEnumerator.Current, out Update update))
+                {
+                    UpdateTimer.Stop();
+                    beginRender.Enabled = true;
+                    _actionEnumerator.Dispose();
+                    return;
+                }
+
+                _stats = _stats.Add(_actionEnumerator.Current, update);
+                _state.Apply(update);
+
+                delay = _actionEnumerator.Current.Instruction switch
+                {
+                    Instruction.Move => 75,
+                    Instruction.CollectSample => 50,
+                    _ => 0
+                };
             }
+            while (delay == 0);
+            UpdateTimer.Interval = delay;
 
-            UpdateTimer.Interval = _actionEnumerator.Current.Instruction switch
-            {
-                Instruction.Move => 75,
-                Instruction.CollectSample => 50,
-                _ => 1
-            };
-
-            _stats = _stats.Add(_actionEnumerator.Current, update);
-            _state.Apply(update);
             UpdateStats();
             Render();
         }
