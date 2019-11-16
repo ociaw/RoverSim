@@ -63,6 +63,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Ais\Ais.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\ScratchAis\ScratchAis.csproj" />
   </ItemGroup>

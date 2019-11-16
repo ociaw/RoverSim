@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Logging.Serilog;
 using DynamicData;
+using RoverSim.Ais;
 using RoverSim.AvaloniaHost.ViewModels;
 using RoverSim.AvaloniaHost.Views;
 using RoverSim.ScratchAis;
@@ -61,10 +62,11 @@ namespace RoverSim.AvaloniaHost
         {
             return new List<IAiFactory>
             {
+                new FixedStateAiFactory(),
                 new RandomAiFactory(),
                 new IntelligentRandomAiFactory(),
                 new MarkIFactory(),
-                new MarkIIFactory()
+                new MarkIIFactory(),
             };
         }
 
