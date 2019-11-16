@@ -41,7 +41,9 @@ namespace RoverSim.AvaloniaHost
                 var renderVm = new RenderViewModel(simRow.Ai, simRow.Simulation);
                 var renderWindow = new RenderWindow
                 {
-                    DataContext = new RenderWindowViewModel(renderVm)
+                    DataContext = new RenderWindowViewModel(renderVm),
+                    Width = 583,
+                    Height = 322
                 };
                 renderWindow.Show();
             });
