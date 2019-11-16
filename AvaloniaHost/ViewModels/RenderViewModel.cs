@@ -28,7 +28,14 @@ namespace RoverSim.AvaloniaHost.ViewModels
                         while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
                         {
                             obs.OnNext((actionEnumerator.Current, update));
-                            await Task.Delay(100);
+                            Int32 delay = actionEnumerator.Current.Instruction switch
+                            {
+                                Instruction.Move => 75,
+                                Instruction.CollectSample => 50,
+                                _ => 0
+                            };
+                            if (delay != 0)
+                                await Task.Delay(delay);
                         }
                     });
                 });
