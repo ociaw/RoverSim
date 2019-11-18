@@ -72,6 +72,8 @@ namespace RoverSim.WinFormsClient
                 if (!_actionEnumerator.MoveNext() || !_rover.Perform(_actionEnumerator.Current, out Update update))
                 {
                     UpdateTimer.Stop();
+                    UpdateStats();
+                    Render();
                     beginRender.Enabled = true;
                     _actionEnumerator.Dispose();
                     return;
