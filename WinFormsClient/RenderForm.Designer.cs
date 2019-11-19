@@ -43,7 +43,7 @@
             // glControl1
             // 
             this.glControl1.BackColor = System.Drawing.Color.Black;
-            this.glControl1.Location = new System.Drawing.Point(98, 42);
+            this.glControl1.Location = new System.Drawing.Point(12, 12);
             this.glControl1.Name = "glControl1";
             this.glControl1.Size = new System.Drawing.Size(480, 345);
             this.glControl1.TabIndex = 0;
@@ -53,7 +53,7 @@
             // beginRender
             // 
             this.beginRender.Enabled = false;
-            this.beginRender.Location = new System.Drawing.Point(703, 364);
+            this.beginRender.Location = new System.Drawing.Point(596, 334);
             this.beginRender.Name = "beginRender";
             this.beginRender.Size = new System.Drawing.Size(75, 23);
             this.beginRender.TabIndex = 1;
@@ -64,7 +64,7 @@
             // MovesLeftText
             // 
             this.MovesLeftText.Enabled = false;
-            this.MovesLeftText.Location = new System.Drawing.Point(677, 42);
+            this.MovesLeftText.Location = new System.Drawing.Point(571, 12);
             this.MovesLeftText.Name = "MovesLeftText";
             this.MovesLeftText.Size = new System.Drawing.Size(100, 20);
             this.MovesLeftText.TabIndex = 2;
@@ -72,7 +72,7 @@
             // MovesLeftLabel
             // 
             this.MovesLeftLabel.AutoSize = true;
-            this.MovesLeftLabel.Location = new System.Drawing.Point(611, 45);
+            this.MovesLeftLabel.Location = new System.Drawing.Point(505, 15);
             this.MovesLeftLabel.Name = "MovesLeftLabel";
             this.MovesLeftLabel.Size = new System.Drawing.Size(60, 13);
             this.MovesLeftLabel.TabIndex = 3;
@@ -81,7 +81,7 @@
             // PowerLeftLabel
             // 
             this.PowerLeftLabel.AutoSize = true;
-            this.PowerLeftLabel.Location = new System.Drawing.Point(613, 71);
+            this.PowerLeftLabel.Location = new System.Drawing.Point(507, 41);
             this.PowerLeftLabel.Name = "PowerLeftLabel";
             this.PowerLeftLabel.Size = new System.Drawing.Size(58, 13);
             this.PowerLeftLabel.TabIndex = 5;
@@ -90,7 +90,7 @@
             // PowerLeftText
             // 
             this.PowerLeftText.Enabled = false;
-            this.PowerLeftText.Location = new System.Drawing.Point(677, 68);
+            this.PowerLeftText.Location = new System.Drawing.Point(571, 38);
             this.PowerLeftText.Name = "PowerLeftText";
             this.PowerLeftText.Size = new System.Drawing.Size(100, 20);
             this.PowerLeftText.TabIndex = 4;
@@ -98,7 +98,7 @@
             // SamplesSentLabel
             // 
             this.SamplesSentLabel.AutoSize = true;
-            this.SamplesSentLabel.Location = new System.Drawing.Point(599, 97);
+            this.SamplesSentLabel.Location = new System.Drawing.Point(493, 67);
             this.SamplesSentLabel.Name = "SamplesSentLabel";
             this.SamplesSentLabel.Size = new System.Drawing.Size(72, 13);
             this.SamplesSentLabel.TabIndex = 7;
@@ -107,7 +107,7 @@
             // SamplesSentText
             // 
             this.SamplesSentText.Enabled = false;
-            this.SamplesSentText.Location = new System.Drawing.Point(677, 94);
+            this.SamplesSentText.Location = new System.Drawing.Point(571, 64);
             this.SamplesSentText.Name = "SamplesSentText";
             this.SamplesSentText.Size = new System.Drawing.Size(100, 20);
             this.SamplesSentText.TabIndex = 6;
@@ -120,7 +120,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(790, 452);
+            this.ClientSize = new System.Drawing.Size(683, 369);
             this.Controls.Add(this.SamplesSentLabel);
             this.Controls.Add(this.SamplesSentText);
             this.Controls.Add(this.PowerLeftLabel);
