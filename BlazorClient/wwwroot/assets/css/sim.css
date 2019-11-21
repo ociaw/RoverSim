@@ -73,8 +73,10 @@ canvas
 
 #stats > div
 {
-  margin: 0 .1em;
-  flex-basis: 9em;
+  display: flex;
+  margin: 0 .15em;
+  flex-basis: 8.7em;
+  justify-content: space-between;
 }
 
 /* Button Links */

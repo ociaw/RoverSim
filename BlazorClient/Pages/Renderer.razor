@@ -10,17 +10,17 @@
 </div>
 <div id=controls>
     <div id=stats>
-        <div id=moves-left>Moves Left: @_stats.MovesLeft</div>
-        <div id=power>Power: @_stats.Power</div>
-        <div id=hopper-count>Hopper Count: @_stats.SamplesCollected</div>
-        <div id=pending-count>Processed Count: @_stats.SamplesProcessed</div>
-        <div id=sample-transmitted-count>Transmitted: @_stats.SamplesTransmitted</div>
-        <div id=moves>Actual Moves: @_stats.MoveCount</div>
-        <div id=move-calls>Move Calls: @_stats.MoveCallCount</div>
-        <div id=power-calls>Power Calls: @_stats.CollectPowerCallCount</div>
-        <div id=sample-calls>Sample Calls: @_stats.CollectSampleCallCount</div>
-        <div id=process-calls>Process Calls: @_stats.ProcessSamplesCallCount</div>
-        <div id=transmit-calls>Transmit Calls: @_stats.TransmitCallCount</div>
+        <div id=moves-left>Moves Left: <span>@_stats.MovesLeft</span></div>
+        <div id=power>Power: <span>@_stats.Power</span></div>
+        <div id=hopper-count>Hopper Count: <span>@_stats.SamplesCollected</span></div>
+        <div id=pending-count>Processed Count: <span>@_stats.SamplesProcessed</span></div>
+        <div id=sample-transmitted-count>Transmitted: <span>@_stats.SamplesTransmitted</span></div>
+        <div id=moves>Actual Moves: <span>@_stats.MoveCount</span></div>
+        <div id=move-calls>Move Calls: <span>@_stats.MoveCallCount</span></div>
+        <div id=power-calls>Power Calls: <span>@_stats.CollectPowerCallCount</span></div>
+        <div id=sample-calls>Sample Calls: <span>@_stats.CollectSampleCallCount</span></div>
+        <div id=process-calls>Process Calls: <span>@_stats.ProcessSamplesCallCount</span></div>
+        <div id=transmit-calls>Transmit Calls: <span>@_stats.TransmitCallCount</span></div>
     </div>
     <div class=button-link><a href=@SettingsUrl>Settings</a></div>
     <div disabled=@(!_demo.IsCompleted) class="button-link progressing"><button disabled=@(!_demo.IsCompleted) @onclick=StartDemo>Start</button></div>
