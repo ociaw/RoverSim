@@ -3,20 +3,27 @@
 @inject NavigationManager navigationManager
 @page "/demo"
 
-<Renderer Ai="@_ai" Parameters="@_parameters" ProtoLevel="@_protoLevel" />
+<Renderer Ai="@_ai" Parameters="@_parameters" ProtoLevel="@_protoLevel" SettingsUrl="@_settingsUrl" />
 
 @code {
-    private ParsedQuery _parsedQuery;
+    private Dictionary<String, String> _query;
     private SimulationParameters _parameters;
     private IAi _ai;
     private ProtoLevel _protoLevel;
+    private String _settingsUrl;
 
     protected override void OnInitialized()
     {
-        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
-        var query = QueryHelpers.ParseQuery(uri.Query);
+        var rawQuery = QueryHelpers.ParseQuery(navigationManager.Uri);
+        var query = rawQuery.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FirstOrDefault());
         var parsedQuery = ParsedQuery.FromDictionary(query);
 
+        var relativePath = navigationManager.ToBaseRelativePath(navigationManager.Uri);
+        if (relativePath.StartsWith("demo"))
+            _settingsUrl = navigationManager.BaseUri + "settings" + relativePath.Remove(0, "demo".Length);
+        Console.WriteLine(_settingsUrl);
+
+        _query = query;
         _parameters = parsedQuery.Parameters;
         _ai = parsedQuery.CreateAi();
         _protoLevel = parsedQuery.CreateLevel();

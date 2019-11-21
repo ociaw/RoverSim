@@ -1,10 +1,12 @@
-﻿@using Blazor.Extensions;
+﻿@implements IDisposable
+@using System.Threading;
+@using Blazor.Extensions;
 @using Blazor.Extensions.Canvas;
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using RoverSim.Rendering;
 
 <div id=render>
-    <BECanvas Width="@_canvasWidth" Height="@_canvasHeight" @ref="_canvasReference"></BECanvas>
+    <BECanvas Width=@_canvasWidth Height=@_canvasHeight @ref=_canvasReference></BECanvas>
 </div>
 <div id=controls>
     <div id=stats>
@@ -20,11 +22,12 @@
         <div id=process-calls>Process Calls: @_stats.ProcessSamplesCallCount</div>
         <div id=transmit-calls>Transmit Calls: @_stats.TransmitCallCount</div>
     </div>
-    <div disabled=@_isDemoRunning class="button-link progressing"><button disabled=@_isDemoRunning @onclick=StartDemo>Start</button></div>
+    <div class=button-link><a href=@SettingsUrl>Settings</a></div>
+    <div disabled=@(!_demo.IsCompleted) class="button-link progressing"><button disabled=@(!_demo.IsCompleted) @onclick=StartDemo>Start</button></div>
 </div>
 
 @code {
-        // Target 4k UHD resolution at the largest
+    // Target 4k UHD resolution at the largest
     private const Int32 MaxCanvasWidth = 0xF00;
     private const Int32 MaxCanvasHeight = 0xF00;
 
@@ -39,7 +42,8 @@
     };
 
     private RoverStats _stats;
-    private Boolean _isDemoRunning = true;
+    private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+    private Task _demo = Task.CompletedTask;
 
     private Int32 _canvasWidth;
     private Int32 _canvasHeight;
@@ -61,13 +65,15 @@
     [Parameter]
     public ProtoLevel ProtoLevel { get; set; }
 
+    [Parameter]
+    public String SettingsUrl { get; set; }
+
     protected override void OnParametersSet()
     {
         if (Parameters == null || Ai == null || ProtoLevel == null)
             throw new InvalidOperationException("All component parameters must be set.");
 
         _visibleState = VisibleState.GenerateBlank(Parameters);
-        _isDemoRunning = false;
         SetDimensions();
     }
 
@@ -86,6 +92,12 @@
 
     private Task StartDemo()
     {
+        if (!_demo.IsCompleted)
+            return Task.CompletedTask;
+
+        _tokenSource.Dispose();
+        _tokenSource = new CancellationTokenSource();
+
         Level level = ProtoLevel.Generate();
         if (level == null)
         {
@@ -96,7 +108,6 @@
 
         SimulationParameters parameters = Parameters;
         _visibleState = VisibleState.GenerateBlank(parameters);
-        _isDemoRunning = true;
 
         Rover rover = new Rover(level, parameters);
         _stats = RoverStats.Create(parameters);
@@ -105,7 +116,8 @@
         IAi ai = Ai.CloneFresh();
         var actionEnumerator = ai.Simulate(rover.Accessor).GetEnumerator();
 
-        return Task.Run(async () =>
+        CancellationToken token = _tokenSource.Token;
+        _demo = Task.Run(async () =>
         {
             // We use null to indicate that the level has been reset.
             _updates.Enqueue(null);
@@ -113,7 +125,7 @@
             base.StateHasChanged();
             await Task.Delay(100);
 
-            while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update))
+            while (actionEnumerator.MoveNext() && rover.Perform(actionEnumerator.Current, out Update update) && !token.IsCancellationRequested)
             {
                 _updates.Enqueue(update);
                 _stats = _stats.Add(actionEnumerator.Current, update);
@@ -124,14 +136,13 @@
                     Instruction.CollectSample => 50,
                     _ => 0
                 };
-                Console.WriteLine("Delaying " + delay + "ms");
                 if (delay != 0)
                     await Task.Delay(delay);
             }
 
-            _isDemoRunning = false;
             actionEnumerator.Dispose();
-        });
+        }, token);
+        return _demo;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -192,5 +203,12 @@
 
         await _context.SetFillStyleAsync("#70CE70");
         await _context.FillRectAsync(topLeftX, topLeftY, _roverSize, _roverSize);
+    }
+
+    void IDisposable.Dispose()
+    {
+        _tokenSource.Cancel();
+        _tokenSource.Dispose();
+        _tokenSource = null;
     }
 }

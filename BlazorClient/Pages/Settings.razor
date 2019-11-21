@@ -1,40 +1,107 @@
 ﻿@using RoverSim;
+@using Microsoft.AspNetCore.WebUtilities;
 @inject AiProvider AiProvider
+@inject NavigationManager navigationManager
+@page "/settings"
 
 <h1>Setup Simulation</h1>
 
-<p>Current ai: @currentAi?.GetType().ToString()</p>
-<fieldset id=ai-settings>
-    <h3>AI Settings</h3>
-    <select @bind=selectedAiFactoryName>
-    @foreach (var ai in ais)
-    {
-        <option value=@ai.Name>@ai.Name</option>
-    }
-    </select>
-</fieldset>
-<fieldset id=simulation-parameters>
-    <h3>Simulation Parameters</h3>
-</fieldset>
-<fieldset id=level-parameters>
-    <h3>Level Parameters</h3>
-</fieldset>
-<input type=number step=1 min=1 @bind=runCount />
-<button @onclick=UpdateAi>Begin</button>
+<form method=get action=/demo @onsubmit=ViewDemo>
+    <fieldset>
+        <legend>AI Settings</legend>
+        <div class=field>
+            <label for=ai-key>AI:</label>
+            <select name=ai-key @bind=_aiKey>
+                <option value=FixedState>Fixed State</option>
+                <optgroup label=Scratch Compatible>
+                    <option value=Random>Random</option>
+                    <option value=IntelligentRandom>Intelligent Random</option>
+                    <option value=MarkI>Mark I</option>
+                    <option value=MarkII>Mark II</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class=field>
+            <label for=ai-seed>Seed*:</label>
+            <input name=ai-seed type=number step=1 @bind=_aiSeed />
+        </div>
+        <div class=field>
+            <label for=ai-memory>Amount of Memory**:</label>
+            <input name=ai-memory type=number step=1 min=0 @bind=_aiMemory />
+        </div>
+        <aside>
+            * Only applicable to RNG based AI, eg. <code>Random</code> and <code>Intelligent Random</code>. <br />
+            ** Only applicable to <code>Fixed State</code> AI.
+        </aside>
+    </fieldset>
+    <fieldset>
+        <legend>Map Settings</legend>
+        <div class=field>
+            <label for=sim-width>Width:</label>
+            <input name=sim-width type=number step=1 min=3 @bind=_simWidth />
+        </div>
+        <div class=field>
+            <label for=sim-height>Height:</label>
+            <input name=sim-height type=number step=1 min=3 @bind=_simHeight />
+        </div>
+        <div class=field>
+            <label for=level-key>Generator:</label>
+            <select name=level-key @bind=_levelKey>
+                <option>Default</option>
+                <option>Maze</option>
+            </select>
+        </div>
+        <div class=field>
+            <label for=level-seed>Seed:</label>
+            <input name=level-seed type=number step=1 @bind=_levelSeed />
+        </div>
+    </fieldset>
+    <div class=control-container>
+        <div class=button-link progressing><button>View</button></div>
+    </div>
+</form>
 
 @code {
-    private IReadOnlyList<IAiFactory> ais = new IAiFactory[0];
-    private String selectedAiFactoryName = null;
+    private String _aiKey;
+    private Int32 _aiSeed = 0;
+    private Int32 _aiMemory = 5;
 
-    private Int32 runCount = 1;
+    private Int32 _simWidth;
+    private Int32 _simHeight;
 
-    protected override void OnInitialized()
+    private String _levelKey;
+    private Int32 _levelSeed = 0;
+
+    protected override void OnParametersSet()
     {
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var rawQuery = QueryHelpers.ParseQuery(uri.Query);
+        var query = rawQuery.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FirstOrDefault());
+
+        _aiKey = query.GetValue("ai-key", "FixedState");
+        _aiSeed = query.GetValue("ai-seed", 1);
+        _aiMemory = query.GetValue("ai-memory", 5);
+        _simWidth = query.GetValue("sim-width", SimulationParameters.Default.BottomRight.X + 1);
+        _simHeight = query.GetValue("sim-height", SimulationParameters.Default.BottomRight.Y + 1);
+        _levelKey = query.GetValue("level-key", "Default");
+        _levelSeed = query.GetValue("level-seed", 0);
     }
 
-    private void UpdateAi()
+    private void ViewDemo()
     {
-    }
+        var values = new Dictionary<String, String>
+    {
+            { "ai-key", _aiKey },
+            { "ai-seed", _aiSeed.ToString() },
+            { "ai-memory", _aiMemory.ToString() },
+            { "sim-width", _simWidth.ToString() },
+            { "sim-height", _simHeight.ToString() },
+            { "level-key", _levelKey },
+            { "level-seed", _levelSeed.ToString() }
+        };
 
-    IAi currentAi = null;
+        String demoUri = navigationManager.BaseUri + "demo";
+        demoUri = QueryHelpers.AddQueryString(demoUri, values);
+        navigationManager.NavigateTo(demoUri);
+    }
 }

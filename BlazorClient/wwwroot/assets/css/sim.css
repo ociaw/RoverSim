@@ -104,6 +104,7 @@ canvas
   height: 100%;
   padding: calc(.25rem - 1px) calc(.5rem - 1px);
   border: 1px solid;
+  line-height: normal;
   font-family: inherit;
   font-size: inherit;
   text-decoration: none;
@@ -143,4 +144,32 @@ canvas
 .button-link.regressing:not([disabled])
 {
   background-color: #6c1b1b;
+}
+
+/* Form styling */
+.field
+{
+  display: flex;
+}
+
+.field > *
+{
+  flex: 2;
+  text-align: left;
+  max-width: none;
+  min-width: 0;
+}
+
+.field > label
+{
+  flex: 1;
+  text-align: right;
+  padding-right: .4em;
+}
+
+aside
+{
+  margin-top: 1em;
+  font-size: .9em;
+  font-style: italic;
 }
