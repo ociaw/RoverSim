@@ -5,26 +5,30 @@ this is a complete rewrite in C#. Essentially, the goal is to write an AI that c
 process, and finally transmit the most soil samples on the surface of Mars before it runs out of
 *moves* or *power*. The surface is represented by a grid with Smooth, Rough, and Impassable tiles.
 
-![Screenshot of the original Scratch project](https://ociaw.com/assets/img/rover-scratch-terrain.png)
+![Animation of the limited state AI on a default simulation](https://ociaw.com/assets/img/rover-ai-fixed-state.apng)
 
-More information about the project is available [here](https://ociaw.com/posts/rover), and a
-detailed description of each AI is available [here](https://ociaw.com/rover-ai).
+More information about the project is available [here](https://ociaw.com/roversim), and a
+detailed description of each AI is available [here](https://ociaw.com/roversim/ai).
 
 # Running
 All releases are available [on GitHub](https://github.com/ociaw/RoverSim/releases). However, for
 the most up-to-date code, you should clone this repository and build from source.
 
-Run either `WinFormsClient.exe` or `RoverSim.AvaloniaHost.exe`, depending on which host
-you're using.
+Run either `WinFormsClient.exe` or `RoverSim.AvaloniaHost.exe`, depending on which client
+you're using. The Blazor Client isn't able to be run directly, but any HTTP server can host the
+site which can be viewed in any web browser supporting WebAssembly.
 
-# Create an AI
-A typical AI will implement `IAi` through `Simulate(IRover rover)`. All interaction is through
-the `IRover` instance, which provides methods to sense, sample, and move around terrain, and
-tracks the position of the rover. `IAiFactory` must also be implemented to create instances of
-the AI.
+# Creating an AI
+A typical AI will implement `IAi` through `Simulate(IRoverStatusAccessor rover)`. Rover status is
+accessed through the `IRoverStatusAccessor` instance, which senses nearby terrain and various
+rover information. Actions are taken by `yield return`ing a `RoverAction` - this will be applied
+by the caller and changes will be immediately visible through the status accessor. `IAiFactory`
+must also be implemented to create instances of the AI.
 
 Once that's done, the factory needs to be added to the list of available AIs in each client.
-This is in `WinFormsClient.WorkManager.GetAIs` and `AvaloniaHost.Program.GetAvailableAis`.
+This is in `WinFormsClient.Program.GetAIs`, `AvaloniaHost.Program.GetAvailableAis`, and the
+constructor of `AiProvider`. For Blazor, the AI also needs to be added to the `Renderer.razor`
+component if you want it to be selectable.
 
 ## Scratch AI
 Scratch AIs are restricted to a Scratch-like interface similar to the original in functionality.
@@ -35,7 +39,6 @@ Scratch AI, implement `IScratchAi` instead, which is provided with a `ScratchRov
 Then implement `IAiFactory` as usual, but instead wrapping the `IScratchAi` instance with an
 instance of `ScratchAiWrapper` and returning it instead.
 
-
 # Project Structure
 ## Core
 As its name implies, `Core` is the heart of the project. `Core` defines the basic types, such as
@@ -45,7 +48,8 @@ the solution depends on `Core`.
 
 ## AIs
 `Ais` contains AIs written against the modern API. Currently, there is only `LimitedStateAi`, an
-AI that tries to make the most out of a limited amount of memory.
+AI that tries to make the most out of a limited amount of memory, as opposed to mapping out the
+entire level as it moves.
 
 ## Scratch AIs
 `ScratchAis` has all of the AIs originally written and destined for Scratch. This includes
@@ -61,4 +65,4 @@ simulations and watch how the rover behaves on the worst one of the lot.
 ## Avalonia Client
 `AvaloniaHost` is a client built with the [Avalonia](http://avaloniaui.net/) UI framework. It aims
 to be a cross-platform client developed using modern UI techniques and patters. However, it is
-still a work in progress, with proper simulation rendering being the next goal.
+still a work in progress, with in depth statistics being the next goal.
