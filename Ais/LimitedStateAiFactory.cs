@@ -2,13 +2,13 @@
 
 namespace RoverSim.Ais
 {
-    public sealed class FixedStateAiFactory : IAiFactory
+    public sealed class LimitedStateAiFactory : IAiFactory
     {
-        public FixedStateAiFactory() 
+        public LimitedStateAiFactory() 
             : this(5) 
         { }
 
-        public FixedStateAiFactory(Int32 memoryCount)
+        public LimitedStateAiFactory(Int32 memoryCount)
         {
             if (memoryCount < 0)
                 throw new ArgumentOutOfRangeException(nameof(memoryCount), "Must be non-negative.");
@@ -16,10 +16,10 @@ namespace RoverSim.Ais
             MemoryCount = memoryCount;
         }
 
-        public String Name => "Fixed State AI";
+        public String Name => "Limited State AI";
 
         public Int32 MemoryCount { get; }
 
-        public IAi Create(SimulationParameters parameters) => new FixedStateAi(parameters, MemoryCount);
+        public IAi Create(SimulationParameters parameters) => new LimitedStateAi(parameters, MemoryCount);
     }
 }

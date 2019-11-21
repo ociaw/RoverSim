@@ -44,14 +44,14 @@ levels and to facilitate running millions of simulations using TPL dataflow. Eve
 the solution depends on `Core`.
 
 ## AIs
-`Ais` contains AIs written against the modern API. Currently, there is only `FixedStateAi`, an
-AI that tries to make the most out of a fixed amount of memory.
+`Ais` contains AIs written against the modern API. Currently, there is only `LimitedStateAi`, an
+AI that tries to make the most out of a limited amount of memory.
 
 ## Scratch AIs
 `ScratchAis` has all of the AIs originally written and destined for Scratch. This includes
 * `IntelligentRandom` - always moves towards an adjacent smooth tile, or randomly otherwise.
 * `Mark I` - similar to `IntelligentRandom`, but tries to get unstuck deterministically instead of
-randomly. The predecessor to `FixedStateAi`.
+randomly. The predecessor to `LimitedStateAi`.
 * `Mark II` - uses Dijkstra's algorithm to always find the closest smooth tile.
 
 ## Windows Forms Client

@@ -26,7 +26,7 @@ namespace RoverSim.WinFormsClient
                 new IntelligentRandomAiFactory(),
                 new MarkIFactory(),
                 new MarkIIFactory(),
-                new FixedStateAiFactory(),
+                new LimitedStateAiFactory(),
             };
 
         private static IReadOnlyDictionary<String, ILevelGenerator> GetLevelGenerators()

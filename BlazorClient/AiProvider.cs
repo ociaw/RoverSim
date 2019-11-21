@@ -9,15 +9,16 @@ namespace RoverSim.BlazorClient
     {
         private readonly Dictionary<String, Func<Dictionary<String, String>, IAiFactory>> _functions;
 
-        private static readonly String FallbackKey = "FixedState";
-        private static readonly Func<Dictionary<String, String>, IAiFactory> FallbackAiFactory = CreateFixedState;
+        private static readonly String FallbackKey = "LimitedState";
+        private static readonly Func<Dictionary<String, String>, IAiFactory> FallbackAiFactory = CreateLimitedState;
 
         public AiProvider()
         {
             // Add new AIs here
             _functions = new Dictionary<String, Func<Dictionary<String, String>, IAiFactory>>(StringComparer.OrdinalIgnoreCase)
             {
-                { "FixedState", CreateFixedState },
+                { "FixedState", CreateLimitedState }, // TODO: This name is obsolete, remove later.
+                { "LimitedState", CreateLimitedState },
                 { "Random", CreateRandom },
                 { "IntelligentRandom", CreateIntelligentRandom },
                 { "MarkI", CreateMarkI },
@@ -39,10 +40,10 @@ namespace RoverSim.BlazorClient
             return factory(query).Create(parameters);
         }
 
-        private static IAiFactory CreateFixedState(Dictionary<String, String> query)
+        private static IAiFactory CreateLimitedState(Dictionary<String, String> query)
         {
             Int32 memory = query.GetNonNegative("ai-memory", 5);
-            return new FixedStateAiFactory(memory);
+            return new LimitedStateAiFactory(memory);
         }
 
         private static IAiFactory CreateRandom(Dictionary<String, String> query)

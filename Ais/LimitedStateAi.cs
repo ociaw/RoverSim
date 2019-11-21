@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace RoverSim.Ais
 {
     /// <summary>
-    /// A tweaked version of the Scratch Mark I AI. Maintains a very small and fixed amount of memory.
+    /// A tweaked version of the Scratch Mark I AI. Maintains a very small and limited amount of memory.
     /// </summary>
-    public sealed class FixedStateAi : IAi
+    public sealed class LimitedStateAi : IAi
     {
         private Int32 _roundRobin = 0;
 
@@ -20,7 +20,7 @@ namespace RoverSim.Ais
 
         private readonly List<CoordinatePair> _deadEnds;
 
-        public FixedStateAi(SimulationParameters parameters, Int32 deadEndMemory)
+        public LimitedStateAi(SimulationParameters parameters, Int32 deadEndMemory)
         {
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             DeadEndMemory = deadEndMemory >= 0 ? deadEndMemory : throw new ArgumentOutOfRangeException(nameof(deadEndMemory), deadEndMemory, "Must be non-negative.");
@@ -33,7 +33,7 @@ namespace RoverSim.Ais
 
         public Int32 DeadEndMemory { get; }
 
-        public IAi CloneFresh() => new FixedStateAi(Parameters, DeadEndMemory);
+        public IAi CloneFresh() => new LimitedStateAi(Parameters, DeadEndMemory);
 
         public IEnumerable<RoverAction> Simulate(IRoverStatusAccessor rover)
         {

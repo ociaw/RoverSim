@@ -12,7 +12,7 @@
         <div class=field>
             <label for=ai-key>AI:</label>
             <select name=ai-key @bind=_aiKey>
-                <option value=FixedState>Fixed State</option>
+                <option value=LimitedState>Limited State</option>
                 <optgroup label=Scratch Compatible>
                     <option value=Random>Random</option>
                     <option value=IntelligentRandom>Intelligent Random</option>
@@ -31,7 +31,7 @@
         </div>
         <aside>
             * Only applicable to RNG based AI, eg. <code>Random</code> and <code>Intelligent Random</code>. <br />
-            ** Only applicable to <code>Fixed State</code> AI.
+            ** Only applicable to <code>Limited State</code> AI.
         </aside>
     </fieldset>
     <fieldset>
@@ -78,7 +78,7 @@
         var rawQuery = QueryHelpers.ParseQuery(uri.Query);
         var query = rawQuery.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FirstOrDefault());
 
-        _aiKey = query.GetValue("ai-key", "FixedState");
+        _aiKey = query.GetValue("ai-key", "LimitedState");
         _aiSeed = query.GetValue("ai-seed", 1);
         _aiMemory = query.GetValue("ai-memory", 5);
         _simWidth = query.GetValue("sim-width", SimulationParameters.Default.BottomRight.X + 1);
