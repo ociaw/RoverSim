@@ -14,14 +14,12 @@
 
     protected override void OnInitialized()
     {
-        var rawQuery = QueryHelpers.ParseQuery(navigationManager.Uri);
+        Uri uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var rawQuery = QueryHelpers.ParseQuery(uri.Query);
         var query = rawQuery.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FirstOrDefault());
         var parsedQuery = ParsedQuery.FromDictionary(query);
 
-        var relativePath = navigationManager.ToBaseRelativePath(navigationManager.Uri);
-        if (relativePath.StartsWith("demo"))
-            _settingsUrl = navigationManager.BaseUri + "settings" + relativePath.Remove(0, "demo".Length);
-        Console.WriteLine(_settingsUrl);
+        _settingsUrl = navigationManager.BaseUri + "settings" + uri.Query;
 
         _query = query;
         _parameters = parsedQuery.Parameters;

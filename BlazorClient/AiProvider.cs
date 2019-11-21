@@ -36,7 +36,6 @@ namespace RoverSim.BlazorClient
 
             if (!_functions.TryGetValue(aiKey, out var factory))
                 factory = FallbackAiFactory;
-
             return factory(query).Create(parameters);
         }
 
