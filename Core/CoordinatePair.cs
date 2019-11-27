@@ -24,6 +24,25 @@ namespace RoverSim
 
         public Double Magnitude => Math.Sqrt(Sed);
 
+        public Direction PrimaryDirection
+        {
+            get
+            {
+                Int32 absoluteX = Math.Abs(X);
+                Int32 absoluteY = Math.Abs(Y);
+                if (absoluteX < absoluteY)
+                {
+                    return Y > 0 ? Direction.Down : Direction.Up;
+                }
+                else if (absoluteX > absoluteY)
+                {
+                    return X > 0 ? Direction.Right : Direction.Left;
+                }
+
+                return Direction.None;
+            }
+        }
+
         /// <summary>
         /// Indicates whether or not either coordinate is negative.
         /// </summary>

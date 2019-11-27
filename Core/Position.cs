@@ -41,6 +41,13 @@ namespace RoverSim
         /// </summary>
         public Boolean Contains(Position other) => other.X <= X && other.Y <= Y;
 
+        /// <summary>
+        /// Calculates the rectilinear distance between this point and another point.
+        /// </summary>
+        /// <param name="other">The other point.</param>
+        /// <returns>The rectilinear distance.</returns>
+        public Int32 RectilinearDistanceTo(Position other) => Math.Abs(X - other.X) + Math.Abs(Y - other.Y);
+
         public Boolean Equals(Position other) => Coordinates.Equals(other.Coordinates);
 
         public Boolean Equals(CoordinatePair other) => Coordinates.Equals(other);

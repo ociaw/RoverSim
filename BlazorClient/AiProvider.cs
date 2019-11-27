@@ -19,6 +19,7 @@ namespace RoverSim.BlazorClient
             {
                 { "FixedState", CreateLimitedState }, // TODO: This name is obsolete, remove later.
                 { "LimitedState", CreateLimitedState },
+                { "Pathfinding", CreatePathfinding },
                 { "Random", CreateRandom },
                 { "IntelligentRandom", CreateIntelligentRandom },
                 { "MarkI", CreateMarkI },
@@ -45,6 +46,8 @@ namespace RoverSim.BlazorClient
             Int32 memory = query.GetNonNegative("ai-memory", 5);
             return new LimitedStateAiFactory(memory);
         }
+
+        private static IAiFactory CreatePathfinding(Dictionary<String, String> query) => new PathfindingAiFactory();
 
         private static IAiFactory CreateRandom(Dictionary<String, String> query)
         {

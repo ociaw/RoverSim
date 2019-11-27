@@ -27,6 +27,7 @@ namespace RoverSim.WinFormsClient
                 new MarkIFactory(),
                 new MarkIIFactory(),
                 new LimitedStateAiFactory(),
+                new PathfindingAiFactory()
             };
 
         private static IReadOnlyDictionary<String, ILevelGenerator> GetLevelGenerators()

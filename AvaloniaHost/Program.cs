@@ -65,6 +65,7 @@ namespace RoverSim.AvaloniaHost
             return new List<IAiFactory>
             {
                 new LimitedStateAiFactory(),
+                new PathfindingAiFactory(),
                 new RandomAiFactory(),
                 new IntelligentRandomAiFactory(),
                 new MarkIFactory(),
