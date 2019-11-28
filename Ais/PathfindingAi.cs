@@ -77,10 +77,10 @@ namespace RoverSim.Ais
                 (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
 
                 Direction destination = Direction.None;
-                if (_path != null && _path.Count > 0)
-                    destination = _path.Pop();
-                else if (_gatherPowerDir != Direction.None)
+                if (_gatherPowerDir != Direction.None)
                     destination = _gatherPowerDir;
+                else if (_path != null && _path.Count > 0)
+                    destination = _path.Pop();
                 else if (adjacentSmoothDir.HasValue)
                     destination = adjacentSmoothDir.Value; // Prioritize smooth squares
                 else if (hasExcessPower && !_gatheringPower && adjacentRoughDir.HasValue)
@@ -112,7 +112,11 @@ namespace RoverSim.Ais
 
         private Direction? ResetDestination(Position roverPosition)
         {
-            _path = _pathfinder.GetPathToNearestSampleable(roverPosition);
+            if (_gatheringPower)
+                _path = _pathfinder.GetPowerPath(roverPosition);
+            else
+                _path = _pathfinder.GetPathToNearestSampleable(roverPosition);
+
             if (_path == null)
                 return null;
 

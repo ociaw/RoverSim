@@ -8,6 +8,9 @@ namespace RoverSim.Ais
     {
         private static readonly List<TerrainType> _sampleableClosed = new List<TerrainType>(2) { TerrainType.Impassable };
         private static readonly List<TerrainType> _sampleableTargets = new List<TerrainType>(2) { TerrainType.Smooth, TerrainType.Rough };
+        
+        private static readonly List<TerrainType> _poweringClosed = new List<TerrainType>(2) { TerrainType.Impassable, };
+        private static readonly List<TerrainType> _poweringTargets = new List<TerrainType>(2) { TerrainType.Unknown, TerrainType.Smooth };
 
         public Pathfinder(Map map)
         {
@@ -15,6 +18,8 @@ namespace RoverSim.Ais
         }
 
         public Map Map { get; }
+
+        public Stack<Direction> GetPowerPath(Position start) => GetPathToNearest(start, _poweringClosed, _poweringTargets);
 
         public Stack<Direction> GetPathToNearestSampleable(Position start) => GetPathToNearest(start, _sampleableClosed, _sampleableTargets);
 
