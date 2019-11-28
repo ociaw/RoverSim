@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <LangVersion>8.0</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <AssemblyName>BlazorClient</AssemblyName>
+    <AssemblyName>RoverSimBlazor</AssemblyName>
     <RootNamespace>RoverSim.BlazorClient</RootNamespace>
   </PropertyGroup>
 
