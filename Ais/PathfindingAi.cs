@@ -8,8 +8,6 @@ namespace RoverSim.Ais
     /// </summary>
     public sealed class PathfindingAi : IAi
     {
-        private Int32 _roundRobin = 0;
-
         private readonly Map _map;
 
         private readonly Pathfinder _pathfinder;
@@ -75,7 +73,6 @@ namespace RoverSim.Ais
                 yield return new RoverAction(nextMove);
                 UpdateMap(rover);
                 _map.UpdateTerrain(rover.Position, rover.Adjacent);
-                _roundRobin++;
             }
         }
 
@@ -334,15 +331,15 @@ namespace RoverSim.Ais
             Int32 smoothCount = 0;
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
-                Direction roundRobin = Direction.FromInt32((i + _roundRobin) % Direction.DirectionCount);
-                switch (adjacent[roundRobin])
+                Direction direction = Direction.FromInt32(i);
+                switch (adjacent[direction])
                 {
                     case TerrainType.Smooth:
-                        adjacentSmooth = roundRobin;
+                        adjacentSmooth = direction;
                         smoothCount++;
                         break;
                     case TerrainType.Rough:
-                        adjacentRough = roundRobin;
+                        adjacentRough = direction;
                         break;
                 }
             }
