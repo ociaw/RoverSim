@@ -69,6 +69,7 @@ namespace RoverSim.WinFormsClient
                 CsvWriter csv = new CsvWriter(writer);
                 csv.WriteField("Moves Left");
                 csv.WriteField("Power Left");
+                csv.WriteField("Cumulative Power");
                 csv.WriteField("Samples Collected");
                 csv.WriteField("Samples Processed");
                 csv.WriteField("Samples Transmitted");
@@ -98,6 +99,7 @@ namespace RoverSim.WinFormsClient
                 // Write CSV
                 _csv.WriteField(stats.MovesLeft.ToString());
                 _csv.WriteField(stats.Power.ToString());
+                _csv.WriteField(stats.PowerCumulative.ToString());
                 _csv.WriteField(stats.SamplesCollected.ToString());
                 _csv.WriteField(stats.SamplesProcessed.ToString());
                 _csv.WriteField(stats.SamplesTransmitted.ToString());
