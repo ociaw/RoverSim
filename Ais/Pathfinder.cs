@@ -9,8 +9,13 @@ namespace RoverSim.Ais
         private static readonly List<TerrainType> _sampleableClosed = new List<TerrainType>(2) { TerrainType.Impassable };
         private static readonly List<TerrainType> _sampleableTargets = new List<TerrainType>(2) { TerrainType.Smooth, TerrainType.Rough };
         
-        private static readonly List<TerrainType> _poweringClosed = new List<TerrainType>(2) { TerrainType.Impassable, };
-        private static readonly List<TerrainType> _poweringTargets = new List<TerrainType>(2) { TerrainType.Unknown, TerrainType.Smooth };
+        private static readonly List<TerrainType> _unknownClosed = new List<TerrainType>(2) { TerrainType.Impassable, };
+        private static readonly List<TerrainType> _unknownTargets = new List<TerrainType>(2) { TerrainType.Unknown };
+
+        private static readonly List<TerrainType> _unknownSmoothClosed = new List<TerrainType>(4)
+        { 
+            TerrainType.Impassable, TerrainType.Rough, TerrainType.SampledRough, TerrainType.SampledSmooth
+        };
 
         public Pathfinder(Map map)
         {
@@ -19,9 +24,11 @@ namespace RoverSim.Ais
 
         public Map Map { get; }
 
-        public Stack<Direction> GetPowerPath(Position start) => GetPathToNearest(start, _poweringClosed, _poweringTargets);
+        public Stack<Direction> FindNearestUnknown(Position start) => GetPathToNearest(start, _unknownClosed, _unknownTargets);
 
-        public Stack<Direction> GetPathToNearestSampleable(Position start) => GetPathToNearest(start, _sampleableClosed, _sampleableTargets);
+        public Stack<Direction> FindNearestUnknownThroughSmooth(Position start) => GetPathToNearest(start, _unknownSmoothClosed, _unknownTargets);
+
+        public Stack<Direction> FindNearestSampleable(Position start) => GetPathToNearest(start, _sampleableClosed, _sampleableTargets);
 
         public Stack<Direction> GetPathToNearest(Position start, List<TerrainType> closedTerrain, List<TerrainType> targetTerrain)
         {

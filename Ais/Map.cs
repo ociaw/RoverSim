@@ -58,5 +58,19 @@ namespace RoverSim.Ais
         }
 
         public void UpdateTerrain(Position position, TerrainType terrain) => this[position] = terrain;
+
+        public Int32 CountNeighborsOfType(CoordinatePair coordinates, TerrainType terrain)
+        {
+            Int32 count = 0;
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
+            {
+                Direction direction = Direction.FromInt32(i);
+                CoordinatePair neighbor = coordinates + direction;
+                if (terrain == this[neighbor])
+                    count++;
+            }
+
+            return count;
+        }
     }
 }

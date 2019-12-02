@@ -10,10 +10,6 @@ namespace RoverSim.Ais
     {
         private Int32 _roundRobin = 0;
 
-        private Boolean _gatheringPower = true;
-
-        private Direction _gatherPowerDir = Direction.None;
-
         private readonly Map _map;
 
         private readonly Pathfinder _pathfinder;
@@ -35,11 +31,14 @@ namespace RoverSim.Ais
 
         public IEnumerable<RoverAction> Simulate(IRoverStatusAccessor rover)
         {
+            foreach (var action in GatherPower(rover))
+                yield return action;
+
             while (true)
             {
                 var adjacent = rover.Adjacent;
                 TerrainType occupied = adjacent[Direction.None];
-                (Direction? adjacentSmoothDir, Direction? adjacentRoughDir, Int32 smoothCount) = FindAdjacentUnsampled(adjacent);
+                (Direction? adjacentSmoothDir, Direction? adjacentRoughDir, _) = FindAdjacentUnsampled(adjacent);
 
                 if (rover.MovesLeft <= 5)
                 {
@@ -48,63 +47,33 @@ namespace RoverSim.Ais
                     yield break;
                 }
 
-                if (rover.Power < LowPowerThreshold || (!adjacentSmoothDir.HasValue && occupied == TerrainType.Smooth))
-                {
-                    if (rover.Power < CalculateExcessPowerThershold(rover) / 2 && rover.NoBacktrack > 3)
-                        yield return RoverAction.CollectPower;
-                    if (rover.Power < LowPowerThreshold)
-                        yield return RoverAction.Transmit;
-                }
-                else if (_gatheringPower && HasExcessPower(rover, rover.CollectablePower))
-                {
-                    yield return RoverAction.CollectPower;
-                    _gatheringPower = false;
-                }
-
-                // While we're gather power, we don't collect samples and instead abuse the Backtracking mechanic gather a large amount of power.
-                if (occupied.IsSampleable() && (!_gatheringPower || (adjacentSmoothDir == null && occupied == TerrainType.Smooth) || _gatherPowerDir != Direction.None))
+                if (occupied.IsSampleable())
                 {
                     yield return RoverAction.CollectSample;
-                    _map.UpdateTerrain(rover.Position, rover.Adjacent);
+                    UpdateMap(rover);
                     if (rover.SamplesCollected >= Parameters.SamplesPerProcess && rover.Power > Parameters.ProcessCost + Parameters.MoveSmoothCost)
                         yield return RoverAction.ProcessSamples;
                 }
 
-                Boolean hasExcessPower = HasExcessPower(rover);
-                if (hasExcessPower)
-                    _gatheringPower = false;
-
-                (Boolean isDeadEnd, Direction deadEndEscape) = CheckDeadEnd(adjacent);
-
-                Direction destination = Direction.None;
-                if (_gatherPowerDir != Direction.None)
-                    destination = _gatherPowerDir;
-                else if (_path != null && _path.Count > 0)
-                    destination = _path.Pop();
+                Direction nextMove = Direction.None;
+                if (_path != null && _path.Count > 0)
+                    nextMove = _path.Pop();
                 else if (adjacentSmoothDir.HasValue)
-                    destination = adjacentSmoothDir.Value; // Prioritize smooth squares
-                else if (hasExcessPower && !_gatheringPower && adjacentRoughDir.HasValue)
-                    destination = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
-                else if (isDeadEnd)
-                    destination = ResetDestination(rover.Position) ?? deadEndEscape;
+                    nextMove = adjacentSmoothDir.Value; // Prioritize smooth squares
+                else if (adjacentRoughDir.HasValue)
+                    nextMove = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
 
-                Direction nextMove = destination;
                 if (nextMove == Direction.None || adjacent[nextMove] == TerrainType.Impassable)
                 {
                     Direction? reset = ResetDestination(rover.Position);
                     if (reset == null)
                         yield break; // We're stuck.
 
-                    destination = reset.Value;
-                    nextMove = destination;
+                    nextMove = reset.Value;
                 }
 
-                if (_gatheringPower && rover.Adjacent.Occupied == TerrainType.Smooth && smoothCount > 1)
-                    _gatherPowerDir = nextMove.Opposite();
-                else
-                    _gatherPowerDir = Direction.None;
-
                 yield return new RoverAction(nextMove);
+                UpdateMap(rover);
                 _map.UpdateTerrain(rover.Position, rover.Adjacent);
                 _roundRobin++;
             }
@@ -112,10 +81,7 @@ namespace RoverSim.Ais
 
         private Direction? ResetDestination(Position roverPosition)
         {
-            if (_gatheringPower)
-                _path = _pathfinder.GetPowerPath(roverPosition);
-            else
-                _path = _pathfinder.GetPathToNearestSampleable(roverPosition);
+            _path = _pathfinder.FindNearestSampleable(roverPosition);
 
             if (_path == null)
                 return null;
@@ -123,22 +89,151 @@ namespace RoverSim.Ais
             return _path.Pop();
         }
 
-        private (Boolean isDeadEnd, Direction escapeDir) CheckDeadEnd(AdjacentTerrain adjacent)
+        private IEnumerable<RoverAction> GatherPower(IRoverStatusAccessor rover)
         {
-            Direction direction = Direction.None;
-            Int32 impassableCount = 0;
-            for (Int32 i = 0; i < Direction.DirectionCount; i++)
-            {
-                Direction dir = (Direction)i;
-                if (adjacent[dir] == TerrainType.Impassable)
-                    impassableCount++;
-                else
-                    direction = dir;
-            }
-            return (impassableCount >= 3, direction);
+            UpdateMap(rover);
+            foreach (var action in Explore(rover))
+                yield return action;
+            foreach (var action in Exploit(rover))
+                yield return action;
         }
 
-        private Boolean HasExcessPower(IRoverStatusAccessor rover) => HasExcessPower(rover, 0);
+        /// <summary>
+        /// Searches for at least two contiguous smooth tiles to later gather power from.
+        /// </summary>
+        private IEnumerable<RoverAction> Explore(IRoverStatusAccessor rover)
+        {
+            Position center = Parameters.BottomRight / 2;
+            while (true)
+            {
+                Position position = rover.Position;
+                // First we check to see if we've found a position that we can gather power from.
+                for (Int32 i = 0; i < Direction.DirectionCount + 1; i++)
+                {
+                    Direction direction = Direction.FromInt32(i);
+                    CoordinatePair neighbor = position + direction;
+                    if (_map[neighbor] == TerrainType.Smooth && _map.CountNeighborsOfType(neighbor, TerrainType.Smooth) > 0)
+                    {
+                        // If we have, break out of the exploration phase.
+                        yield return new RoverAction(direction);
+                        UpdateMap(rover);
+                        yield break;
+                    }
+                }
+
+                // Determine next exploration square
+                // Prioritize directions to check based on potential squares
+                Span<Direction> testDirections = new Direction[4];
+                if (Parameters.BottomRight.X >= Parameters.BottomRight.Y)
+                {
+                    FillHorizontal(testDirections, center, position);
+                    FillVertical(testDirections.Slice(2, 2), center, position);
+                }
+                else
+                {
+                    FillVertical(testDirections, center, position);
+                    FillHorizontal(testDirections.Slice(2, 2), center, position);
+                }
+                
+                // We look for smooth tiles first, then we want the neighbor with the most number of unknown tiles.
+                Int32 bestUnknownCount = 0;
+                Direction bestUnknownDirection = Direction.None;
+                TerrainType bestTerrain = TerrainType.Impassable;
+                for (Int32 i = 0; i < testDirections.Length; i++)
+                {
+                    Direction dir = testDirections[i];
+                    CoordinatePair neighbor = position + dir;
+                    if (_map[neighbor] == TerrainType.Impassable)
+                        continue;
+
+                    Int32 unknownCount = _map.CountNeighborsOfType(neighbor, TerrainType.Unknown);
+                    if (unknownCount == 0)
+                        continue;
+                    if (bestTerrain == TerrainType.Smooth && _map[neighbor] != TerrainType.Smooth)
+                        continue;
+                    if (unknownCount <= bestUnknownCount)
+                        continue;
+                    bestUnknownCount = unknownCount;
+                    bestUnknownDirection = dir;
+                    bestTerrain = TerrainType.Smooth;
+                }
+
+                if (bestUnknownCount > 0)
+                {
+                    yield return new RoverAction(bestUnknownDirection);
+                    UpdateMap(rover);
+                    continue;
+                }
+
+                // None of our immediate neighbors have any unknown neighbors, so just find a path towards the nearest unknown tile.
+                var path = _pathfinder.FindNearestUnknown(position);
+                while (path.Count > 1) // Don't move on to the unknown tile, just next to it.
+                {
+                    yield return new RoverAction(path.Pop());
+                    UpdateMap(rover);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gathers power by staying on smooth squares and revealing as much as possible until the threshold is reached.
+        /// </summary>
+        private IEnumerable<RoverAction> Exploit(IRoverStatusAccessor rover)
+        {
+            Stack<Direction> pathToUnknown = _pathfinder.FindNearestUnknownThroughSmooth(rover.Position);
+            while (!HasExcessPower(rover, rover.CollectablePower))
+            {
+                if (rover.Power < Parameters.MoveSmoothCost + 1)
+                    yield return RoverAction.CollectPower;
+
+                if (pathToUnknown != null)
+                {
+                    // We reveal unknown tiles as we go, but without leaving the smooth area.
+                    if (pathToUnknown.Count <= 1)
+                    {
+                        pathToUnknown = _pathfinder.FindNearestUnknownThroughSmooth(rover.Position);
+                        continue;
+                    }
+                    
+                    yield return new RoverAction(pathToUnknown.Pop());
+                    UpdateMap(rover);
+                }
+                else
+                {
+                    (Direction? smoothDir, _, _) = FindAdjacentUnsampled(rover.Adjacent);
+                    yield return new RoverAction(smoothDir.Value);
+                    UpdateMap(rover);
+                }
+            }
+
+            yield return RoverAction.CollectPower;
+        }
+
+        private void FillHorizontal(Span<Direction> directions, Position center, Position roverPos)
+        {
+            if (roverPos.X < center.X)
+            {
+                directions[0] = Direction.Right;
+                directions[1] = Direction.Left;
+                return;
+            }
+
+            directions[0] = Direction.Left;
+            directions[1] = Direction.Right;
+        }
+
+        private void FillVertical(Span<Direction> directions, Position center, Position roverPos)
+        {
+            if (roverPos.Y < center.Y)
+            {
+                directions[0] = Direction.Down;
+                directions[1] = Direction.Up;
+                return;
+            }
+
+            directions[0] = Direction.Up;
+            directions[1] = Direction.Down;
+        }
 
         private Boolean HasExcessPower(IRoverStatusAccessor rover, Int32 potentialPower)
         {
@@ -148,15 +243,14 @@ namespace RoverSim.Ais
 
         private Int32 CalculateExcessPowerThershold(IRoverStatusAccessor rover)
         {
-            const Int32 smoothRoughRatio = 10; // For the default generator, the ratio is 2:1
+            const Int32 smoothRoughRatio = 2; // For the default generator, the ratio is 2:1
             Double meanUnsampledMoveCost = (smoothRoughRatio * Parameters.MoveSmoothCost + Parameters.MoveRoughCost) / (smoothRoughRatio + 1.0);
             Double processCostPerSample = (Double)Parameters.ProcessCost / Parameters.SamplesPerProcess;
-            Double meanSampleCost = meanUnsampledMoveCost + Parameters.SampleCost + processCostPerSample;
+            Double meanSampleSequenceCost = meanUnsampledMoveCost + Parameters.SampleCost + processCostPerSample;
 
-            Double sampleToLogisticMoveRatio = 3.9; // For 2 every move/sample/process sequences, we estimate 1 moves will be purely logistics (move, power).
-            Double meanCost = (meanSampleCost * sampleToLogisticMoveRatio + Parameters.MoveSmoothCost) / (sampleToLogisticMoveRatio + 1);
+            Int32 maxSampleSequenceCount = (rover.MovesLeft - 1) / 3;
 
-            Int32 targetPower = (Int32)((rover.MovesLeft - 1) * meanCost) + Parameters.TransmitCost;
+            Int32 targetPower = (Int32)(maxSampleSequenceCount * meanSampleSequenceCost) + Parameters.TransmitCost;
             return targetPower;
         }
 
@@ -171,14 +265,17 @@ namespace RoverSim.Ais
             if (rover.MovesLeft == 5 && rover.Power > Parameters.SampleCost + Parameters.MoveRoughCost + Parameters.SampleCost + Parameters.ProcessCost)
             {
                 if (smoothOccupied || roughOccupied)
+                {
                     yield return RoverAction.CollectSample;
-                _map.UpdateTerrain(rover.Position, rover.Adjacent);
+                    UpdateMap(rover);
+                }
+
                 Direction? moveDir = smoothDir ?? roughDir;
                 if (moveDir.HasValue)
                 {
                     yield return new RoverAction(moveDir.Value);
                     yield return RoverAction.CollectSample;
-                    _map.UpdateTerrain(rover.Position, rover.Adjacent);
+                    UpdateMap(rover);
                 }
 
                 yield return RoverAction.ProcessSamples;
@@ -194,18 +291,25 @@ namespace RoverSim.Ais
                 if (rover.Power > Parameters.ProcessCost)
                 {
                     if (rover.Power > Parameters.ProcessCost + Parameters.SampleCost && smoothOccupied)
+                    {
                         yield return RoverAction.CollectSample;
-                    _map.UpdateTerrain(rover.Position, rover.Adjacent);
+                        UpdateMap(rover);
+                    }
+
                     yield return RoverAction.ProcessSamples;
                 }
             }
             else if (rover.MovesLeft == 3)
             {
                 if (rover.Power > Parameters.ProcessCost + Parameters.SampleCost && smoothOccupied)
+                {
                     yield return RoverAction.CollectSample;
+                    UpdateMap(rover);
+                }
                 else
+                {
                     yield return RoverAction.CollectPower;
-                _map.UpdateTerrain(rover.Position, rover.Adjacent);
+                }
                 if (rover.Power > Parameters.ProcessCost)
                     yield return RoverAction.ProcessSamples;
             }
@@ -220,6 +324,8 @@ namespace RoverSim.Ais
                 yield return RoverAction.Transmit;
             yield break;
         }
+
+        private void UpdateMap(IRoverStatusAccessor rover) => _map.UpdateTerrain(rover.Position, rover.Adjacent);
 
         private (Direction? smoothDir, Direction? roughDir, Int32 smoothCount) FindAdjacentUnsampled(AdjacentTerrain adjacent)
         {
