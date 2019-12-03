@@ -36,7 +36,7 @@ namespace RoverSim.Ais
             {
                 var adjacent = rover.Adjacent;
                 TerrainType occupied = adjacent[Direction.None];
-                (Direction? adjacentSmoothDir, Direction? adjacentRoughDir, _) = FindAdjacentUnsampled(adjacent);
+                (_, _, Direction? adjacentDir) = FindAdjacentUnsampled(adjacent);
 
                 if (rover.MovesLeft <= 5)
                 {
@@ -56,10 +56,8 @@ namespace RoverSim.Ais
                 Direction nextMove = Direction.None;
                 if (_path != null && _path.Count > 0)
                     nextMove = _path.Pop();
-                else if (adjacentSmoothDir.HasValue)
-                    nextMove = adjacentSmoothDir.Value; // Prioritize smooth squares
-                else if (adjacentRoughDir.HasValue)
-                    nextMove = adjacentRoughDir.Value; // Visit rough squares if the rover has enough power
+                else if (adjacentDir.HasValue)
+                    nextMove = adjacentDir.Value;
 
                 if (nextMove == Direction.None || adjacent[nextMove] == TerrainType.Impassable)
                 {
@@ -72,7 +70,6 @@ namespace RoverSim.Ais
 
                 yield return new RoverAction(nextMove);
                 UpdateMap(rover);
-                _map.UpdateTerrain(rover.Position, rover.Adjacent);
             }
         }
 
@@ -240,7 +237,7 @@ namespace RoverSim.Ais
 
         private Int32 CalculateExcessPowerThershold(IRoverStatusAccessor rover)
         {
-            const Int32 smoothRoughRatio = 2; // For the default generator, the ratio is 2:1
+            const Double smoothRoughRatio = 1.1;
             Double meanUnsampledMoveCost = (smoothRoughRatio * Parameters.MoveSmoothCost + Parameters.MoveRoughCost) / (smoothRoughRatio + 1.0);
             Double processCostPerSample = (Double)Parameters.ProcessCost / Parameters.SamplesPerProcess;
             Double meanSampleSequenceCost = meanUnsampledMoveCost + Parameters.SampleCost + processCostPerSample;
@@ -284,7 +281,6 @@ namespace RoverSim.Ais
             {
                 if (rover.Power < Parameters.ProcessCost + Parameters.SampleCost + Parameters.ProcessCost)
                     yield return RoverAction.CollectPower;
-                yield return RoverAction.CollectPower;
                 if (rover.Power > Parameters.ProcessCost)
                 {
                     if (rover.Power > Parameters.ProcessCost + Parameters.SampleCost && smoothOccupied)
@@ -324,11 +320,11 @@ namespace RoverSim.Ais
 
         private void UpdateMap(IRoverStatusAccessor rover) => _map.UpdateTerrain(rover.Position, rover.Adjacent);
 
-        private (Direction? smoothDir, Direction? roughDir, Int32 smoothCount) FindAdjacentUnsampled(AdjacentTerrain adjacent)
+        private (Direction? smoothDir, Direction? roughDir, Direction? sampleableDir) FindAdjacentUnsampled(AdjacentTerrain adjacent)
         {
             Direction? adjacentSmooth = null;
             Direction? adjacentRough = null;
-            Int32 smoothCount = 0;
+            Direction? adjacentSampleable = null;
             for (Int32 i = 0; i < Direction.DirectionCount; i++)
             {
                 Direction direction = Direction.FromInt32(i);
@@ -336,15 +332,16 @@ namespace RoverSim.Ais
                 {
                     case TerrainType.Smooth:
                         adjacentSmooth = direction;
-                        smoothCount++;
+                        adjacentSampleable = direction;
                         break;
                     case TerrainType.Rough:
                         adjacentRough = direction;
+                        adjacentSampleable = direction;
                         break;
                 }
             }
 
-            return (adjacentSmooth, adjacentRough, smoothCount);
+            return (adjacentSmooth, adjacentRough, adjacentSampleable);
         }
     }
 }
