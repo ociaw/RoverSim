@@ -125,7 +125,7 @@ namespace RoverSim
         private Update CollectSample()
         {
             if (!Adjacent.Occupied.IsSampleable() || SamplesCollected >= Parameters.HopperSize)
-                return new Update(moveDelta: -1, powerDelta: Parameters.SampleCost);
+                return new Update(moveDelta: -1, powerDelta: -Parameters.SampleCost);
 
             TerrainType newTerrain = Level.SampleSquare(Position);
             return new Update(
