@@ -45,6 +45,7 @@ namespace RoverSim.Ais
 
         public void UpdateTerrain(Position center, AdjacentTerrain adjacentTerrain)
         {
+            UpdateTerrain(center, adjacentTerrain[Direction.None]);
             for (Int32 dir = 0; dir < Direction.DirectionCount; dir++)
             {
                 Direction direction = Direction.FromInt32(dir);

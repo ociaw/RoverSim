@@ -16,6 +16,8 @@ namespace RoverSim
 
         Int32 SamplesTransmitted { get; }
 
+        Boolean IsHopperFull { get; }
+
         Int32 NoBacktrack { get; }
 
         Int32 CollectablePower { get; }

@@ -25,6 +25,9 @@ namespace RoverSim
         public Position Position { get; private set; }
 
         public Int32 SamplesCollected { get; private set; } = 0;
+
+        public Boolean IsHopperFull => Parameters.HopperSize == SamplesCollected;
+
         public Int32 MovesLeft
         {
             get => _moves;
@@ -176,6 +179,8 @@ namespace RoverSim
             public Int32 SamplesProcessed => _rover.SamplesProcessed;
 
             public Int32 SamplesTransmitted => _rover.SamplesTransmitted;
+
+            public Boolean IsHopperFull => _rover.IsHopperFull;
 
             public Int32 NoBacktrack => _rover.NoBacktrack;
 
