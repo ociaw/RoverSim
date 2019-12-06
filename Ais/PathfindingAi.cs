@@ -36,7 +36,6 @@ namespace RoverSim.Ais
             {
                 var adjacent = rover.Adjacent;
                 TerrainType occupied = adjacent[Direction.None];
-                (_, _, Direction? adjacentDir) = FindAdjacentUnsampled(adjacent);
 
                 if (rover.MovesLeft <= 5)
                 {
@@ -54,10 +53,10 @@ namespace RoverSim.Ais
                 }
 
                 Direction nextMove = Direction.None;
-                if (_path != null && _path.Count > 0)
+                if (_path != null && _path.Count > 1)
                     nextMove = _path.Pop();
-                else if (adjacentDir.HasValue)
-                    nextMove = adjacentDir.Value;
+                else if (FindAdjacentSampleable(adjacent).HasValue)
+                    nextMove = FindAdjacentSampleable(adjacent).Value;
 
                 if (nextMove == Direction.None || adjacent[nextMove] == TerrainType.Impassable)
                 {
@@ -194,7 +193,7 @@ namespace RoverSim.Ais
                 }
                 else
                 {
-                    (Direction? smoothDir, _, _) = FindAdjacentUnsampled(rover.Adjacent);
+                    Direction? smoothDir = FindAdjacentSmooth(rover.Adjacent);
                     yield return new RoverAction(smoothDir.Value);
                     UpdateMap(rover);
                 }
@@ -255,7 +254,7 @@ namespace RoverSim.Ais
 
             Boolean smoothOccupied = adjacent[Direction.None] == TerrainType.Smooth;
             Boolean roughOccupied = adjacent[Direction.None] == TerrainType.Rough;
-            (Direction? smoothDir, Direction? roughDir, _) = FindAdjacentUnsampled(adjacent);
+            Direction? sampleableDir = FindAdjacentSampleable(adjacent);
             if (rover.MovesLeft == 5 && rover.Power > Parameters.SampleCost + Parameters.MoveRoughCost + Parameters.SampleCost + Parameters.ProcessCost)
             {
                 if (smoothOccupied || roughOccupied)
@@ -264,7 +263,7 @@ namespace RoverSim.Ais
                     UpdateMap(rover);
                 }
 
-                Direction? moveDir = smoothDir ?? roughDir;
+                Direction? moveDir = sampleableDir;
                 if (moveDir.HasValue)
                 {
                     yield return new RoverAction(moveDir.Value);
@@ -320,28 +319,28 @@ namespace RoverSim.Ais
 
         private void UpdateMap(IRoverStatusAccessor rover) => _map.UpdateTerrain(rover.Position, rover.Adjacent);
 
-        private (Direction? smoothDir, Direction? roughDir, Direction? sampleableDir) FindAdjacentUnsampled(AdjacentTerrain adjacent)
+        private Direction? FindAdjacentSampleable(AdjacentTerrain adjacent)
         {
-            Direction? adjacentSmooth = null;
-            Direction? adjacentRough = null;
-            Direction? adjacentSampleable = null;
-            for (Int32 i = 0; i < Direction.DirectionCount; i++)
+            for (Int32 i = Direction.DirectionCount - 1; i >= 0; i--)
             {
                 Direction direction = Direction.FromInt32(i);
-                switch (adjacent[direction])
-                {
-                    case TerrainType.Smooth:
-                        adjacentSmooth = direction;
-                        adjacentSampleable = direction;
-                        break;
-                    case TerrainType.Rough:
-                        adjacentRough = direction;
-                        adjacentSampleable = direction;
-                        break;
-                }
+                if (adjacent[direction].IsSampleable())
+                    return direction;
             }
 
-            return (adjacentSmooth, adjacentRough, adjacentSampleable);
+            return null;
+        }
+
+        private Direction? FindAdjacentSmooth(AdjacentTerrain adjacent)
+        {
+            for (Int32 i = Direction.DirectionCount - 1; i >= 0; i--)
+            {
+                Direction direction = Direction.FromInt32(i);
+                if (adjacent[direction] == TerrainType.Smooth)
+                    return direction;
+            }
+
+            return null;
         }
     }
 }
