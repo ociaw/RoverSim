@@ -148,7 +148,7 @@ namespace RoverSim.Ais
                         continue;
                     bestUnknownCount = unknownCount;
                     bestUnknownDirection = dir;
-                    bestTerrain = TerrainType.Smooth;
+                    bestTerrain = _map[neighbor];
                 }
 
                 if (bestUnknownCount > 0)
