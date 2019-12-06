@@ -60,6 +60,22 @@ namespace RoverSim.Ais
 
         public void UpdateTerrain(Position position, TerrainType terrain) => this[position] = terrain;
 
+        public Direction? FindNeighborWithMultipleSmoothNeighbors(Position position)
+        {
+            for (Int32 i = 0; i < Direction.DirectionCount; i++)
+            {
+                Direction dir = Direction.FromInt32(i);
+                CoordinatePair coords = position + dir;
+                if (this[coords] != TerrainType.Smooth)
+                    continue;
+
+                if (CountNeighborsOfType(coords, TerrainType.Smooth) > 1)
+                    return dir;
+            }
+
+            return null;
+        }
+
         public Int32 CountNeighborsOfType(CoordinatePair coordinates, TerrainType terrain)
         {
             Int32 count = 0;

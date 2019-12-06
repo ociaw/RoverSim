@@ -174,29 +174,48 @@ namespace RoverSim.Ais
         private IEnumerable<RoverAction> Exploit(IRoverStatusAccessor rover)
         {
             Stack<Direction> pathToUnknown = _pathfinder.FindNearestUnknownThroughSmooth(rover.Position);
+            Boolean isPathDirty = false;
             while (!HasExcessPower(rover, rover.CollectablePower))
             {
+                Int32 noBacktrackTarget = CalculateNoBacktrackTarget(rover);
+                Int32 movesToTarget = noBacktrackTarget - rover.NoBacktrack;
+                Int32 powerNeeded = movesToTarget * Parameters.MoveSmoothCost + 1;
+                Int32 excessPower = rover.Power - powerNeeded;
+
+                Direction? preferredDir = _map.FindNeighborWithMultipleSmoothNeighbors(rover.Position);
+                if (rover.Adjacent.Occupied == TerrainType.Smooth && preferredDir.HasValue && excessPower > 0 && !rover.IsHopperFull)
+                {
+                    yield return RoverAction.CollectSample;
+                    yield return new RoverAction(preferredDir.Value);
+                    UpdateMap(rover);
+                    isPathDirty = true;
+                    continue;
+                }
+
                 if (rover.Power < Parameters.MoveSmoothCost + 1)
+                {
                     yield return RoverAction.CollectPower;
+                    continue;
+                }
 
                 if (pathToUnknown != null)
                 {
                     // We reveal unknown tiles as we go, but without leaving the smooth area.
-                    if (pathToUnknown.Count <= 1)
+                    if (pathToUnknown.Count <= 1 || isPathDirty)
                     {
                         pathToUnknown = _pathfinder.FindNearestUnknownThroughSmooth(rover.Position);
+                        isPathDirty = false;
                         continue;
                     }
                     
                     yield return new RoverAction(pathToUnknown.Pop());
-                    UpdateMap(rover);
                 }
                 else
                 {
                     Direction? smoothDir = FindAdjacentSmooth(rover.Adjacent);
                     yield return new RoverAction(smoothDir.Value);
-                    UpdateMap(rover);
                 }
+                UpdateMap(rover);
             }
 
             yield return RoverAction.CollectPower;
@@ -236,7 +255,7 @@ namespace RoverSim.Ais
 
         private Int32 CalculateExcessPowerThershold(IRoverStatusAccessor rover)
         {
-            const Double smoothRoughRatio = 1.1;
+            const Double smoothRoughRatio = 1;
             Double meanUnsampledMoveCost = (smoothRoughRatio * Parameters.MoveSmoothCost + Parameters.MoveRoughCost) / (smoothRoughRatio + 1.0);
             Double processCostPerSample = (Double)Parameters.ProcessCost / Parameters.SamplesPerProcess;
             Double meanSampleSequenceCost = meanUnsampledMoveCost + Parameters.SampleCost + processCostPerSample;
@@ -245,6 +264,12 @@ namespace RoverSim.Ais
 
             Int32 targetPower = (Int32)(maxSampleSequenceCount * meanSampleSequenceCost) + Parameters.TransmitCost;
             return targetPower;
+        }
+
+        private Int32 CalculateNoBacktrackTarget(IRoverStatusAccessor rover)
+        {
+            Int32 power = CalculateExcessPowerThershold(rover);
+            return (Int32)Math.Ceiling(Math.Pow(power, 1.0 / 3.0));
         }
 
         private IEnumerable<RoverAction> DoLowMoves(IRoverStatusAccessor rover, AdjacentTerrain adjacent)
