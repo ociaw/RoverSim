@@ -16,7 +16,7 @@ namespace RoverSim
             MinimumContiguousTiles = minimumContiguousTiles >= 0 ? minimumContiguousTiles : throw new ArgumentOutOfRangeException(nameof(minimumContiguousTiles));
         }
 
-        public Int32 MinimumContiguousTiles { get; } = 6;
+        public Int32 MinimumContiguousTiles { get; }
 
         public Level Generate(SimulationParameters parameters, Int32 rngSeed)
         {

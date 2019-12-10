@@ -76,7 +76,7 @@ namespace RoverSim.AvaloniaHost
         private static IReadOnlyDictionary<String, ILevelGenerator> GetLevelGenerators()
             => new Dictionary<String, ILevelGenerator>
             {
-                { "Default", new OpenCheckingGenerator(new DefaultLevelGenerator(), 6) },
+                { "Default", new OpenCheckingGenerator(new DefaultLevelGenerator(), 7) },
                 { "Maze", new MazeGenerator() }
             };
     }
