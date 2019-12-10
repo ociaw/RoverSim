@@ -108,52 +108,23 @@ namespace RoverSim.Ais
                     if (_map[neighbor] == TerrainType.Smooth && _map.CountNeighborsOfType(neighbor, TerrainType.Smooth) > 0)
                     {
                         // If we have, break out of the exploration phase.
+                        Int32 requiredPower = Parameters.GetMovementPowerCost(rover.Adjacent[direction]) + 1;
+                        foreach (var action in EnsureSufficientPower(rover, requiredPower))
+                            yield return action;
                         yield return new RoverAction(direction);
                         UpdateMap(rover);
                         yield break;
                     }
                 }
 
-                // Determine next exploration square
-                // Prioritize directions to check based on potential squares
-                Span<Direction> testDirections = new Direction[4];
-                if (Parameters.BottomRight.X >= Parameters.BottomRight.Y)
-                {
-                    FillHorizontal(testDirections, center, position);
-                    FillVertical(testDirections.Slice(2, 2), center, position);
-                }
-                else
-                {
-                    FillVertical(testDirections, center, position);
-                    FillHorizontal(testDirections.Slice(2, 2), center, position);
-                }
-                
-                // We look for smooth tiles first, then we want the neighbor with the most number of unknown tiles.
-                Int32 bestUnknownCount = 0;
-                Direction bestUnknownDirection = Direction.None;
-                TerrainType bestTerrain = TerrainType.Impassable;
-                for (Int32 i = 0; i < testDirections.Length; i++)
-                {
-                    Direction dir = testDirections[i];
-                    CoordinatePair neighbor = position + dir;
-                    if (_map[neighbor] == TerrainType.Impassable)
-                        continue;
+                Direction exploreDirection = FindNextExploreDirection(center, position);
 
-                    Int32 unknownCount = _map.CountNeighborsOfType(neighbor, TerrainType.Unknown);
-                    if (unknownCount == 0)
-                        continue;
-                    if (bestTerrain == TerrainType.Smooth && _map[neighbor] != TerrainType.Smooth)
-                        continue;
-                    if (unknownCount <= bestUnknownCount)
-                        continue;
-                    bestUnknownCount = unknownCount;
-                    bestUnknownDirection = dir;
-                    bestTerrain = _map[neighbor];
-                }
-
-                if (bestUnknownCount > 0)
+                if (exploreDirection != Direction.None)
                 {
-                    yield return new RoverAction(bestUnknownDirection);
+                    Int32 requiredPower = Parameters.GetMovementPowerCost(rover.Adjacent[exploreDirection]) + 1;
+                    foreach (var action in EnsureSufficientPower(rover, requiredPower))
+                        yield return action;
+                    yield return new RoverAction(exploreDirection);
                     UpdateMap(rover);
                     continue;
                 }
@@ -162,10 +133,55 @@ namespace RoverSim.Ais
                 var path = _pathfinder.FindNearestUnknown(position);
                 while (path.Count > 1) // Don't move on to the unknown tile, just next to it.
                 {
+                    Int32 requiredPower = Parameters.GetMovementPowerCost(rover.Adjacent[path.Peek()]) + 1;
+                    foreach (var action in EnsureSufficientPower(rover, requiredPower))
+                        yield return action;
                     yield return new RoverAction(path.Pop());
                     UpdateMap(rover);
                 }
             }
+        }
+
+        private Direction FindNextExploreDirection(Position center, Position roverPos)
+        {
+            // Determine next exploration square
+            // Prioritize directions to check based on potential squares
+            Span<Direction> testDirections = new Direction[4];
+            if (Parameters.BottomRight.X >= Parameters.BottomRight.Y)
+            {
+                FillHorizontal(testDirections, center, roverPos);
+                FillVertical(testDirections.Slice(2, 2), center, roverPos);
+            }
+            else
+            {
+                FillVertical(testDirections, center, roverPos);
+                FillHorizontal(testDirections.Slice(2, 2), center, roverPos);
+            }
+
+            // We look for smooth tiles first, then we want the neighbor with the most number of unknown tiles.
+            Int32 bestUnknownCount = 0;
+            Direction bestUnknownDirection = Direction.None;
+            TerrainType bestTerrain = TerrainType.Impassable;
+            for (Int32 i = 0; i < testDirections.Length; i++)
+            {
+                Direction dir = testDirections[i];
+                CoordinatePair neighbor = roverPos + dir;
+                if (_map[neighbor] == TerrainType.Impassable)
+                    continue;
+
+                Int32 unknownCount = _map.CountNeighborsOfType(neighbor, TerrainType.Unknown);
+                if (unknownCount == 0)
+                    continue;
+                if (bestTerrain == TerrainType.Smooth && _map[neighbor] != TerrainType.Smooth)
+                    continue;
+                if (unknownCount <= bestUnknownCount)
+                    continue;
+                bestUnknownCount = unknownCount;
+                bestUnknownDirection = dir;
+                bestTerrain = _map[neighbor];
+            }
+
+            return bestUnknownDirection;
         }
 
         /// <summary>
@@ -194,7 +210,20 @@ namespace RoverSim.Ais
 
                 if (rover.Power < Parameters.MoveSmoothCost + 1)
                 {
-                    yield return RoverAction.CollectPower;
+                    Int32 cost = Parameters.GetMovementPowerCost(TerrainType.Smooth);
+                    Int32 requiredPower;
+                    if (cost <= 3)
+                    {
+                        requiredPower = cost + 1;
+                    }
+                    else
+                    {
+                        Int32 movesNeeded = (Int32)(Math.Ceiling(Math.Sqrt(4 * cost - 3) - 3) / 2);
+                        requiredPower = movesNeeded * cost + 1;
+                    }
+
+                    foreach (var action in EnsureSufficientPower(rover, requiredPower))
+                        yield return action;
                     continue;
                 }
 
@@ -245,6 +274,15 @@ namespace RoverSim.Ais
 
             directions[0] = Direction.Up;
             directions[1] = Direction.Down;
+        }
+
+        private IEnumerable<RoverAction> EnsureSufficientPower(IRoverStatusAccessor rover, Int32 target)
+        {
+            if (rover.Power >= target)
+                return System.Linq.Enumerable.Empty<RoverAction>();
+
+            Int32 powerDeficit = Math.Max(target - rover.Power - rover.CollectablePower, 0);
+            return System.Linq.Enumerable.Repeat(RoverAction.CollectPower, powerDeficit + 1);
         }
 
         private Boolean HasExcessPower(IRoverStatusAccessor rover, Int32 potentialPower)
