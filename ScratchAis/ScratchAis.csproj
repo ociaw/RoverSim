@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>ScratchAis</AssemblyName>
+    <AssemblyName>RoverSim.ScratchAis</AssemblyName>
     <RootNamespace>RoverSim.ScratchAis</RootNamespace>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <Version>0.1.0</Version>

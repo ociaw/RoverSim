@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Core</AssemblyName>
+    <AssemblyName>RoverSim.Core</AssemblyName>
     <RootNamespace>RoverSim</RootNamespace>
     <Version>0.1.0</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
