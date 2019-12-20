@@ -38,6 +38,7 @@
             this.SamplesSentLabel = new System.Windows.Forms.Label();
             this.SamplesSentText = new System.Windows.Forms.TextBox();
             this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
+            this.ExportButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // glControl1
@@ -116,11 +117,22 @@
             // 
             this.UpdateTimer.Tick += new System.EventHandler(this.UpdateTimer_Tick);
             // 
+            // ExportButton
+            // 
+            this.ExportButton.Location = new System.Drawing.Point(508, 334);
+            this.ExportButton.Name = "ExportButton";
+            this.ExportButton.Size = new System.Drawing.Size(82, 23);
+            this.ExportButton.TabIndex = 8;
+            this.ExportButton.Text = "Export Images";
+            this.ExportButton.UseVisualStyleBackColor = true;
+            this.ExportButton.Click += new System.EventHandler(this.ExportButton_Click);
+            // 
             // RenderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(683, 369);
+            this.Controls.Add(this.ExportButton);
             this.Controls.Add(this.SamplesSentLabel);
             this.Controls.Add(this.SamplesSentText);
             this.Controls.Add(this.PowerLeftLabel);
@@ -131,7 +143,6 @@
             this.Controls.Add(this.glControl1);
             this.Name = "RenderForm";
             this.Text = "Simulation Render";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RenderForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -148,5 +159,6 @@
         private System.Windows.Forms.Label SamplesSentLabel;
         private System.Windows.Forms.TextBox SamplesSentText;
         private System.Windows.Forms.Timer UpdateTimer;
+        private System.Windows.Forms.Button ExportButton;
     }
 }
