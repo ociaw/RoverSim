@@ -34,7 +34,7 @@ namespace RoverSim.Rendering
         {
             RoverPosition = new Position(RoverPosition + update.PositionDelta);
             if (!update.Terrain.HasValue)
-                return update.PositionDelta == default;
+                return update.PositionDelta != default;
 
             for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
             {
