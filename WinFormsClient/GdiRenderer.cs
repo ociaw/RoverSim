@@ -4,22 +4,12 @@ using RoverSim.Rendering;
 
 namespace RoverSim.WinFormsClient
 {
-    internal sealed class GdiRenderer
+    internal static class GdiRenderer
     {
-        public GdiRenderer(Int32 width, Int32 height)
+        public static void Draw(Graphics surface, Int32 width, Int32 height, VisibleState state)
         {
-            Width = width;
-            Height = height;
-        }
-
-        public Int32 Width { get; }
-
-        public Int32 Height { get; }
-
-        public void Draw(Graphics surface, VisibleState state)
-        {
-            Int32 widthMultiplier = Width / state.Width;
-            Int32 heightMultiplier = Height / state.Height;
+            Int32 widthMultiplier = width / state.Width;
+            Int32 heightMultiplier = height / state.Height;
 
             Point point = new Point();
             Size size = new Size(widthMultiplier, heightMultiplier);
@@ -37,14 +27,14 @@ namespace RoverSim.WinFormsClient
             DrawRover(surface, state.RoverPosition.X, state.RoverPosition.Y, size.Width, size.Height);
         }
 
-        private void DrawTile(Graphics surface, TerrainType terrain, Point topLeft, Size size)
+        private static void DrawTile(Graphics surface, TerrainType terrain, Point topLeft, Size size)
         {
             Brush brush = GetBrushForTerrain(terrain);
             Rectangle rect = new Rectangle(topLeft, size);
             surface.FillRectangle(brush, rect);
         }
 
-        private void DrawRover(Graphics surface, Int32 roverX, Int32 roverY, Int32 tileWidth, Int32 tileHeight)
+        private static void DrawRover(Graphics surface, Int32 roverX, Int32 roverY, Int32 tileWidth, Int32 tileHeight)
         {
             const Int32 padding = 2;
             Int32 roverLeft = roverX * tileWidth + 2;

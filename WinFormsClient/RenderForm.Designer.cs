@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.glControl1 = new OpenTK.GLControl();
+            this.RenderControl = new RoverSim.WinFormsClient.RenderControl();
             this.beginRender = new System.Windows.Forms.Button();
             this.MovesLeftText = new System.Windows.Forms.TextBox();
             this.MovesLeftLabel = new System.Windows.Forms.Label();
@@ -41,19 +41,16 @@
             this.ExportButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // glControl1
+            // RenderControl
             // 
-            this.glControl1.BackColor = System.Drawing.Color.Black;
-            this.glControl1.Location = new System.Drawing.Point(12, 12);
-            this.glControl1.Name = "glControl1";
-            this.glControl1.Size = new System.Drawing.Size(480, 345);
-            this.glControl1.TabIndex = 0;
-            this.glControl1.VSync = false;
-            this.glControl1.Load += new System.EventHandler(this.GlControl1_Load);
+            this.RenderControl.BackColor = System.Drawing.Color.White;
+            this.RenderControl.Location = new System.Drawing.Point(12, 12);
+            this.RenderControl.Name = "RenderControl";
+            this.RenderControl.Size = new System.Drawing.Size(480, 345);
+            this.RenderControl.TabIndex = 0;
             // 
             // beginRender
             // 
-            this.beginRender.Enabled = false;
             this.beginRender.Location = new System.Drawing.Point(596, 334);
             this.beginRender.Name = "beginRender";
             this.beginRender.Size = new System.Drawing.Size(75, 23);
@@ -140,7 +137,7 @@
             this.Controls.Add(this.MovesLeftLabel);
             this.Controls.Add(this.MovesLeftText);
             this.Controls.Add(this.beginRender);
-            this.Controls.Add(this.glControl1);
+            this.Controls.Add(this.RenderControl);
             this.Name = "RenderForm";
             this.Text = "Simulation Render";
             this.ResumeLayout(false);
@@ -150,7 +147,7 @@
 
         #endregion
 
-        private OpenTK.GLControl glControl1;
+        private RoverSim.WinFormsClient.RenderControl RenderControl;
         private System.Windows.Forms.Button beginRender;
         private System.Windows.Forms.TextBox MovesLeftText;
         private System.Windows.Forms.Label MovesLeftLabel;

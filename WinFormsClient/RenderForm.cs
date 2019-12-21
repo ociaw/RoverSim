@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using OpenTK.Graphics.OpenGL;
 using RoverSim.Rendering;
 
 namespace RoverSim.WinFormsClient
@@ -27,6 +26,7 @@ namespace RoverSim.WinFormsClient
             DemoAi = demoAi ?? throw new ArgumentNullException(nameof(demoAi));
             OutputDirectory = Path.Combine(Directory.GetCurrentDirectory(), DemoAi.Name);
             InitializeComponent();
+            RenderControl.VisibleState = VisibleState.GenerateBlank(DemoResult.Parameters);
         }
 
         public CompletedSimulation DemoResult { get; }
@@ -36,23 +36,6 @@ namespace RoverSim.WinFormsClient
         public String OutputDirectory { get; }
 
         public String OutputBase => Path.Combine(OutputDirectory, $"frame-{DemoResult.ProtoLevel.Seed}-");
-
-        private void GlControl1_Load(object sender, EventArgs e)
-        {
-            beginRender.Enabled = true;
-            GL.ClearColor(Color.SkyBlue);
-            SetupViewport();
-        }
-
-        private void SetupViewport()
-        {
-            Int32 w = glControl1.Width;
-            Int32 h = glControl1.Height;
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(0, w, h, 0, -1, 1); // Top-left corner pixel has coordinate (0, 0)
-            GL.Viewport(0, 0, w, h); // Use all of the glControl painting area
-        }
 
         private void BeginRender_Click(object sender, EventArgs e)
         {
@@ -65,9 +48,10 @@ namespace RoverSim.WinFormsClient
             _actionEnumerator = ai.Simulate(_rover.Accessor).GetEnumerator();
             beginRender.Enabled = false;
 
-            UpdateTimer.Interval = 100;
             _state.Apply(new Update(terrain: _rover.Adjacent));
+            RenderControl.VisibleState = _state;
             Render();
+            UpdateTimer.Interval = 100;
             UpdateTimer.Start();
         }
 
@@ -110,62 +94,7 @@ namespace RoverSim.WinFormsClient
             SamplesSentText.Text = _stats.SamplesTransmitted.ToString();
         }
 
-        private void Render()
-        {
-            Int32 roverX = _state.RoverPosition.X;
-            Int32 roverY = _state.RoverPosition.Y;
-            Int32 viewWidth = glControl1.Width;
-            Int32 viewHeight = glControl1.Height;
-            Int32 widthMultiplier = viewWidth / _state.Width;
-            Int32 heightMultiplier = viewHeight / _state.Height;
-            for (Int16 i = 0; i < _state.Width; i++)
-            {
-                for (Int16 j = 0; j < _state.Height; j++)
-                {
-                    DrawTile(i, j, _state[i, j], widthMultiplier, heightMultiplier);
-                }
-            }
-
-            DrawRover(roverX, roverY, widthMultiplier, heightMultiplier);
-
-            glControl1.SwapBuffers();
-        }
-
-        private void DrawTile(Int32 x, Int32 y, TerrainType terrain, Int32 tileWidth, Int32 tileHeight)
-        {
-            GL.Color3(GetColorForTerrain(terrain));
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(x * tileWidth, y * tileHeight);
-            GL.Vertex2(x * tileWidth, y * tileHeight + tileHeight);
-            GL.Vertex2(x * tileWidth + tileWidth, y * tileHeight + tileHeight);
-            GL.Vertex2(x * tileWidth + tileWidth, y * tileHeight);
-            GL.End();
-        }
-
-        private void DrawRover(Int32 roverX, Int32 roverY, Int32 tileWidth, Int32 tileHeight)
-        {
-            GL.Color3(Color.LightGreen);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(roverX * tileWidth + 2, roverY * tileHeight + 2);
-            GL.Vertex2(roverX * tileWidth + 2, roverY * tileHeight + tileHeight - 2);
-            GL.Vertex2(roverX * tileWidth + tileWidth - 2, roverY * tileHeight + tileHeight - 2);
-            GL.Vertex2(roverX * tileWidth + tileWidth - 2, roverY * tileHeight + 2);
-            GL.End();
-        }
-
-        private static Color GetColorForTerrain(TerrainType terrain)
-        {
-            return terrain switch
-            {
-                TerrainType.Impassable => Color.Black,
-                TerrainType.Rough => Color.Red,
-                TerrainType.SampledRough => Color.Brown,
-                TerrainType.SampledSmooth => Color.DarkGray,
-                TerrainType.Smooth => Color.LightGray,
-                TerrainType.Unknown => Color.LightGoldenrodYellow,
-                _ => Color.Blue,
-            };
-        }
+        private void Render() => RenderControl.Invalidate();
 
         void IDisposable.Dispose() => _actionEnumerator.Dispose();
 
@@ -204,8 +133,8 @@ namespace RoverSim.WinFormsClient
             Int32 width = level.Width * tileSize;
             Int32 height = level.Height * tileSize;
             
-            GdiRenderer gdiRenderer = new GdiRenderer(width, height);
             using Bitmap bitmap = new Bitmap(width, height);
+            using Graphics surface = Graphics.FromImage(bitmap);
 
             Update update = new Update(terrain: rover.Adjacent);
             Int32 frameIndex = 0;
@@ -214,8 +143,7 @@ namespace RoverSim.WinFormsClient
                 if (!state.Apply(update))
                     continue;
                 
-                using Graphics surface = Graphics.FromImage(bitmap);
-                gdiRenderer.Draw(surface, state);
+                GdiRenderer.Draw(surface, width, height, state);
                 String suffix = frameIndex.ToString().PadLeft(filenameDigits, '0');
                 String filename = fileBase + suffix + ".png";
                 bitmap.Save(filename, System.Drawing.Imaging.ImageFormat.Png);
