@@ -92,6 +92,14 @@ namespace RoverSim.WinFormsClient
             MovesLeftText.Text = _stats.MovesLeft.ToString();
             PowerLeftText.Text = _stats.Power.ToString();
             SamplesSentText.Text = _stats.SamplesTransmitted.ToString();
+            HopperText.Text = _stats.SamplesCollected.ToString();
+            ProcessedText.Text = _stats.ProcessSamplesCallCount.ToString();
+            MovesText.Text = _stats.MoveCount.ToString();
+            MoveCallText.Text = _stats.MoveCallCount.ToString();
+            PowerCallText.Text = _stats.CollectPowerCallCount.ToString();
+            SampleCallText.Text = _stats.CollectSampleCallCount.ToString();
+            ProcessCallText.Text = _stats.ProcessSamplesCallCount.ToString();
+            TransmitCallText.Text = _stats.TransmitCallCount.ToString();
         }
 
         private void Render() => RenderControl.Invalidate();
