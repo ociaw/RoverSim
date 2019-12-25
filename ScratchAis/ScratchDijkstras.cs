@@ -74,7 +74,7 @@ namespace RoverSim.ScratchAis
             }
 
 
-             if (destinationIndex == -1 || distances[destinationIndex] == DISTANCE_HIGH_VALUE)
+            if (destinationIndex == -1 || distances[destinationIndex] == DISTANCE_HIGH_VALUE)
             {
                 return new List<Direction>();
             }
@@ -160,7 +160,7 @@ namespace RoverSim.ScratchAis
                 {
                     potentialDistance += _roughTerrainCost;
                 }
-                if (distances[neighborIndex] > potentialDistance && potentialDistance < destinationDist)
+                if (distances[neighborIndex] > potentialDistance && (potentialDistance < bestSmoothDist || potentialDistance < bestRoughDist || potentialDistance < bestUnknownDist))
                 {
                     distances[neighborIndex] = potentialDistance;
                     previousCell[neighborIndex] = currentIndex;
