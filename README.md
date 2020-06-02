@@ -1,6 +1,7 @@
 # RoverSim
 RoverSim is what you might an AI test-bed or playground and is the result of taking a homework
-assignment a few steps too far. Based off of a [Scratch](https://scratch.mit.edu/) [project](),
+assignment a few steps too far. Based off of a [Scratch](https://scratch.mit.edu/)
+[project](https://scratch.mit.edu/projects/293816651/),
 this is a complete rewrite in C#. Essentially, the goal is to write an AI that can collect,
 process, and finally transmit the most soil samples on the surface of Mars before it runs out of
 *moves* or *power*. The surface is represented by a grid with Smooth, Rough, and Impassable tiles.
