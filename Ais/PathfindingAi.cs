@@ -146,7 +146,7 @@ namespace RoverSim.Ais
         {
             // Determine next exploration square
             // Prioritize directions to check based on potential squares
-            Span<Direction> testDirections = new Direction[4];
+            Span<Direction> testDirections = stackalloc Direction[4];
             if (Parameters.BottomRight.X >= Parameters.BottomRight.Y)
             {
                 FillHorizontal(testDirections, center, roverPos);
