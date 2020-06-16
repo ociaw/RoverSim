@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using RandN;
+using RandN.Distributions;
+using RandN.Rngs;
 
 namespace RoverSim
 {
     public sealed class MazeGenerator : ILevelGenerator
     {
+        private static readonly UniformInt32 _directionDist = Uniform.New(0, Direction.DirectionCount);
+        private static readonly Bernoulli _wallClearChance = Bernoulli.FromRatio(1, 5); // 20% chance of clearing a wall
+
         public Level Generate(SimulationParameters parameters, Int32 rngSeed)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            Random rng = new Random(rngSeed);
+            Pcg32 rng = Pcg32.Create((UInt64)rngSeed, 0);
 
             Int32 width = parameters.BottomRight.X + 1;
             Int32 height = parameters.BottomRight.Y + 1;
@@ -28,7 +34,7 @@ namespace RoverSim
             {
                 var current = stack.Peek();
 
-                Int32 offset = rng.Next(Direction.DirectionCount);
+                Int32 offset = rng.Sample(_directionDist);
                 Boolean anyNewNeighbors = false;
                 for (Int32 i = 0; i < Direction.DirectionCount; i++)
                 {
@@ -49,10 +55,9 @@ namespace RoverSim
 
                 if (!anyNewNeighbors)
                 {
-                    if (rng.Next(5) == 0)
+                    if (rng.Sample(_wallClearChance))
                     {
-                        // 20 % chance of clearing a wall
-                        Direction direction = (Direction)rng.Next(Direction.DirectionCount);
+                        Direction direction = (Direction)rng.Sample(_directionDist);
                         var passage = current + direction;
                         var boundaryCheck = passage + direction;
                         if (parameters.BottomRight.Contains(boundaryCheck) && terrain[passage.X, passage.Y] == TerrainType.Impassable)

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using RandN.Rngs;
+using RandN.Distributions;
+using RandN;
 
 namespace RoverSim.ScratchAis
 {
@@ -8,13 +11,14 @@ namespace RoverSim.ScratchAis
     /// </summary>
     public sealed class RandomAi : IScratchAi
     {
+        private static readonly UniformInt32 _directionDist = Uniform.New(0, Direction.DirectionCount);
         private readonly Int32 _seed;
-        private readonly Random _random;
+        private readonly Pcg32 _rng;
 
         public RandomAi(Int32 seed)
         {
             _seed = seed;
-            _random = new Random(_seed);
+            _rng = Pcg32.Create((UInt64)seed, 0);
         }
 
         public IScratchAi CloneFresh() => new RandomAi(_seed);
@@ -27,7 +31,7 @@ namespace RoverSim.ScratchAis
                 yield return RoverAction.ProcessSamples;
                 yield return RoverAction.Transmit;
 
-                Int32 num = _random.Next(0, 4);
+                Int32 num = _rng.Sample(_directionDist);
                 if (num == 0)
                     yield return new RoverAction(Direction.Up);
                 else if (num == 1)
