@@ -1,12 +1,11 @@
 ﻿@implements IDisposable
 @using System.Threading;
-@using Blazor.Extensions;
-@using Blazor.Extensions.Canvas;
-@using Blazor.Extensions.Canvas.Canvas2D;
+@using Excubo.Blazor.Canvas;
+@using Excubo.Blazor.Canvas.Contexts;
 @using RoverSim.Rendering;
 
 <div id=render>
-    <BECanvas Width=@_canvasWidth Height=@_canvasHeight @ref=_canvasReference></BECanvas>
+    <Canvas Width=@_canvasWidth Height=@_canvasHeight @ref=_canvasReference></Canvas>
 </div>
 <div id=controls>
     <div id=stats>
@@ -39,7 +38,7 @@
         "brown",
         "darkgrey",
         "lightgoldenrodyellow"
-    };
+        };
 
     private RoverStats _stats;
     private CancellationTokenSource _tokenSource = new CancellationTokenSource();
@@ -53,8 +52,9 @@
     private Queue<Update?> _updates = new Queue<Update?>(2);
     private VisibleState _visibleState;
     private Boolean _rendering;
-    private Canvas2DContext _context;
-    protected BECanvasComponent _canvasReference;
+    private Context2D _context;
+    protected Canvas _canvasReference;
+    protected ElementReference _elementReference;
 
     [Parameter]
     public SimulationParameters Parameters { get; set; }
@@ -119,8 +119,8 @@
         CancellationToken token = _tokenSource.Token;
         _demo = Task.Run(async () =>
         {
-            // We use null to indicate that the level has been reset.
-            _updates.Enqueue(null);
+        // We use null to indicate that the level has been reset.
+        _updates.Enqueue(null);
             _updates.Enqueue(new Update(terrain: rover.Adjacent));
             base.StateHasChanged();
             await Task.Delay(100);
@@ -147,7 +147,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _context ??= await _canvasReference.CreateCanvas2DAsync();
+        _context ??= await _canvasReference.GetContext2DAsync();
 
         if (_visibleState == null || _updates.Count == 0 || _rendering)
             return;
@@ -167,16 +167,16 @@
 
     private async Task Clear()
     {
-        await _context.SetFillStyleAsync(_fillStyles[5]);
-        await _context.FillRectAsync(0, 0, _canvasReference.Width, _canvasReference.Height);
+        await _context.FillStyleAsync(_fillStyles[5]);
+        await _context.FillRectAsync(0, 0, _canvasWidth, _canvasHeight);
     }
 
     private async Task RenderUpdate()
     {
-        await _context.BeginBatchAsync();
+        await using var batch = await _context.CreateBatchAsync();
         for (Int32 i = 0; i < AdjacentTerrain.Count; i++)
         {
-            Direction direction = Direction.FromInt32(i);
+            var direction = RoverSim.Direction.FromInt32(i);
             CoordinatePair coords = _visibleState.RoverPosition + direction;
             if (coords.IsNegative)
                 continue;
@@ -186,23 +186,23 @@
             String style = _fillStyles[(Int32)terrain];
             Int32 topLeftX = _tileSize * coords.X;
             Int32 topLeftY = _tileSize * coords.Y;
-            await _context.SetFillStyleAsync(style);
-            await _context.FillRectAsync(topLeftX, topLeftY, _tileSize, _tileSize);
+            await batch.FillStyleAsync(style);
+            await batch.FillRectAsync(topLeftX, topLeftY, _tileSize, _tileSize);
         }
 
-        await RenderRover();
-        await _context.EndBatchAsync();
+        await RenderRover(batch);
+        
     }
 
-    private async Task RenderRover()
+    private async Task RenderRover(Batch2D batch)
     {
         Double roverPadding = (_tileSize - _roverSize) / 2;
 
         Double topLeftX = _tileSize * _visibleState.RoverPosition.X + roverPadding;
         Double topLeftY = _tileSize * _visibleState.RoverPosition.Y + roverPadding;
 
-        await _context.SetFillStyleAsync("#70CE70");
-        await _context.FillRectAsync(topLeftX, topLeftY, _roverSize, _roverSize);
+        await batch.FillStyleAsync("#70CE70");
+        await batch.FillRectAsync(topLeftX, topLeftY, _roverSize, _roverSize);
     }
 
     void IDisposable.Dispose()

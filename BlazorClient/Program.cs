@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Blazor.Hosting;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RoverSim.BlazorClient
 {
     public class Program
     {
-        public static void Main()
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder().Build().Run();
-        }
+            var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.RootComponents.Add<App>("app");
 
-        public static IWebAssemblyHostBuilder CreateHostBuilder() =>
-            BlazorWebAssemblyHost.CreateDefaultBuilder()
-                .UseBlazorStartup<Startup>();
+            builder.Services.AddScoped<AiProvider>();
+
+            await builder.Build().RunAsync();
+        }
     }
 }
