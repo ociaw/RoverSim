@@ -7,6 +7,9 @@
     <RazorLangVersion>3.0</RazorLangVersion>
     <AssemblyName>RoverSim.Blazor</AssemblyName>
     <RootNamespace>RoverSim.BlazorClient</RootNamespace>
+    <!-- Reduce the download size -->
+    <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+    <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
   </PropertyGroup>
 
   <ItemGroup>
