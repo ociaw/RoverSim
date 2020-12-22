@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using RandN;
 using RandN.Distributions;
 using RandN.Rngs;
 
@@ -11,7 +10,7 @@ namespace RoverSim.ScratchAis
     /// </summary>
     public class IntelligentRandomAi : IScratchAi
     {
-        private static readonly UniformInt32 _directionDist = Uniform.New(0, Direction.DirectionCount);
+        private static readonly Uniform.Int32 _directionDist = Uniform.New(0, Direction.DirectionCount);
 
         private readonly Int32 _seed;
 
@@ -92,7 +91,7 @@ namespace RoverSim.ScratchAis
                 }
                 else
                 {
-                    Int32 num = _rng.Sample(_directionDist);
+                    Int32 num = _directionDist.Sample(_rng);
                     if (num == 0)
                         yield return new RoverAction(Direction.Up);
                     else if (num == 1)

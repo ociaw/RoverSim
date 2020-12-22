@@ -37,11 +37,11 @@ namespace RoverSim
                 {
                     if (!(i == 0 || i == width - 1 || j == 0 || j == height - 1))
                     {
-                        if (rng.Sample(_roughChance))
+                        if (_roughChance.Sample(rng))
                             terrain[i, j] = TerrainType.Rough;
                         else
                             terrain[i, j] = TerrainType.Smooth;
-                        if (rng.Sample(_impassableChance))
+                        if (_impassableChance.Sample(rng))
                             terrain[i, j] = TerrainType.Impassable;
                         if (i == initialX && j == initialY)
                             terrain[i, j] = TerrainType.Smooth;
